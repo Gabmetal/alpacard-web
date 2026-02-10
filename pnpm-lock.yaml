@@ -79,64 +79,6 @@ importers:
         specifier: ^5
         version: 5.9.3
 
-  apps/pwa:
-    dependencies:
-      '@clerk/nextjs':
-        specifier: ^6.37.3
-        version: 6.37.3(next@16.1.6(@babel/core@7.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      '@repo/db':
-        specifier: workspace:^
-        version: link:../../packages/db
-      '@repo/ui':
-        specifier: workspace:^
-        version: link:../../packages/ui
-      jose:
-        specifier: ^6.1.3
-        version: 6.1.3
-      lucide-react:
-        specifier: ^0.563.0
-        version: 0.563.0(react@19.2.3)
-      next:
-        specifier: 16.1.6
-        version: 16.1.6(@babel/core@7.29.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      react:
-        specifier: 19.2.3
-        version: 19.2.3
-      react-dom:
-        specifier: 19.2.3
-        version: 19.2.3(react@19.2.3)
-      react-qr-code:
-        specifier: ^2.0.18
-        version: 2.0.18(react@19.2.3)
-    devDependencies:
-      '@repo/config':
-        specifier: workspace:^
-        version: link:../../packages/config
-      '@tailwindcss/postcss':
-        specifier: ^4
-        version: 4.1.18
-      '@types/node':
-        specifier: ^20
-        version: 20.19.33
-      '@types/react':
-        specifier: ^19
-        version: 19.2.13
-      '@types/react-dom':
-        specifier: ^19
-        version: 19.2.3(@types/react@19.2.13)
-      eslint:
-        specifier: ^9
-        version: 9.39.2(jiti@2.6.1)
-      eslint-config-next:
-        specifier: 16.1.6
-        version: 16.1.6(@typescript-eslint/parser@8.55.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
-      tailwindcss:
-        specifier: ^4
-        version: 4.1.18
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
   packages/config:
     devDependencies:
       eslint-config-next:

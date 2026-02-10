@@ -5,11 +5,9 @@ export async function signStampToken(payload: any) {
         process.env.CLERK_SECRET_KEY || "default_secret_do_not_use_in_prod"
     );
 
-    const alg = "HS256";
-
     return new SignJWT(payload)
-        .setProtectedHeader({ alg })
+        .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
-        .setExpirationTime("5m") // Token valid for 5 minutes
+        .setExpirationTime("5m")
         .sign(secret);
 }

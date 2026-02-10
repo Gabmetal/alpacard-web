@@ -23,8 +23,9 @@ export default async function CampaignDetailsPage({ params }: PageProps) {
     }
 
     // Determine the PWA URL from env or fallback
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3001";
-    const claimUrl = `${appUrl}/claim/${campaign.id}`;
+    // Determine the App URL (Provider is now the host)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const claimUrl = `${appUrl}/customer/claim/${campaign.id}`;
 
     return (
         <div className="max-w-4xl mx-auto">

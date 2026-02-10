@@ -1,6 +1,0 @@
-{
-    "buildCommand": "npx turbo run build --filter=backoffice",
-    "outputDirectory": "apps/backoffice/.next",
-    "framework": null,
-    "installCommand": "pnpm install"
-}

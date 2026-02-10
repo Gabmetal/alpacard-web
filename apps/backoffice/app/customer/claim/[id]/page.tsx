@@ -13,7 +13,7 @@ export default async function ClaimPage({ params }: PageProps) {
     // If not logged in, Clerk middleware might have intercepted, 
     // but if this route is public (as defined in middleware), we handle it here.
     if (!user) {
-        return redirect(`/sign-in?redirect_url=/claim/${id}`);
+        return redirect(`/sign-in?redirect_url=/customer/claim/${id}`);
     }
 
     const campaign = await db.campaign.findUnique({
@@ -51,7 +51,7 @@ export default async function ClaimPage({ params }: PageProps) {
     });
 
     if (existingCard) {
-        redirect(`/wallet/${existingCard.id}`);
+        redirect(`/customer/wallet/${existingCard.id}`);
     }
 
     // Create Card
@@ -63,5 +63,5 @@ export default async function ClaimPage({ params }: PageProps) {
         },
     });
 
-    redirect(`/wallet/${newCard.id}`);
+    redirect(`/customer/wallet/${newCard.id}`);
 }

@@ -3,7 +3,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import QRCode from "react-qr-code";
-import { signStampToken } from "../../../lib/auth";
+import { signStampToken } from "../../../../lib/auth";
 
 interface PageProps {
     params: { cardId: string };
@@ -68,7 +68,7 @@ export default async function CardPage({ params }: PageProps) {
             </div>
 
             <div className="mt-8">
-                <Link href="/wallet" className="text-indigo-600 font-medium hover:text-indigo-500">
+                <Link href="/customer/wallet" className="text-indigo-600 font-medium hover:text-indigo-500">
                     &larr; Back to Wallet
                 </Link>
             </div>
