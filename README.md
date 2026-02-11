@@ -2,6 +2,9 @@
 
 A monolithic Next.js application for the Alpacard Loyalty Platform.
 
+![CI - Dev](https://github.com/Gabmetal/alpa-card/actions/workflows/ci-dev.yml/badge.svg?branch=dev)
+![CI - Main (Preview)](https://github.com/Gabmetal/alpa-card/actions/workflows/ci-main.yml/badge.svg?branch=main)
+
 ## Architecture
 
 This project was recently refactored from a monorepo into a **true monolith** to simplify deployment and resolve dependency conflicts on Vercel.
