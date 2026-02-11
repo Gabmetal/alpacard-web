@@ -13,7 +13,7 @@ export default async function ClaimPage({ params }: PageProps) {
     // If not logged in, Clerk middleware might have intercepted, 
     // but if this route is public (as defined in middleware), we handle it here.
     if (!user) {
-        return redirect(`/sign-in?redirect_url=/customer/claim/${id}`);
+        return redirect(`/sign-in?redirect_url=${encodeURIComponent(`/customer/claim/${id}`)}`);
     }
 
     const campaign = await db.campaign.findUnique({

@@ -16,7 +16,7 @@ export async function createBusiness(prevState: unknown, formData: FormData) {
         // 1. Ensure User exists
         const dbUser = await db.user.upsert({
             where: { clerkId: user.id },
-            update: {}, // No update if exists
+            update: { role: "OWNER" }, // Upgrade to OWNER if they create a business
             create: {
                 clerkId: user.id,
                 email: user.emailAddresses[0].emailAddress,

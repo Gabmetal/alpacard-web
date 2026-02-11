@@ -39,11 +39,21 @@ export default async function DashboardPage() {
     });
     const totalStamps = stampData._sum.stamps ?? 0;
 
+    const redeemedCount = await db.transaction.count({
+        where: {
+            type: "REDEEM",
+            card: {
+                campaign: { businessId: business.id }
+            }
+        },
+    });
+
     const stats = [
         { name: 'Active Campaigns', stat: campaignCount, url: '/dashboard/campaigns' },
         { name: 'Staff Members', stat: staffCount, url: '/dashboard/staff' },
         { name: 'Digital Cards Issued', stat: cardCount },
         { name: 'Total Stamps Issued', stat: totalStamps },
+        { name: 'Prizes Redeemed', stat: redeemedCount },
     ];
 
     return (

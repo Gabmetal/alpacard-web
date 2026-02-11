@@ -8,13 +8,19 @@ export default async function WalletPage() {
     const user = await getSafeUser();
     if (!user) return redirect("/sign-in");
 
-    const dbUser = await db.user.findUnique({
+    let dbUser = await db.user.findUnique({
         where: { clerkId: user.id },
     });
 
     if (!dbUser) {
-        // Should not happen if they went through claim flow, but handling edge case
-        return <div>User not found. Please scan a campaign QR code first.</div>;
+        // Create user if they reached the wallet but aren't in our DB yet
+        dbUser = await db.user.create({
+            data: {
+                clerkId: user.id,
+                email: user.emailAddresses[0].emailAddress,
+                role: "CONSUMER",
+            },
+        });
     }
 
     const cards = await db.card.findMany({

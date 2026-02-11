@@ -33,6 +33,10 @@ export default async function CardPage({ params }: PageProps) {
 
     const token = await signStampToken(payload);
 
+    // Determine the App URL
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const scanUrl = `${appUrl}/dashboard/scanner?token=${encodeURIComponent(token)}`;
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center pt-10 px-4">
             <div className="w-full max-w-sm bg-white rounded-lg shadow-lg overflow-hidden">
@@ -56,7 +60,7 @@ export default async function CardPage({ params }: PageProps) {
                     </div>
 
                     <div className="bg-white p-4 border rounded-xl shadow-inner">
-                        <QRCode value={token} size={200} />
+                        <QRCode value={scanUrl} size={200} />
                     </div>
 
                     <p className="mt-4 text-xs text-center text-gray-400">
