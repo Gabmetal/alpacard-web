@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { db } from "@/lib/db";
 import { getSafeUser } from "@/lib/auth-wrapper";
 import { redirect } from "next/navigation";

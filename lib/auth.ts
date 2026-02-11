@@ -1,6 +1,6 @@
 import { SignJWT } from "jose";
 
-export async function signStampToken(payload: any) {
+export async function signStampToken(payload: Record<string, unknown>) {
     const secret = new TextEncoder().encode(
         process.env.CLERK_SECRET_KEY || "default_secret_do_not_use_in_prod"
     );
