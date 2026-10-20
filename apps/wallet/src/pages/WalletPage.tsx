@@ -4,6 +4,7 @@ import { CreditCard, Sparkles, RefreshCw } from 'lucide-react';
 import { walletApi } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { getWalletCardStyle, getActiveStampColor } from '../components/CardTheme';
 
 interface Card {
   id: string;
@@ -14,6 +15,12 @@ interface Card {
     description: string;
     stampsRequired: number;
     reward: string;
+    logoUrl?: string;
+    bgType?: string;
+    bgValue?: string;
+    bgImageUrl?: string;
+    textColor?: string;
+    stampIcon?: string;
     business?: {
       name: string;
     };
@@ -97,44 +104,65 @@ export function WalletPage() {
                 Math.round((card.stamps / card.campaign.stampsRequired) * 100)
               );
               const isReady = card.stamps >= card.campaign.stampsRequired;
+              const cardStyle = getWalletCardStyle({
+                bgType: card.campaign.bgType,
+                bgValue: card.campaign.bgValue,
+                bgImageUrl: card.campaign.bgImageUrl,
+                textColor: card.campaign.textColor,
+              });
+              const activeColor = getActiveStampColor(card.campaign.bgValue);
 
               return (
                 <Link
                   key={card.id}
                   to={`/card/${card.id}`}
-                  className="group block overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-md"
+                  className="group block overflow-hidden rounded-3xl bg-white shadow-sm transition hover:shadow-lg border border-gray-100"
                 >
-                  <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-5 text-white">
+                  <div style={cardStyle} className="p-5 text-white transition duration-300">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-indigo-200">
-                        {card.campaign.business?.name || 'Store'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {card.campaign.logoUrl ? (
+                          <img
+                            src={card.campaign.logoUrl}
+                            alt="Logo"
+                            className="h-8 w-8 rounded-lg object-cover border border-white/20 bg-white/10"
+                          />
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-xs text-xs font-bold">
+                            🦙
+                          </div>
+                        )}
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-85">
+                          {card.campaign.business?.name || 'Store'}
+                        </span>
+                      </div>
                       {isReady && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2 py-0.5 text-xs font-bold text-emerald-200">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-0.5 text-xs font-bold text-emerald-200 backdrop-blur-xs border border-emerald-400/30">
                           <Sparkles className="h-3 w-3" /> {t.rewardReadyBadge}
                         </span>
                       )}
                     </div>
-                    <h3 className="mt-1 text-lg font-bold">{card.campaign.name}</h3>
-                    <p className="mt-0.5 text-xs text-indigo-100 line-clamp-1">
-                      {card.campaign.reward || card.campaign.description}
+                    <h3 className="mt-2 text-lg font-black leading-tight">{card.campaign.name}</h3>
+                    <p className="mt-0.5 text-xs opacity-90 line-clamp-1">
+                      🎁 {card.campaign.reward || card.campaign.description}
                     </p>
                   </div>
 
                   <div className="p-4">
                     <div className="flex items-center justify-between text-xs text-gray-600 mb-2 font-medium">
                       <span>{language === 'es' ? 'Progreso' : 'Progress'}</span>
-                      <span className="text-indigo-600 font-bold">
+                      <span className="font-bold" style={{ color: isReady ? '#10b981' : activeColor }}>
                         {card.stamps} / {card.campaign.stampsRequired} {t.stampsCount.toLowerCase()}
                       </span>
                     </div>
 
                     <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          isReady ? 'bg-emerald-500' : 'bg-indigo-600'
-                        }`}
-                        style={{ width: `${progressPct}%` }}
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${progressPct}%`,
+                          backgroundColor: isReady ? '#10b981' : activeColor,
+                        }}
                       />
                     </div>
                   </div>

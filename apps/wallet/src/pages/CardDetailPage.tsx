@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import QRCode from 'react-qr-code';
-import { ArrowLeft, Check, Gift, RefreshCw, Clock } from 'lucide-react';
+import { ArrowLeft, Gift, RefreshCw, Clock } from 'lucide-react';
 import { walletApi } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { getWalletCardStyle, getActiveStampColor, WalletStampIcon } from '../components/CardTheme';
 
 interface QRData {
   token: string;
@@ -18,6 +19,12 @@ interface QRData {
       description: string;
       stampsRequired: number;
       reward: string;
+      logoUrl?: string;
+      bgType?: string;
+      bgValue?: string;
+      bgImageUrl?: string;
+      textColor?: string;
+      stampIcon?: string;
       business?: {
         name: string;
       };
@@ -101,6 +108,15 @@ export function CardDetailPage() {
   const stamps = card.stamps || 0;
   const isRewardReady = stamps >= stampsRequired;
 
+  const cardStyle = getWalletCardStyle({
+    bgType: card.campaign.bgType,
+    bgValue: card.campaign.bgValue,
+    bgImageUrl: card.campaign.bgImageUrl,
+    textColor: card.campaign.textColor,
+  });
+  const activeColor = getActiveStampColor(card.campaign.bgValue);
+  const isLightText = !card.campaign.textColor || card.campaign.textColor.toLowerCase() === '#ffffff' || card.campaign.textColor.toLowerCase() === '#fff';
+
   return (
     <div className="min-h-screen bg-gray-100 pb-12">
       <header className="flex items-center justify-between bg-white px-4 py-4 shadow-sm">
@@ -116,12 +132,33 @@ export function CardDetailPage() {
       <main className="mx-auto max-w-sm px-4 pt-6">
         <div className="overflow-hidden rounded-3xl bg-white shadow-xl">
           {/* Card Top Branding */}
-          <div className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-violet-700 p-6 text-white text-center">
-            <span className="text-xs font-semibold uppercase tracking-wider text-indigo-200">
-              {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
-            </span>
-            <h2 className="mt-1 text-2xl font-black">{card.campaign.name}</h2>
-            <p className="mt-1 text-xs text-indigo-100">{card.campaign.reward || card.campaign.description}</p>
+          <div style={cardStyle} className="p-6 text-center transition duration-300">
+            <div className="flex items-center justify-center gap-2 mb-1.5">
+              {card.campaign.logoUrl ? (
+                <img
+                  src={card.campaign.logoUrl}
+                  alt="Logo"
+                  className="h-8 w-8 rounded-lg object-cover border border-white/20 bg-white/10"
+                />
+              ) : (
+                <span className="text-base">🦙</span>
+              )}
+              <span
+                className={`text-xs font-bold uppercase tracking-wider ${
+                  isLightText ? 'text-white/80' : 'text-gray-700'
+                }`}
+              >
+                {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
+              </span>
+            </div>
+            <h2 className="text-2xl font-black">{card.campaign.name}</h2>
+            <p
+              className={`mt-1 text-xs ${
+                isLightText ? 'text-white/90' : 'text-gray-600'
+              }`}
+            >
+              🎁 {card.campaign.reward || card.campaign.description}
+            </p>
           </div>
 
           <div className="p-6">
@@ -129,7 +166,9 @@ export function CardDetailPage() {
             <div className="mb-6">
               <div className="flex items-center justify-between text-xs font-semibold text-gray-500 mb-3">
                 <span>{isEs ? 'Sellos Coleccionados' : 'Stamps Collected'}</span>
-                <span className="text-indigo-600 font-bold">{stamps} / {stampsRequired}</span>
+                <span className="font-bold" style={{ color: activeColor }}>
+                  {stamps} / {stampsRequired}
+                </span>
               </div>
 
               <div className="grid grid-cols-5 gap-3">
@@ -142,14 +181,22 @@ export function CardDetailPage() {
                       key={idx}
                       className={`flex aspect-square items-center justify-center rounded-2xl border-2 transition-all ${
                         isStamped
-                          ? 'border-indigo-600 bg-indigo-600 text-white shadow-sm'
+                          ? 'text-white shadow-sm'
                           : isLast
                           ? 'border-dashed border-amber-400 bg-amber-50 text-amber-500'
                           : 'border-dashed border-gray-300 bg-gray-50 text-gray-300'
                       }`}
+                      style={
+                        isStamped
+                          ? { backgroundColor: activeColor, borderColor: activeColor }
+                          : undefined
+                      }
                     >
                       {isStamped ? (
-                        <Check className="h-5 w-5 stroke-[3]" />
+                        <WalletStampIcon
+                          icon={card.campaign.stampIcon}
+                          className="h-5 w-5 stroke-[2.5]"
+                        />
                       ) : isLast ? (
                         <Gift className="h-5 w-5 animate-pulse" />
                       ) : (

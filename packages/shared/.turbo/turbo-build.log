@@ -1,1 +1,4 @@
-$ tsc
+
+> @alpacard/shared@0.1.0 build /home/gabo/Documents/antigravity/bold-franklin/packages/shared
+> tsc
+

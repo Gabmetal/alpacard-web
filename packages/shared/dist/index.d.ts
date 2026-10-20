@@ -22,6 +22,20 @@ export interface Business {
     campaigns?: Campaign[];
     createdAt: string;
 }
+export type CardBgType = 'preset' | 'color' | 'gradient' | 'image';
+export type CardStampIcon = 'coffee' | 'star' | 'sparkle' | 'heart' | 'gift' | 'cupcake' | 'crown' | 'tag';
+export interface CardThemePreset {
+    id: string;
+    name: string;
+    nameEs: string;
+    gradient: string;
+    textColor: string;
+    stampActiveColor: string;
+    stampInactiveColor: string;
+    accentColor: string;
+    icon: CardStampIcon;
+}
+export declare const CARD_THEME_PRESETS: CardThemePreset[];
 export interface Campaign {
     id: string;
     businessId: string;
@@ -31,6 +45,11 @@ export interface Campaign {
     stampsRequired: number;
     reward: string;
     logoUrl?: string;
+    bgType?: CardBgType;
+    bgValue?: string;
+    bgImageUrl?: string;
+    textColor?: string;
+    stampIcon?: CardStampIcon;
     isActive: boolean;
     cardsCount?: number;
     createdAt: string;

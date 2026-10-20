@@ -145,7 +145,7 @@ export function App() {
             />
             <Route
               path="/campaigns"
-              element={<CampaignsPage businessId={activeBusiness?.id} />}
+              element={<CampaignsPage businessId={activeBusiness?.id} businessName={activeBusiness?.name} />}
             />
             <Route path="/staff" element={<StaffPage businessId={activeBusiness?.id} />} />
             <Route path="/scanner" element={<ScannerPage />} />

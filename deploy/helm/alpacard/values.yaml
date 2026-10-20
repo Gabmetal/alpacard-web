@@ -50,6 +50,10 @@ api:
     tag: "latest"
     pullPolicy: IfNotPresent
   jwtSecret: "alpacard_super_secret_jwt_key_k3s_gabo_2026"
+  persistence:
+    enabled: true
+    storageClass: local-path
+    size: 2Gi
   resources:
     requests:
       cpu: 25m

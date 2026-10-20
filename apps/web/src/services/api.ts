@@ -18,7 +18,7 @@ export async function request(endpoint: string, options: RequestInit = {}) {
   if (token) {
     headers.set('Authorization', `Bearer ${token}`);
   }
-  if (!headers.has('Content-Type') && options.body) {
+  if (!headers.has('Content-Type') && options.body && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
 
@@ -54,6 +54,16 @@ export const api = {
     request(`/businesses/${businessId}/staff/${staffId}`, { method: 'DELETE' }),
   getStats: (businessId: string) => request(`/businesses/${businessId}/stats`),
 
+  // File Uploads
+  uploadFile: async (file: File): Promise<{ url: string; filename: string; size: number }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request('/upload', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
   // Campaigns
   createCampaign: (data: {
     businessId: string;
@@ -61,7 +71,26 @@ export const api = {
     description: string;
     stampsRequired: number;
     reward: string;
+    logoUrl?: string;
+    bgType?: string;
+    bgValue?: string;
+    bgImageUrl?: string;
+    textColor?: string;
+    stampIcon?: string;
   }) => request('/campaigns', { method: 'POST', body: JSON.stringify(data) }),
+  updateCampaign: (id: string, data: Partial<{
+    name: string;
+    description: string;
+    stampsRequired: number;
+    reward: string;
+    logoUrl: string;
+    bgType: string;
+    bgValue: string;
+    bgImageUrl: string;
+    textColor: string;
+    stampIcon: string;
+    isActive: boolean;
+  }>) => request(`/campaigns/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   listCampaigns: (businessId: string) => request(`/campaigns?businessId=${businessId}`),
   getCampaign: (id: string) => request(`/campaigns/${id}`),
 
