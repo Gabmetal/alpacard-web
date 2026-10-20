@@ -142,3 +142,66 @@ func TestCreateAndCustomizeCampaign(t *testing.T) {
 		t.Errorf("Campaign update did not apply correctly: %+v", updated)
 	}
 }
+
+func TestGetCardQRPreloadsBusiness(t *testing.T) {
+	db, env, _, business := setupTestDB(t)
+
+	// Create consumer
+	consumer := &models.User{
+		Email: "consumer@test.com",
+		Name:  "Test Consumer",
+		Role:  models.RoleConsumer,
+	}
+	db.Create(consumer)
+
+	// Create campaign
+	campaign := &models.Campaign{
+		BusinessID:     business.ID,
+		Name:           "Cafecito",
+		StampsRequired: 3,
+		Reward:         "Café gratis",
+		IsActive:       true,
+	}
+	db.Create(campaign)
+
+	// Issue card
+	card := &models.Card{
+		CampaignID: campaign.ID,
+		UserID:     consumer.ID,
+		Stamps:     1,
+	}
+	db.Create(card)
+
+	rctx := chi.NewRouteContext()
+	rctx.URLParams.Add("id", card.ID.String())
+
+	req := httptest.NewRequest("GET", "/api/v1/cards/"+card.ID.String()+"/qr", nil)
+	req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+	req = withAuth(req, consumer)
+
+	rr := httptest.NewRecorder()
+	env.GetCardQRToken(rr, req)
+
+	if rr.Code != http.StatusOK {
+		t.Fatalf("Expected status 200 OK, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var resp struct {
+		Card struct {
+			Campaign struct {
+				Business struct {
+					Name string `json:"name"`
+				} `json:"business"`
+			} `json:"campaign"`
+		} `json:"card"`
+		ScanURL string `json:"scanUrl"`
+	}
+
+	if err := json.Unmarshal(rr.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("Failed to decode QR response: %v", err)
+	}
+
+	if resp.Card.Campaign.Business.Name != "Test Coffee Roasters" {
+		t.Errorf("Expected Business Name 'Test Coffee Roasters', got '%s'", resp.Card.Campaign.Business.Name)
+	}
+}

@@ -119,7 +119,7 @@ func (env *Env) GetCardQRToken(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var card models.Card
-	if err := env.DB.Preload("Campaign").First(&card, "id = ? AND user_id = ?", cardID, claims.UserID).Error; err != nil {
+	if err := env.DB.Preload("Campaign.Business").First(&card, "id = ? AND user_id = ?", cardID, claims.UserID).Error; err != nil {
 		respondError(w, http.StatusNotFound, "Card not found")
 		return
 	}
