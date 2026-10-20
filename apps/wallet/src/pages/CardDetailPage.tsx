@@ -96,7 +96,7 @@ export function CardDetailPage() {
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
           {error || (isEs ? 'Tarjeta no encontrada' : 'Card not found')}
         </div>
-        <Link to="/" className="mt-4 text-sm font-semibold text-indigo-600 hover:underline">
+        <Link to="/wallet" className="mt-4 text-sm font-semibold text-indigo-600 hover:underline">
           &larr; {t.backToWallet}
         </Link>
       </div>
@@ -121,7 +121,7 @@ export function CardDetailPage() {
     <div className="min-h-screen bg-gray-100 pb-12">
       <header className="flex items-center justify-between bg-white px-4 py-4 shadow-sm">
         <div className="flex items-center gap-3">
-          <Link to="/" className="rounded-full p-2 text-gray-600 hover:bg-gray-100">
+          <Link to="/wallet" className="rounded-full p-2 text-gray-600 hover:bg-gray-100">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-lg font-bold text-gray-800">{isEs ? 'Tarjeta de Fidelidad' : 'Punch Card'}</h1>
@@ -133,19 +133,21 @@ export function CardDetailPage() {
         <div className="overflow-hidden rounded-3xl bg-white shadow-xl">
           {/* Card Top Branding */}
           <div style={cardStyle} className="p-6 text-center transition duration-300">
-            <div className="flex items-center justify-center gap-2 mb-1.5">
+            <div className="flex items-center justify-center gap-2.5 mb-2">
               {card.campaign.logoUrl ? (
-                <img
-                  src={card.campaign.logoUrl}
-                  alt="Logo"
-                  className="h-8 w-8 rounded-lg object-cover border border-white/20 bg-white/10"
-                />
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/20 backdrop-blur-md p-1.5 shadow-md shrink-0">
+                  <img
+                    src={card.campaign.logoUrl}
+                    alt="Logo"
+                    className="max-h-full max-w-full object-contain object-center"
+                  />
+                </div>
               ) : (
-                <span className="text-base">🦙</span>
+                <span className="text-xl">🦙</span>
               )}
               <span
                 className={`text-xs font-bold uppercase tracking-wider ${
-                  isLightText ? 'text-white/80' : 'text-gray-700'
+                  isLightText ? 'text-white/85' : 'text-gray-700'
                 }`}
               >
                 {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
@@ -193,12 +195,16 @@ export function CardDetailPage() {
                       }
                     >
                       {isStamped ? (
-                        <WalletStampIcon
-                          icon={card.campaign.stampIcon}
-                          className="h-5 w-5 stroke-[2.5]"
-                        />
+                        <div className="flex items-center justify-center w-full h-full">
+                          <WalletStampIcon
+                            icon={card.campaign.stampIcon}
+                            className="h-5 w-5 stroke-[2.5]"
+                          />
+                        </div>
                       ) : isLast ? (
-                        <Gift className="h-5 w-5 animate-pulse" />
+                        <div className="flex items-center justify-center w-full h-full">
+                          <Gift className="h-5 w-5 animate-pulse" />
+                        </div>
                       ) : (
                         <span className="text-xs font-bold">{idx + 1}</span>
                       )}

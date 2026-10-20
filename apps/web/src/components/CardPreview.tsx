@@ -107,13 +107,15 @@ export function CardPreview({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt="Store Logo"
-              className="h-10 w-10 rounded-xl object-cover border border-white/20 shadow-md bg-white/10 backdrop-blur-xs"
-            />
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/20 backdrop-blur-md p-1.5 shadow-md shrink-0 overflow-hidden">
+              <img
+                src={logoUrl}
+                alt="Store Logo"
+                className="max-h-full max-w-full object-contain object-center"
+              />
+            </div>
           ) : (
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 backdrop-blur-md border border-white/20 shadow-sm text-lg font-black">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 shadow-sm text-lg font-black shrink-0">
               🦙
             </div>
           )}

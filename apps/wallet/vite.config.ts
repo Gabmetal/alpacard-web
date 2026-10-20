@@ -4,6 +4,9 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: {
+    assetsDir: 'wallet-assets',
+  },
   server: {
     port: 5174,
     proxy: {

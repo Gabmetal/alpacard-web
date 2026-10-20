@@ -46,6 +46,27 @@ spec:
             name: {{ include "alpacard.fullname" . }}-wallet-service
             port:
               number: 80
+      - path: /wallet-assets
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-wallet-service
+            port:
+              number: 80
+      - path: /manifest.json
+        pathType: Exact
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-wallet-service
+            port:
+              number: 80
+      - path: /sw.js
+        pathType: Exact
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-wallet-service
+            port:
+              number: 80
 
       # Merchant Backoffice & QR Scanner (Default /)
       - path: /

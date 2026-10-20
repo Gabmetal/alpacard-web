@@ -120,15 +120,17 @@ export function WalletPage() {
                 >
                   <div style={cardStyle} className="p-5 text-white transition duration-300">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2.5">
                         {card.campaign.logoUrl ? (
-                          <img
-                            src={card.campaign.logoUrl}
-                            alt="Logo"
-                            className="h-8 w-8 rounded-lg object-cover border border-white/20 bg-white/10"
-                          />
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-white/15 backdrop-blur-xs p-1 shadow-sm shrink-0">
+                            <img
+                              src={card.campaign.logoUrl}
+                              alt="Logo"
+                              className="max-h-full max-w-full object-contain object-center"
+                            />
+                          </div>
                         ) : (
-                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-xs text-xs font-bold">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xs text-xs font-bold shrink-0">
                             🦙
                           </div>
                         )}

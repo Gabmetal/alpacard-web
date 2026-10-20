@@ -283,15 +283,17 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                   className="relative p-5 text-white transition duration-300"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
                       {camp.logoUrl ? (
-                        <img
-                          src={camp.logoUrl}
-                          alt="Logo"
-                          className="h-8 w-8 rounded-lg object-cover border border-white/20 bg-white/10"
-                        />
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-white/15 backdrop-blur-xs p-1 shadow-sm shrink-0 overflow-hidden">
+                          <img
+                            src={camp.logoUrl}
+                            alt="Logo"
+                            className="max-h-full max-w-full object-contain object-center"
+                          />
+                        </div>
                       ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-xs text-xs font-bold">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xs text-xs font-bold shrink-0">
                           🦙
                         </div>
                       )}
@@ -565,6 +567,15 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                         {bgType === 'image' && (
                           <div className="mt-3 flex items-center gap-3">
+                            {bgImageUrl && (
+                              <div className="flex h-10 w-16 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shadow-xs shrink-0">
+                                <img
+                                  src={bgImageUrl}
+                                  alt="Card Background"
+                                  className="h-full w-full object-cover object-center"
+                                />
+                              </div>
+                            )}
                             <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition">
                               <Upload className="h-3.5 w-3.5" />
                               {uploadingBg ? 'Uploading...' : t.campaigns.uploadBgLabel}
@@ -595,11 +606,13 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                         </label>
                         <div className="flex items-center gap-3">
                           {logoUrl && (
-                            <img
-                              src={logoUrl}
-                              alt="Logo"
-                              className="h-10 w-10 rounded-xl object-cover border border-gray-200 shadow-sm"
-                            />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-1 shadow-sm shrink-0 overflow-hidden">
+                              <img
+                                src={logoUrl}
+                                alt="Logo"
+                                className="max-h-full max-w-full object-contain object-center"
+                              />
+                            </div>
                           )}
                           <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition">
                             <Upload className="h-3.5 w-3.5 text-gray-500" />
