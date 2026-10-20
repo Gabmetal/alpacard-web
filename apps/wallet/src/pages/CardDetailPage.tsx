@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import QRCode from 'react-qr-code';
-import { ArrowLeft, Gift, RefreshCw, Clock } from 'lucide-react';
+import { ArrowLeft, Gift, RefreshCw, Clock, Smartphone } from 'lucide-react';
 import { walletApi } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -214,10 +214,10 @@ export function CardDetailPage() {
               </div>
             </div>
 
-            {/* Dynamic QR Presentation */}
+            {/* Dynamic QR Presentation - Contains full scanner URL for native cellphone camera scanning */}
             <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-gray-50/50 p-6">
               <div className="rounded-2xl bg-white p-3 shadow-inner">
-                <QRCode value={data.token} size={180} />
+                <QRCode value={data.scanUrl || `${window.location.origin}/scanner?token=${data.token}`} size={180} />
               </div>
 
               <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-gray-500">
@@ -232,6 +232,11 @@ export function CardDetailPage() {
                 >
                   <RefreshCw className="h-3.5 w-3.5 inline" />
                 </button>
+              </div>
+
+              <div className="mt-3 flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700">
+                <Smartphone className="h-3.5 w-3.5" />
+                <span>{isEs ? 'Escanéalo con la cámara del celular o app' : 'Scan with phone camera or merchant app'}</span>
               </div>
 
               <p className="mt-2 text-center text-[11px] text-gray-400">

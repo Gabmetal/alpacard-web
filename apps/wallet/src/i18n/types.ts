@@ -20,4 +20,23 @@ export interface WalletTranslations {
   claimingTitle: string;
   claimingDesc: string;
   backToWallet: string;
+  // Auth & Multi-merchant
+  authModalTitleSignIn: string;
+  authModalTitleRegister: string;
+  authModalDescSignIn: string;
+  authModalDescRegister: string;
+  authTabSignIn: string;
+  authTabRegister: string;
+  emailLabel: string;
+  passwordLabel: string;
+  nameLabel: string;
+  signInBtn: string;
+  registerBtn: string;
+  guestBadge: string;
+  guestSyncPrompt: string;
+  syncCardsBtn: string;
+  logoutBtn: string;
+  allMerchantsFilter: string;
+  cardsCount: string;
+  loggedInAs: string;
 }

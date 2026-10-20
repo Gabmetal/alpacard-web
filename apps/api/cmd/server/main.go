@@ -86,8 +86,9 @@ func main() {
 			a.Post("/login", env.Login)
 			a.Post("/guest", env.GuestLogin)
 
-			// Authenticated user profile
+			// Authenticated user profile & account linking
 			a.With(auth.RequireAuth(cfg.JWTSecret)).Get("/me", env.Me)
+			a.With(auth.RequireAuth(cfg.JWTSecret)).Post("/link-guest", env.LinkGuestCards)
 		})
 
 		// Campaigns (Public inspection + Authenticated management)

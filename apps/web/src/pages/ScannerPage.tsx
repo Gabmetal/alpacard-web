@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { CheckCircle2, AlertCircle, RefreshCw, Sparkles, Volume2 } from 'lucide-react';
 import { api } from '../services/api';
@@ -11,9 +12,26 @@ interface ScanResult {
   newCount: number;
 }
 
+// Extracts the raw JWT token whether scanned as a direct token or as a full URL
+function extractToken(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) return '';
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    try {
+      const url = new URL(trimmed);
+      const token = url.searchParams.get('token');
+      if (token) return token.trim();
+    } catch {
+      // Not a standard URL, fallback to raw string
+    }
+  }
+  return trimmed;
+}
+
 export function ScannerPage() {
   const { language } = useLanguage();
   const isEs = language === 'es';
+  const [searchParams, setSearchParams] = useSearchParams();
   const [scanning, setScanning] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
@@ -63,11 +81,27 @@ export function ScannerPage() {
     }
   };
 
+  // Check for ?token= URL parameter on mount (e.g. from native cellphone camera scan)
+  useEffect(() => {
+    const rawUrlToken = searchParams.get('token');
+    if (rawUrlToken) {
+      const cleanToken = extractToken(rawUrlToken);
+      if (cleanToken) {
+        handleProcessToken(cleanToken);
+        // Clear query parameters to avoid duplicate submission on refresh
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, setSearchParams]);
+
   const handleScan = (detectedCodes: unknown[]) => {
     if (!detectedCodes || detectedCodes.length === 0) return;
-    const token = (detectedCodes[0] as { rawValue: string }).rawValue;
-    if (token) {
-      handleProcessToken(token);
+    const raw = (detectedCodes[0] as { rawValue: string }).rawValue;
+    if (raw) {
+      const token = extractToken(raw);
+      if (token) {
+        handleProcessToken(token);
+      }
     }
   };
 
@@ -156,21 +190,21 @@ export function ScannerPage() {
         )}
       </div>
 
-      {/* Manual Token input */}
+      {/* Manual Token or URL input */}
       <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
         <label className="block text-xs font-semibold text-gray-700 mb-1">
-          {isEs ? 'Entrada Manual de Token (Pruebas / Debug)' : 'Manual Token Entry (Debug / Testing)'}
+          {isEs ? 'Entrada Manual de Token o URL (Pruebas / Debug)' : 'Manual Token or URL Entry (Debug / Testing)'}
         </label>
         <div className="flex gap-2">
           <input
             type="text"
             value={manualToken}
             onChange={(e) => setManualToken(e.target.value)}
-            placeholder={isEs ? 'Pegar token JWT...' : 'Paste JWT token string...'}
+            placeholder={isEs ? 'Pegar token JWT o URL completa...' : 'Paste JWT token or full scan URL...'}
             className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-none"
           />
           <button
-            onClick={() => handleProcessToken(manualToken)}
+            onClick={() => handleProcessToken(extractToken(manualToken))}
             disabled={!manualToken || processing}
             className="rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white hover:bg-gray-800 disabled:opacity-50"
           >
