@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-rabbitmq
+  namespace: alpacard
+  labels:
+    app: alpacard-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: alpacard-rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.13-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: management
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: "guest"
+        - name: RABBITMQ_DEFAULT_PASS
+          value: "guest"
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "384Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-rabbitmq-service
+  namespace: alpacard
+spec:
+  ports:
+  - port: 5672
+    name: amqp
+    targetPort: 5672
+  - port: 15672
+    name: management
+    targetPort: 15672
+  selector:
+    app: alpacard-rabbitmq

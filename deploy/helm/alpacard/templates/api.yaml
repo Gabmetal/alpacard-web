@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "alpacard.fullname" . }}-api-config
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+data:
+  PORT: "4000"
+  DB_DRIVER: "postgres"
+  DATABASE_URL: "postgres://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ include "alpacard.fullname" . }}-postgres-service:5432/{{ .Values.postgres.auth.database }}?sslmode=disable"
+  RABBITMQ_URL: "amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include "alpacard.fullname" . }}-rabbitmq-service:5672/"
+  APP_URL: {{ .Values.global.appUrl | quote }}
+  CORS_ORIGINS: "{{ .Values.global.appUrl }},http://localhost:5173,http://localhost:5174"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "alpacard.fullname" . }}-api-secrets
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  JWT_SECRET: {{ .Values.api.jwtSecret | quote }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alpacard.fullname" . }}-api
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "alpacard.fullname" . }}-api
+  template:
+    metadata:
+      labels:
+        app: {{ include "alpacard.fullname" . }}-api
+    spec:
+      containers:
+      - name: api
+        image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+        command: ["/app/server"]
+        ports:
+        - containerPort: 4000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: {{ include "alpacard.fullname" . }}-api-config
+        - secretRef:
+            name: {{ include "alpacard.fullname" . }}-api-secrets
+        resources:
+          {{- toYaml .Values.api.resources | nindent 10 }}
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 3
+          periodSeconds: 10
+---
+{{- if .Values.worker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alpacard.fullname" . }}-worker
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "alpacard.fullname" . }}-worker
+  template:
+    metadata:
+      labels:
+        app: {{ include "alpacard.fullname" . }}-worker
+    spec:
+      containers:
+      - name: worker
+        image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+        command: ["/app/worker"]
+        envFrom:
+        - configMapRef:
+            name: {{ include "alpacard.fullname" . }}-api-config
+        - secretRef:
+            name: {{ include "alpacard.fullname" . }}-api-secrets
+        resources:
+          {{- toYaml .Values.worker.resources | nindent 10 }}
+{{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alpacard.fullname" . }}-api-service
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 4000
+    targetPort: 4000
+    name: http
+  selector:
+    app: {{ include "alpacard.fullname" . }}-api

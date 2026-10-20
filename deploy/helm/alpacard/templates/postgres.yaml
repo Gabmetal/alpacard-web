@@ -1,0 +1,70 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ include "alpacard.fullname" . }}-db-secret
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+type: Opaque
+stringData:
+  POSTGRES_DB: {{ .Values.postgres.auth.database }}
+  POSTGRES_USER: {{ .Values.postgres.auth.username }}
+  POSTGRES_PASSWORD: {{ .Values.postgres.auth.password }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "alpacard.fullname" . }}-postgres
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-postgres
+spec:
+  serviceName: {{ include "alpacard.fullname" . }}-postgres-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "alpacard.fullname" . }}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{ include "alpacard.fullname" . }}-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+        imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+        envFrom:
+        - secretRef:
+            name: {{ include "alpacard.fullname" . }}-db-secret
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        resources:
+          {{- toYaml .Values.postgres.resources | nindent 10 }}
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.postgres.storage.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.postgres.storage.size }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alpacard.fullname" . }}-postgres-service
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: {{ include "alpacard.fullname" . }}-postgres
+{{- end }}

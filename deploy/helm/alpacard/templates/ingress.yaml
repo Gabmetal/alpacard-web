@@ -1,0 +1,62 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "alpacard.fullname" . }}-ingress
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.ingress.clusterIssuer }}
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  rules:
+  - host: {{ .Values.global.domain }}
+    http:
+      paths:
+      # API Endpoints
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-api-service
+            port:
+              number: 4000
+
+      # Customer Loyalty Wallet Routes (1-click Claim & Punch Card Presentation)
+      - path: /claim
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-wallet-service
+            port:
+              number: 80
+      - path: /card
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-wallet-service
+            port:
+              number: 80
+      - path: /wallet
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-wallet-service
+            port:
+              number: 80
+
+      # Merchant Backoffice & QR Scanner (Default /)
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "alpacard.fullname" . }}-web-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - {{ .Values.global.domain }}
+    secretName: {{ .Values.ingress.tlsSecretName }}
+{{- end }}

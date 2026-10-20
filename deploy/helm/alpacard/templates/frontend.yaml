@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alpacard.fullname" . }}-web
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-web
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "alpacard.fullname" . }}-web
+  template:
+    metadata:
+      labels:
+        app: {{ include "alpacard.fullname" . }}-web
+    spec:
+      containers:
+      - name: web
+        image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          {{- toYaml .Values.web.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alpacard.fullname" . }}-web-service
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: {{ include "alpacard.fullname" . }}-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alpacard.fullname" . }}-wallet
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-wallet
+spec:
+  replicas: {{ .Values.wallet.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "alpacard.fullname" . }}-wallet
+  template:
+    metadata:
+      labels:
+        app: {{ include "alpacard.fullname" . }}-wallet
+    spec:
+      containers:
+      - name: wallet
+        image: "{{ .Values.wallet.image.repository }}:{{ .Values.wallet.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.wallet.image.pullPolicy }}
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          {{- toYaml .Values.wallet.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alpacard.fullname" . }}-wallet-service
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: {{ include "alpacard.fullname" . }}-wallet
