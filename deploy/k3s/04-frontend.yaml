@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-web
+  namespace: alpacard
+  labels:
+    app: alpacard-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-web
+  template:
+    metadata:
+      labels:
+        app: alpacard-web
+    spec:
+      containers:
+      - name: web
+        image: ghcr.io/gabmetal/alpacard-web:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-web-service
+  namespace: alpacard
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: alpacard-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-wallet
+  namespace: alpacard
+  labels:
+    app: alpacard-wallet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-wallet
+  template:
+    metadata:
+      labels:
+        app: alpacard-wallet
+    spec:
+      containers:
+      - name: wallet
+        image: ghcr.io/gabmetal/alpacard-wallet:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "32Mi"
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-wallet-service
+  namespace: alpacard
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: alpacard-wallet

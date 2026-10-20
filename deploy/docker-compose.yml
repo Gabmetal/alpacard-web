@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: alpacard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: alpacard
+      POSTGRES_USER: alpacard
+      POSTGRES_PASSWORD: alpacard_secret_password_2026
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U alpacard -d alpacard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: alpacard-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP protocol
+      - "15672:15672" # Web Management Console
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    container_name: alpacard-api
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DB_DRIVER: postgres
+      DATABASE_URL: postgres://alpacard:alpacard_secret_password_2026@postgres:5432/alpacard?sslmode=disable
+      JWT_SECRET: super_secret_alpacard_jwt_signing_key_homelab_2026
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+      APP_URL: http://localhost:5174
+      CORS_ORIGINS: http://localhost:5173,http://localhost:5174,https://alpacard.gabo.lat
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: ../apps/api
+      dockerfile: Dockerfile
+    command: ["/app/worker"]
+    container_name: alpacard-worker
+    restart: unless-stopped
+    environment:
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ../apps/web
+      dockerfile: Dockerfile
+    container_name: alpacard-web
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+  wallet:
+    build:
+      context: ../apps/wallet
+      dockerfile: Dockerfile
+    container_name: alpacard-wallet
+    restart: unless-stopped
+    ports:
+      - "5174:80"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+  rabbitmq_data:

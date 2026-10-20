@@ -1,0 +1,52 @@
+{{- if .Values.rabbitmq.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "alpacard.fullname" . }}-rabbitmq
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "alpacard.fullname" . }}-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: {{ include "alpacard.fullname" . }}-rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: "{{ .Values.rabbitmq.image.repository }}:{{ .Values.rabbitmq.image.tag }}"
+        imagePullPolicy: {{ .Values.rabbitmq.image.pullPolicy }}
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: management
+        env:
+        - name: RABBITMQ_DEFAULT_USER
+          value: {{ .Values.rabbitmq.auth.username | quote }}
+        - name: RABBITMQ_DEFAULT_PASS
+          value: {{ .Values.rabbitmq.auth.password | quote }}
+        resources:
+          {{- toYaml .Values.rabbitmq.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alpacard.fullname" . }}-rabbitmq-service
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 5672
+    name: amqp
+    targetPort: 5672
+  - port: 15672
+    name: management
+    targetPort: 15672
+  selector:
+    app: {{ include "alpacard.fullname" . }}-rabbitmq
+{{- end }}

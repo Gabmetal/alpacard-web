@@ -1,0 +1,61 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alpacard-ingress
+  namespace: alpacard
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.entrypoints: web,websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  labels:
+    app.kubernetes.io/name: alpacard
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: alpacard.gabo.lat
+    http:
+      paths:
+      # API Endpoints
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-api-service
+            port:
+              number: 4000
+
+      # Customer Loyalty Wallet Routes (1-click Claim & Punch Card Presentation)
+      - path: /claim
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /card
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /wallet
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+
+      # Merchant Backoffice & QR Scanner (Default /)
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-web-service
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - alpacard.gabo.lat
+    secretName: alpacard-tls

@@ -1,0 +1,17 @@
+apiVersion: v2
+name: alpacard
+description: A Helm chart for Alpacard - Self-hosted Digital Punch Card & Loyalty Platform
+type: application
+version: 0.1.0
+appVersion: "2.0.0"
+icon: https://raw.githubusercontent.com/Gabmetal/alpacard-web/main/public/favicon.ico
+keywords:
+  - loyalty
+  - punch-card
+  - self-hosted
+  - pwa
+  - golang
+home: https://github.com/Gabmetal/alpacard-web
+maintainers:
+  - name: Gabo
+    email: Cavallo.v.gabriel@gmail.com

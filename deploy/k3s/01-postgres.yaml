@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alpacard-db-secret
+  namespace: alpacard
+type: Opaque
+stringData:
+  POSTGRES_DB: alpacard
+  POSTGRES_USER: alpacard
+  POSTGRES_PASSWORD: alpacard_pg_homelab_secret_2026
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: alpacard-postgres
+  namespace: alpacard
+  labels:
+    app: alpacard-postgres
+spec:
+  serviceName: "alpacard-postgres-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-postgres
+  template:
+    metadata:
+      labels:
+        app: alpacard-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: alpacard-db-secret
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "128Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "local-path"
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-postgres-service
+  namespace: alpacard
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: alpacard-postgres

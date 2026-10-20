@@ -1,0 +1,108 @@
+global:
+  domain: alpacard.gabo.lat
+  appUrl: https://alpacard.gabo.lat
+
+# PostgreSQL Database Configuration
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16-alpine"
+    pullPolicy: IfNotPresent
+  storage:
+    size: 10Gi
+    storageClass: local-path
+  auth:
+    database: alpacard
+    username: alpacard
+    password: alpacard_pg_homelab_secret_2026
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# RabbitMQ Event Broker Configuration
+rabbitmq:
+  enabled: true
+  image:
+    repository: rabbitmq
+    tag: "3.13-management-alpine"
+    pullPolicy: IfNotPresent
+  auth:
+    username: guest
+    password: guest
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+# Alpacard Go API Configuration
+api:
+  replicaCount: 1
+  image:
+    repository: localhost/alpacard-api
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  jwtSecret: "alpacard_super_secret_jwt_key_k3s_gabo_2026"
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+
+# Alpacard Background Event Worker
+worker:
+  enabled: true
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 20Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+# Merchant Backoffice (Vite + React)
+web:
+  replicaCount: 1
+  image:
+    repository: localhost/alpacard-web
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+# Customer Loyalty Wallet (PWA)
+wallet:
+  replicaCount: 1
+  image:
+    repository: localhost/alpacard-wallet
+    tag: "latest"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+
+# Ingress Configuration (Traefik + cert-manager)
+ingress:
+  enabled: true
+  className: traefik
+  clusterIssuer: letsencrypt-prod
+  tlsSecretName: alpacard-tls
