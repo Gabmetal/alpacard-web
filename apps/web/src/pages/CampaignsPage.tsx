@@ -23,7 +23,7 @@ import QRCode from 'react-qr-code';
 import { CARD_THEME_PRESETS, CardThemePreset, CardStampIcon } from '@alpacard/shared';
 import { api } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
-import { CardPreview, getCardStyle } from '../components/CardPreview';
+import { CardPreview, getCardStyle, parseImageBgConfig } from '../components/CardPreview';
 
 interface Campaign {
   id: string;
@@ -566,35 +566,112 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                         )}
 
                         {bgType === 'image' && (
-                          <div className="mt-3 flex items-center gap-3">
-                            {bgImageUrl && (
-                              <div className="flex h-10 w-16 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 overflow-hidden shadow-xs shrink-0">
-                                <img
-                                  src={bgImageUrl}
-                                  alt="Card Background"
-                                  className="h-full w-full object-cover object-center"
+                          <div className="mt-3 space-y-3">
+                            {/* Image Uploader & Thumbnail */}
+                            <div className="flex items-center gap-3">
+                              {bgImageUrl && (
+                                <div className="flex h-12 w-16 items-center justify-center rounded-2xl border border-gray-200 bg-white p-1 shadow-sm overflow-hidden shrink-0">
+                                  <img
+                                    src={bgImageUrl}
+                                    alt="Card Background"
+                                    className="max-h-full max-w-full object-contain object-center"
+                                  />
+                                </div>
+                              )}
+                              <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition">
+                                <Upload className="h-3.5 w-3.5" />
+                                {uploadingBg ? 'Uploading...' : t.campaigns.uploadBgLabel}
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleBgUpload}
+                                  className="hidden"
                                 />
-                              </div>
-                            )}
-                            <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition">
-                              <Upload className="h-3.5 w-3.5" />
-                              {uploadingBg ? 'Uploading...' : t.campaigns.uploadBgLabel}
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleBgUpload}
-                                className="hidden"
-                              />
-                            </label>
-                            {bgImageUrl && (
-                              <button
-                                type="button"
-                                onClick={() => setBgImageUrl('')}
-                                className="text-xs text-red-500 hover:underline"
-                              >
-                                Remove Image
-                              </button>
-                            )}
+                              </label>
+                              {bgImageUrl && (
+                                <button
+                                  type="button"
+                                  onClick={() => setBgImageUrl('')}
+                                  className="text-xs text-red-500 hover:underline"
+                                >
+                                  Remove Image
+                                </button>
+                              )}
+                            </div>
+
+                            {/* Fit & Position Mode */}
+                            <div>
+                              <span className="block text-[11px] font-bold text-gray-600 mb-1">
+                                {t.campaigns.bgFitLabel}
+                              </span>
+                              {(() => {
+                                const { mode: currentMode, color: currentColor } = parseImageBgConfig(bgValue);
+                                return (
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setBgValue(`contain:${currentColor}`)}
+                                      className={`rounded-xl px-2.5 py-1 text-xs font-bold transition ${
+                                        currentMode === 'contain'
+                                          ? 'bg-indigo-600 text-white'
+                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                      }`}
+                                    >
+                                      {t.campaigns.fitContain}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setBgValue(`cover:${currentColor}`)}
+                                      className={`rounded-xl px-2.5 py-1 text-xs font-bold transition ${
+                                        currentMode === 'cover'
+                                          ? 'bg-indigo-600 text-white'
+                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                      }`}
+                                    >
+                                      {t.campaigns.fitCover}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setBgValue(`watermark:${currentColor}`)}
+                                      className={`rounded-xl px-2.5 py-1 text-xs font-bold transition ${
+                                        currentMode === 'watermark'
+                                          ? 'bg-indigo-600 text-white'
+                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                      }`}
+                                    >
+                                      {t.campaigns.fitWatermark}
+                                    </button>
+                                  </div>
+                                );
+                              })()}
+                            </div>
+
+                            {/* Base Background Color */}
+                            <div>
+                              <span className="block text-[11px] font-bold text-gray-600 mb-1">
+                                {t.campaigns.baseColorLabel}
+                              </span>
+                              {(() => {
+                                const { mode: currentMode, color: currentColor } = parseImageBgConfig(bgValue);
+                                return (
+                                  <div className="flex items-center gap-2">
+                                    <input
+                                      type="color"
+                                      value={currentColor.startsWith('#') ? currentColor : '#1e293b'}
+                                      onChange={(e) => setBgValue(`${currentMode}:${e.target.value}`)}
+                                      className="h-8 w-12 rounded cursor-pointer border-0"
+                                    />
+                                    <input
+                                      type="text"
+                                      value={currentColor}
+                                      onChange={(e) => setBgValue(`${currentMode}:${e.target.value}`)}
+                                      placeholder="#1e293b"
+                                      className="w-40 rounded-xl border border-gray-300 p-1.5 text-xs font-mono"
+                                    />
+                                  </div>
+                                );
+                              })()}
+                            </div>
                           </div>
                         )}
                       </div>

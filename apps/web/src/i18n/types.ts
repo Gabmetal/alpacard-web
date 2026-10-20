@@ -183,6 +183,11 @@ export interface Translations {
     imageBg: string;
     uploadLogoLabel: string;
     uploadBgLabel: string;
+    bgFitLabel: string;
+    fitContain: string;
+    fitCover: string;
+    fitWatermark: string;
+    baseColorLabel: string;
     textColorLabel: string;
     lightText: string;
     darkText: string;
