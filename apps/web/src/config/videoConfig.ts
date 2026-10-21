@@ -16,10 +16,10 @@ const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env
 export const DEFAULT_EXTERNAL_VIDEOS: Record<'es' | 'en', string> = {
   es:
     metaEnv.VITE_TUTORIAL_VIDEO_ES_URL ||
-    'https://github.com/Gabmetal/alpacard-web/releases/download/v0.1.0-assets/alpacard-tutorial-es.mp4',
+    'https://drive.google.com/file/d/1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV/view?usp=sharing',
   en:
     metaEnv.VITE_TUTORIAL_VIDEO_EN_URL ||
-    'https://github.com/Gabmetal/alpacard-web/releases/download/v0.1.0-assets/alpacard-tutorial-en.mp4',
+    'https://drive.google.com/file/d/1JcFBTG3aMp17qiknnO_USik5ddH4AsIm/view?usp=sharing',
 };
 
 const STORAGE_KEY_PREFIX = 'alpacard_tutorial_drive_url_';
