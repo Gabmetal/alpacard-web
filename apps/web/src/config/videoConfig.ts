@@ -1,21 +1,29 @@
 /**
  * Alpacard Video Tutorial Configuration
- * High-performance global CDN streaming with zero host server load.
+ * Google Drive native streaming with zero host server load.
  */
 
-const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env || {};
+export interface TutorialVideoConfig {
+  driveId: string;
+  previewUrl: string;
+  viewUrl: string;
+  downloadUrl: string;
+  title: string;
+}
 
-export const TUTORIAL_VIDEOS: Record<'es' | 'en', { url: string; title: string }> = {
+export const TUTORIAL_VIDEOS: Record<'es' | 'en', TutorialVideoConfig> = {
   es: {
-    url:
-      metaEnv.VITE_TUTORIAL_VIDEO_ES_URL ||
-      'https://github.com/Gabmetal/alpacard-web/releases/download/v0.1.0-assets/alpacard-tutorial-es.mp4',
-    title: 'Tutorial Alpacard (Español - 1080p)',
+    driveId: '1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV',
+    previewUrl: 'https://drive.google.com/file/d/1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV/preview',
+    viewUrl: 'https://drive.google.com/file/d/1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV/view?usp=sharing',
+    downloadUrl: 'https://drive.google.com/uc?export=download&id=1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV',
+    title: 'Tutorial Alpacard (Español)',
   },
   en: {
-    url:
-      metaEnv.VITE_TUTORIAL_VIDEO_EN_URL ||
-      'https://github.com/Gabmetal/alpacard-web/releases/download/v0.1.0-assets/alpacard-tutorial-en.mp4',
-    title: 'Alpacard Walkthrough (English - 1080p)',
+    driveId: '1JcFBTG3aMp17qiknnO_USik5ddH4AsIm',
+    previewUrl: 'https://drive.google.com/file/d/1JcFBTG3aMp17qiknnO_USik5ddH4AsIm/preview',
+    viewUrl: 'https://drive.google.com/file/d/1JcFBTG3aMp17qiknnO_USik5ddH4AsIm/view?usp=sharing',
+    downloadUrl: 'https://drive.google.com/uc?export=download&id=1JcFBTG3aMp17qiknnO_USik5ddH4AsIm',
+    title: 'Alpacard Walkthrough (English)',
   },
 };

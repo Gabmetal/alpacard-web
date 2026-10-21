@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Play, X, Volume2, Download } from 'lucide-react';
+import { Play, X, Volume2, ExternalLink } from 'lucide-react';
 import { TUTORIAL_VIDEOS } from '../config/videoConfig';
 
 interface VideoTutorialModalProps {
@@ -79,23 +79,19 @@ export function VideoTutorialModal({ open, onClose, defaultLang }: VideoTutorial
           </div>
         </div>
 
-        {/* Video Player Display Container */}
-        <div className="bg-black aspect-video w-full relative flex items-center justify-center">
-          <video
-            key={activeVideo.url}
-            src={activeVideo.url}
-            controls
-            autoPlay
-            playsInline
-            preload="auto"
-            poster="/hero-loyalty.jpg"
-            className="w-full h-full object-contain"
-          >
-            Tu navegador no soporta la reproducción de video HTML5.
-          </video>
+        {/* Video Player Display Container (Embedded Google Drive Video Player) */}
+        <div className="bg-black aspect-video w-full relative">
+          <iframe
+            key={activeVideo.driveId}
+            src={activeVideo.previewUrl}
+            title={activeVideo.title}
+            className="w-full h-full border-0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+          />
         </div>
 
-        {/* Enterprise Footer with Chapters & Direct Download */}
+        {/* Enterprise Footer with Chapters & Direct Link */}
         <div className="px-5 py-4 bg-[#261E1A] border-t border-stone-800 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-300">
           <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
             <span className="font-semibold text-amber-200">
@@ -111,16 +107,13 @@ export function VideoTutorialModal({ open, onClose, defaultLang }: VideoTutorial
           </div>
 
           <a
-            href={activeVideo.url}
-            download={`alpacard-tutorial-${videoLang}.mp4`}
+            href={activeVideo.viewUrl}
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 font-bold text-amber-300 hover:text-amber-200 hover:underline transition ml-auto"
           >
-            <Download className="h-3.5 w-3.5" />
-            <span>
-              {isEs ? 'Descargar Video HD (1080p)' : 'Download HD Video (1080p)'}
-            </span>
+            <span>{isEs ? 'Abrir en Google Drive' : 'Open in Google Drive'}</span>
+            <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
       </div>
