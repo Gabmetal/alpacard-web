@@ -47,14 +47,20 @@ func TestCreateAndUpdateBusiness(t *testing.T) {
 		t.Errorf("Unexpected created business fields: %+v", created)
 	}
 
-	// 2. Update Business (change name, color, instagram)
+	// 2. Update Business (change name, color, instagram, and configure menu)
 	newName := "Artisan Bakery & Cafe"
 	newColor := "#059669"
 	newInstagram := "@artisanbakerycafe"
+	menuType := "link"
+	menuURL := "https://drive.google.com/file/d/sample-menu.pdf"
+	menuItems := `[{"category":"Cafetería","items":[{"name":"Espresso","price":"$2.00","description":"Doble shot de café especial"}]}]`
 	updatePayload := UpdateBusinessRequest{
 		Name:       &newName,
 		BrandColor: &newColor,
 		Instagram:  &newInstagram,
+		MenuType:   &menuType,
+		MenuURL:    &menuURL,
+		MenuItems:  &menuItems,
 	}
 	upBody, _ := json.Marshal(updatePayload)
 
@@ -78,7 +84,7 @@ func TestCreateAndUpdateBusiness(t *testing.T) {
 		t.Fatalf("Failed to decode response: %v", err)
 	}
 
-	if updated.Name != "Artisan Bakery & Cafe" || updated.BrandColor != "#059669" || updated.Instagram != "@artisanbakerycafe" {
+	if updated.Name != "Artisan Bakery & Cafe" || updated.BrandColor != "#059669" || updated.MenuURL != menuURL || updated.MenuItems != menuItems {
 		t.Errorf("Unexpected updated business fields: %+v", updated)
 	}
 }

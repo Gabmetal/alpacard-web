@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-const maxUploadSize = 5 * 1024 * 1024 // 5 MB
+const maxUploadSize = 10 * 1024 * 1024 // 10 MB
 
 func (env *Env) UploadFile(w http.ResponseWriter, r *http.Request) {
 	_, ok := auth.GetUserFromContext(r.Context())
@@ -63,8 +63,10 @@ func (env *Env) UploadFile(w http.ResponseWriter, r *http.Request) {
 		ext = ".gif"
 	case strings.Contains(contentType, "xml") || strings.HasSuffix(strings.ToLower(header.Filename), ".svg"):
 		ext = ".svg"
+	case strings.HasPrefix(contentType, "application/pdf") || strings.HasSuffix(strings.ToLower(header.Filename), ".pdf"):
+		ext = ".pdf"
 	default:
-		respondError(w, http.StatusBadRequest, "Unsupported image type. Allowed: JPEG, PNG, WebP, GIF, SVG")
+		respondError(w, http.StatusBadRequest, "Unsupported file type. Allowed: JPEG, PNG, WebP, GIF, SVG, PDF")
 		return
 	}
 

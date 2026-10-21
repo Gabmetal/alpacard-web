@@ -41,4 +41,12 @@ export const en: WalletTranslations = {
   liveAutoUpdate: 'Live auto-update active',
   guestCardPrompt: 'Save your stamps! Create an account to sync this card.',
   saveCardBtn: 'Sign In / Save',
+  viewMenuBtn: 'View Menu',
+  menuModalTitle: 'Menu & Catalog',
+  menuSubtitle: 'Explore available products and offerings',
+  menuExternalNotice: 'This store has an online menu. Click below to view it.',
+  openExternalMenu: 'Open External Menu',
+  noMenuItemsYet: 'No items currently listed on the menu.',
+  closeMenu: 'Close Menu',
+  allCategories: 'All',
 };

@@ -21,6 +21,9 @@ type CreateBusinessRequest struct {
 	Category    string `json:"category"`
 	Website     string `json:"website"`
 	Instagram   string `json:"instagram"`
+	MenuType    string `json:"menuType"`
+	MenuURL     string `json:"menuUrl"`
+	MenuItems   string `json:"menuItems"`
 }
 
 type UpdateBusinessRequest struct {
@@ -31,6 +34,9 @@ type UpdateBusinessRequest struct {
 	Category    *string `json:"category"`
 	Website     *string `json:"website"`
 	Instagram   *string `json:"instagram"`
+	MenuType    *string `json:"menuType"`
+	MenuURL     *string `json:"menuUrl"`
+	MenuItems   *string `json:"menuItems"`
 }
 
 type AddStaffRequest struct {
@@ -64,6 +70,11 @@ func (env *Env) CreateBusiness(w http.ResponseWriter, r *http.Request) {
 		brandColor = "#4f46e5"
 	}
 
+	menuType := strings.TrimSpace(req.MenuType)
+	if menuType == "" {
+		menuType = "link"
+	}
+
 	business := models.Business{
 		Name:        req.Name,
 		Slug:        slug,
@@ -73,6 +84,9 @@ func (env *Env) CreateBusiness(w http.ResponseWriter, r *http.Request) {
 		Category:    req.Category,
 		Website:     req.Website,
 		Instagram:   req.Instagram,
+		MenuType:    menuType,
+		MenuURL:     strings.TrimSpace(req.MenuURL),
+		MenuItems:   strings.TrimSpace(req.MenuItems),
 		OwnerID:     claims.UserID,
 	}
 
@@ -138,6 +152,15 @@ func (env *Env) UpdateBusiness(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.Instagram != nil {
 		business.Instagram = strings.TrimSpace(*req.Instagram)
+	}
+	if req.MenuType != nil && strings.TrimSpace(*req.MenuType) != "" {
+		business.MenuType = strings.TrimSpace(*req.MenuType)
+	}
+	if req.MenuURL != nil {
+		business.MenuURL = strings.TrimSpace(*req.MenuURL)
+	}
+	if req.MenuItems != nil {
+		business.MenuItems = strings.TrimSpace(*req.MenuItems)
 	}
 
 	if err := env.DB.Save(&business).Error; err != nil {

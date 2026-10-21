@@ -41,4 +41,12 @@ export const es: WalletTranslations = {
   liveAutoUpdate: 'Actualización en tiempo real activa',
   guestCardPrompt: '¡No pierdas tus sellos! Crea tu cuenta para guardar esta tarjeta.',
   saveCardBtn: 'Iniciar Sesión / Guardar',
+  viewMenuBtn: 'Ver Menú',
+  menuModalTitle: 'Carta y Menú',
+  menuSubtitle: 'Explora los productos y opciones disponibles',
+  menuExternalNotice: 'Este comercio cuenta con menú online. Toca abajo para abrirlo.',
+  openExternalMenu: 'Abrir Menú',
+  noMenuItemsYet: 'No hay productos publicados en el menú por el momento.',
+  closeMenu: 'Cerrar Menú',
+  allCategories: 'Todos',
 };

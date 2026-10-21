@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store } from 'lucide-react';
+import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen } from 'lucide-react';
 import { walletApi, getStoredUser, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { getWalletCardStyle, getActiveStampColor } from '../components/CardTheme';
 import { WalletAuthModal } from '../components/WalletAuthModal';
+import { MenuModal } from '../components/MenuModal';
 
 interface Card {
   id: string;
@@ -24,6 +25,11 @@ interface Card {
     stampIcon?: string;
     business?: {
       name: string;
+      logoUrl?: string;
+      brandColor?: string;
+      menuType?: string;
+      menuUrl?: string;
+      menuItems?: string;
     };
   };
 }
@@ -38,6 +44,7 @@ export function WalletPage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const [selectedMerchant, setSelectedMerchant] = useState<string>('ALL');
+  const [menuBusiness, setMenuBusiness] = useState<Card['campaign']['business'] | null>(null);
 
   const loadCards = async () => {
     try {
@@ -291,11 +298,29 @@ export function WalletPage() {
                           {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
                         </span>
                       </div>
-                      {isReady && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-0.5 text-xs font-bold text-emerald-200 backdrop-blur-xs border border-emerald-400/30">
-                          <Sparkles className="h-3 w-3" /> {t.rewardReadyBadge}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        {card.campaign.business?.menuType &&
+                          card.campaign.business.menuType !== 'none' && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setMenuBusiness(card.campaign.business);
+                              }}
+                              className="inline-flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold text-white transition active:scale-95 shadow-xs"
+                              title={t.viewMenuBtn}
+                            >
+                              <BookOpen className="h-3 w-3" />
+                              <span>{t.viewMenuBtn}</span>
+                            </button>
+                          )}
+                        {isReady && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-0.5 text-xs font-bold text-emerald-200 backdrop-blur-xs border border-emerald-400/30">
+                            <Sparkles className="h-3 w-3" /> {t.rewardReadyBadge}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <h3 className="mt-2 text-lg font-black leading-tight">{card.campaign.name}</h3>
                     <p className="mt-0.5 text-xs opacity-90 line-clamp-1">
@@ -327,6 +352,15 @@ export function WalletPage() {
           </div>
         )}
       </main>
+
+      {/* Business Menu Modal */}
+      {menuBusiness && (
+        <MenuModal
+          isOpen={Boolean(menuBusiness)}
+          onClose={() => setMenuBusiness(null)}
+          business={menuBusiness}
+        />
+      )}
 
       {/* Auth Modal */}
       <WalletAuthModal

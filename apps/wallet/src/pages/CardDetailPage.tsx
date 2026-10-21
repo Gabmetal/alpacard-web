@@ -9,12 +9,16 @@ import {
   Smartphone,
   Sparkles,
   LogIn,
+  BookOpen,
+  ExternalLink,
+  ChevronRight,
 } from 'lucide-react';
 import { walletApi, getStoredUser, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { getWalletCardStyle, getActiveStampColor, WalletStampIcon } from '../components/CardTheme';
 import { WalletAuthModal } from '../components/WalletAuthModal';
+import { MenuModal } from '../components/MenuModal';
 
 interface QRData {
   token: string;
@@ -36,6 +40,11 @@ interface QRData {
       stampIcon?: string;
       business?: {
         name: string;
+        logoUrl?: string;
+        brandColor?: string;
+        menuType?: string;
+        menuUrl?: string;
+        menuItems?: string;
       };
     };
   };
@@ -83,6 +92,9 @@ export function CardDetailPage() {
   const [user, setUser] = useState<WalletUser | null>(getStoredUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('register');
+
+  // Business Menu modal state
+  const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
 
   // Real-time autoupdate toast notification
   const [stampAlert, setStampAlert] = useState<{ message: string; type: 'earn' | 'redeem' } | null>(
@@ -436,9 +448,50 @@ export function CardDetailPage() {
                   : 'Show this QR to the cashier to receive a stamp.'}
               </p>
             </div>
+
+            {/* Business Menu CTA Button */}
+            {card.campaign.business &&
+              card.campaign.business.menuType &&
+              card.campaign.business.menuType !== 'none' && (
+                <div className="mt-5 pt-4 border-t border-gray-100">
+                  <button
+                    onClick={() => setIsMenuModalOpen(true)}
+                    className="w-full flex items-center justify-between rounded-2xl py-3 px-4 text-xs font-bold shadow-xs transition active:scale-95 border"
+                    style={{
+                      backgroundColor: card.campaign.business.brandColor
+                        ? `${card.campaign.business.brandColor}12`
+                        : '#eef2ff',
+                      borderColor: card.campaign.business.brandColor
+                        ? `${card.campaign.business.brandColor}40`
+                        : '#c7d2fe',
+                      color: card.campaign.business.brandColor || '#4f46e5',
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      <span>{t.viewMenuBtn}</span>
+                    </div>
+                    {card.campaign.business.menuType === 'link' ||
+                    card.campaign.business.menuType === 'file' ? (
+                      <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+                    ) : (
+                      <ChevronRight className="h-3.5 w-3.5 opacity-70" />
+                    )}
+                  </button>
+                </div>
+              )}
           </div>
         </div>
       </main>
+
+      {/* Menu Modal */}
+      {card.campaign.business && (
+        <MenuModal
+          isOpen={isMenuModalOpen}
+          onClose={() => setIsMenuModalOpen(false)}
+          business={card.campaign.business}
+        />
+      )}
 
       {/* Auth Modal for guest customer */}
       <WalletAuthModal

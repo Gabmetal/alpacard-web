@@ -42,4 +42,13 @@ export interface WalletTranslations {
   liveAutoUpdate: string;
   guestCardPrompt: string;
   saveCardBtn: string;
+  // Menu
+  viewMenuBtn: string;
+  menuModalTitle: string;
+  menuSubtitle: string;
+  menuExternalNotice: string;
+  openExternalMenu: string;
+  noMenuItemsYet: string;
+  closeMenu: string;
+  allCategories: string;
 }

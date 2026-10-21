@@ -225,5 +225,36 @@ export interface Translations {
     staffCount: string;
     brandPreview: string;
     chooseColor: string;
+    // Menu feature
+    menuTabTitle: string;
+    menuTypeLabel: string;
+    menuTypeNone: string;
+    menuTypeLink: string;
+    menuTypeFile: string;
+    menuTypeDigital: string;
+    menuUrlLabel: string;
+    menuUrlPlaceholder: string;
+    menuUrlHint: string;
+    uploadMenuFile: string;
+    uploadingMenuFile: string;
+    menuFileHint: string;
+    menuFileUploaded: string;
+    digitalMenuTitle: string;
+    digitalMenuSubtitle: string;
+    addMenuItem: string;
+    itemNameLabel: string;
+    itemNamePlaceholder: string;
+    itemPriceLabel: string;
+    itemPricePlaceholder: string;
+    itemCategoryLabel: string;
+    itemCategoryPlaceholder: string;
+    itemDescriptionLabel: string;
+    itemDescriptionPlaceholder: string;
+    noMenuItems: string;
+    deleteItem: string;
+    menuBadgeLink: string;
+    menuBadgeFile: string;
+    menuBadgeDigital: string;
+    menuBadgeNone: string;
   };
 }

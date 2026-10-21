@@ -52,6 +52,9 @@ export const api = {
     category?: string;
     website?: string;
     instagram?: string;
+    menuType?: string;
+    menuUrl?: string;
+    menuItems?: string;
   }) => request('/businesses', { method: 'POST', body: JSON.stringify(data) }),
   updateBusiness: (
     businessId: string,
@@ -63,6 +66,9 @@ export const api = {
       category: string;
       website: string;
       instagram: string;
+      menuType: string;
+      menuUrl: string;
+      menuItems: string;
     }>
   ) => request(`/businesses/${businessId}`, { method: 'PUT', body: JSON.stringify(data) }),
   getMyBusinesses: () => request('/businesses/mine'),

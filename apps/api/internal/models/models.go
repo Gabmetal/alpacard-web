@@ -62,6 +62,9 @@ type Business struct {
 	Category    string     `gorm:"type:varchar(100)" json:"category"`
 	Website     string     `json:"website"`
 	Instagram   string     `json:"instagram"`
+	MenuType    string     `gorm:"type:varchar(20);default:'link'" json:"menuType"`
+	MenuURL     string     `gorm:"type:text" json:"menuUrl"`
+	MenuItems   string     `gorm:"type:text" json:"menuItems"`
 	OwnerID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"ownerId"`
 	Owner       *User      `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
 	Staff       []User     `gorm:"many2many:business_staff;" json:"staff,omitempty"`
