@@ -38,4 +38,7 @@ export const en: WalletTranslations = {
   allMerchantsFilter: 'All Stores',
   cardsCount: 'cards',
   loggedInAs: 'Signed in as',
+  liveAutoUpdate: 'Live auto-update active',
+  guestCardPrompt: 'Save your stamps! Create an account to sync this card.',
+  saveCardBtn: 'Sign In / Save',
 };

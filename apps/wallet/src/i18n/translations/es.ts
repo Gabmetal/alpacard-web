@@ -38,4 +38,7 @@ export const es: WalletTranslations = {
   allMerchantsFilter: 'Todos los Comercios',
   cardsCount: 'tarjetas',
   loggedInAs: 'Conectado como',
+  liveAutoUpdate: 'Actualización en tiempo real activa',
+  guestCardPrompt: '¡No pierdas tus sellos! Crea tu cuenta para guardar esta tarjeta.',
+  saveCardBtn: 'Iniciar Sesión / Guardar',
 };

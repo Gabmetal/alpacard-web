@@ -39,4 +39,7 @@ export interface WalletTranslations {
   allMerchantsFilter: string;
   cardsCount: string;
   loggedInAs: string;
+  liveAutoUpdate: string;
+  guestCardPrompt: string;
+  saveCardBtn: string;
 }
