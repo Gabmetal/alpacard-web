@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { VideoTutorialModal } from '../components/VideoTutorialModal';
 import {
   ShieldCheck,
   Server,
@@ -20,7 +21,6 @@ import {
   X,
   Coffee,
   Sparkles,
-  Volume2,
 } from 'lucide-react';
 
 export function LandingPage() {
@@ -28,11 +28,6 @@ export function LandingPage() {
   const isEs = language === 'es';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [videoLang, setVideoLang] = useState<'es' | 'en'>(isEs ? 'es' : 'en');
-
-  useEffect(() => {
-    setVideoLang(isEs ? 'es' : 'en');
-  }, [isEs]);
 
   // Interactive Punch Card Demo Widget State
   const [stamps, setStamps] = useState(7);
@@ -572,94 +567,12 @@ export function LandingPage() {
         </div>
       </footer>
 
-      {/* Video Tutorial Modal */}
-      {showVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-200">
-          <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-stone-200">
-            <div className="flex flex-wrap items-center justify-between gap-3 bg-[#2C221E] px-5 sm:px-6 py-3.5 text-white">
-              <div className="flex items-center gap-2.5">
-                <Play className="h-4 w-4 text-amber-300 fill-current shrink-0" />
-                <h3 className="text-sm sm:text-base font-bold">
-                  {videoLang === 'es'
-                    ? 'Tutorial con Voz IA (ES): Modo Comercio y Billetera de Clientes'
-                    : 'AI Voice-Over Tutorial (EN): Merchant & Consumer Walkthrough'}
-                </h3>
-              </div>
-
-              <div className="flex items-center gap-2.5 ml-auto">
-                <div className="inline-flex items-center rounded-xl bg-white/10 p-0.5 border border-white/15 text-xs font-semibold">
-                  <Volume2 className="h-3.5 w-3.5 text-amber-300 ml-2 mr-1.5" />
-                  <button
-                    type="button"
-                    onClick={() => setVideoLang('es')}
-                    className={`rounded-lg px-2.5 py-1 transition ${
-                      videoLang === 'es'
-                        ? 'bg-[#D4A373] text-[#1C1613] font-bold shadow-2xs'
-                        : 'text-stone-300 hover:text-white'
-                    }`}
-                  >
-                    ES Voz
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setVideoLang('en')}
-                    className={`rounded-lg px-2.5 py-1 transition ${
-                      videoLang === 'en'
-                        ? 'bg-[#D4A373] text-[#1C1613] font-bold shadow-2xs'
-                        : 'text-stone-300 hover:text-white'
-                    }`}
-                  >
-                    EN Voice
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => setShowVideoModal(false)}
-                  className="rounded-full bg-white/15 p-1.5 text-white/80 hover:bg-white/25 hover:text-white transition"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-black aspect-video w-full">
-              <video
-                key={videoLang}
-                src={`/alpacard-tutorial-${videoLang}.mp4`}
-                controls
-                autoPlay
-                className="w-full h-full object-contain"
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
-
-            <div className="p-4 sm:p-5 bg-[#FAF8F5] border-t border-stone-200 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-600">
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <span className="font-semibold text-stone-800">
-                  {videoLang === 'es' ? 'Capítulos:' : 'Chapters:'}
-                </span>
-                <span>1. {videoLang === 'es' ? 'Personalización' : 'Store Branding'}</span>
-                <span>•</span>
-                <span>2. {videoLang === 'es' ? 'Menús y Mostrador' : 'Menus & Stand'}</span>
-                <span>•</span>
-                <span>3. {videoLang === 'es' ? 'Billetera Móvil' : 'Wallet PWA'}</span>
-                <span>•</span>
-                <span>4. {videoLang === 'es' ? 'Escaneo Cámara' : 'Camera Stamp'}</span>
-              </div>
-              <a
-                href={`/alpacard-tutorial-${videoLang}.mp4`}
-                download={`alpacard-tutorial-${videoLang}.mp4`}
-                className="font-bold text-[#4A3525] hover:underline"
-              >
-                {videoLang === 'es'
-                  ? 'Descargar Video ES (7.0 MB) ↓'
-                  : 'Download EN Video (7.0 MB) ↓'}
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Video Tutorial Modal (External Cloud / Google Drive Embed - Zero k3s storage) */}
+      <VideoTutorialModal
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        defaultLang={isEs ? 'es' : 'en'}
+      />
     </div>
   );
 }
