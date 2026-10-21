@@ -169,7 +169,8 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 7. Dispatch async event to RabbitMQ
+	// 7. Dispatch async event to RabbitMQ & notify live SSE card subscribers immediately
+	NotifyCardUpdate(card.ID, newStamps, finalAction)
 	env.EventBus.PublishStampEvent(r.Context(), events.StampEvent{
 		Type:          finalAction,
 		CardID:        card.ID,

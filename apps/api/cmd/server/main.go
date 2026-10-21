@@ -48,7 +48,6 @@ func main() {
 	r.Use(chimiddleware.RealIP)
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
-	r.Use(chimiddleware.Timeout(30 * time.Second))
 
 	// CORS configuration
 	r.Use(cors.Handler(cors.Options{
@@ -123,6 +122,7 @@ func main() {
 				cd.Get("/mine", env.GetMyCards)
 				cd.Get("/{id}", env.GetCardDetail)
 				cd.Get("/{id}/qr", env.GetCardQRToken)
+				cd.Get("/{id}/events", env.StreamCardEvents)
 			})
 
 			// Scanner

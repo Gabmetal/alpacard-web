@@ -13,7 +13,7 @@ import {
   ExternalLink,
   ChevronRight,
 } from 'lucide-react';
-import { walletApi, getStoredUser, WalletUser } from '../services/api';
+import { walletApi, getStoredUser, ensureAuthToken, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { getWalletCardStyle, getActiveStampColor, WalletStampIcon } from '../components/CardTheme';
@@ -102,97 +102,172 @@ export function CardDetailPage() {
   );
 
   const prevStampsRef = useRef<number | null>(null);
+  const isFetchingQRRef = useRef<boolean>(false);
+  const isEsRef = useRef<boolean>(isEs);
+  useEffect(() => {
+    isEsRef.current = isEs;
+  }, [isEs]);
 
+  const notifyStampChange = useCallback((newStamps: number, stampsRequired: number) => {
+    if (prevStampsRef.current === null || newStamps === prevStampsRef.current) {
+      prevStampsRef.current = newStamps;
+      return false;
+    }
+
+    const earned = newStamps > prevStampsRef.current;
+    prevStampsRef.current = newStamps;
+    playCelebrationSound(earned);
+
+    if (earned) {
+      setStampAlert({
+        type: 'earn',
+        message: isEsRef.current
+          ? `¡Sello recibido! Ahora tienes ${newStamps} de ${stampsRequired} sellos.`
+          : `Stamp added! You now have ${newStamps} of ${stampsRequired} stamps.`,
+      });
+    } else {
+      setStampAlert({
+        type: 'redeem',
+        message: isEsRef.current
+          ? '¡Premio canjeado con éxito! Tu tarjeta ha sido reiniciada.'
+          : 'Reward redeemed successfully! Your card has been reset.',
+      });
+    }
+    setTimeout(() => setStampAlert(null), 6000);
+    return true;
+  }, []);
+
+  // Fetches a single-use 5-minute QR token ONLY on initial load, manual refresh,
+  // token expiration (0:00), or after a stamp is scanned.
   const fetchQR = useCallback(
     async (silent = false) => {
-      if (!id) return;
+      if (!id || isFetchingQRRef.current) return;
+      isFetchingQRRef.current = true;
       try {
         if (!silent) {
           setLoading(true);
           setError(null);
         }
         const res = await walletApi.getCardQR(id);
-
-        // Check if stamps changed during background autoupdate
-        if (prevStampsRef.current !== null && res.card.stamps !== prevStampsRef.current) {
-          if (res.card.stamps > prevStampsRef.current) {
-            playCelebrationSound(true);
-            setStampAlert({
-              type: 'earn',
-              message: isEs
-                ? `¡Sello recibido! Ahora tienes ${res.card.stamps} de ${res.card.campaign.stampsRequired} sellos.`
-                : `Stamp added! You now have ${res.card.stamps} of ${res.card.campaign.stampsRequired} stamps.`,
-            });
-          } else {
-            playCelebrationSound(false);
-            setStampAlert({
-              type: 'redeem',
-              message: isEs
-                ? '¡Premio canjeado con éxito! Tu tarjeta ha sido reiniciada.'
-                : 'Reward redeemed successfully! Your card has been reset.',
-            });
-          }
-          setTimeout(() => setStampAlert(null), 6000);
-        }
-
-        prevStampsRef.current = res.card.stamps;
+        notifyStampChange(res.card.stamps, res.card.campaign.stampsRequired || 10);
         setData(res);
-        setSecondsLeft(res.expiresIn || 300);
+        setSecondsLeft(res.expiresIn && res.expiresIn > 0 ? res.expiresIn : 300);
       } catch (err: unknown) {
         if (!silent) {
           if (err instanceof Error) {
             setError(err.message);
           } else {
-            setError(isEs ? 'Error al cargar la tarjeta' : 'Failed to load card');
+            setError(isEsRef.current ? 'Error al cargar la tarjeta' : 'Failed to load card');
           }
         }
       } finally {
+        isFetchingQRRef.current = false;
         if (!silent) {
           setLoading(false);
         }
       }
     },
-    [id, isEs]
+    [id, notifyStampChange]
   );
 
-  // Initial load
+  // 1. Initial QR token load: runs ONLY ONCE per card ID
   useEffect(() => {
+    prevStampsRef.current = null;
     fetchQR(false);
   }, [fetchQR]);
 
-  // Autoupdate real-time polling (every 3 seconds when document is visible)
+  // 2. Real-time stamp auto-update via Server-Sent Events (SSE) — zero /qr polling loop
   useEffect(() => {
     if (!id) return;
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        fetchQR(true);
-      }
-    }, 3000);
+    let eventSource: EventSource | null = null;
+    let cancelled = false;
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchQR(true);
+    const connectSSE = async () => {
+      try {
+        const token = await ensureAuthToken();
+        if (cancelled) return;
+        const url = `/api/v1/cards/${encodeURIComponent(id)}/events?token=${encodeURIComponent(token)}`;
+        eventSource = new EventSource(url);
+
+        eventSource.onmessage = (event) => {
+          try {
+            const payload = JSON.parse(event.data) as { stamps?: number };
+            if (typeof payload.stamps === 'number') {
+              // Update card stamps in-place and rotate consumed QR token once if stamps changed
+              setData((prev) => {
+                if (!prev) return prev;
+                const reqStamps = prev.card.campaign.stampsRequired || 10;
+                const changed = notifyStampChange(payload.stamps!, reqStamps);
+                if (changed) {
+                  // Rotate the single-use QR token once after the scan was processed
+                  setTimeout(() => fetchQR(true), 150);
+                }
+                return {
+                  ...prev,
+                  card: {
+                    ...prev.card,
+                    stamps: payload.stamps!,
+                  },
+                };
+              });
+            }
+          } catch {
+            // Ignore malformed SSE payloads
+          }
+        };
+      } catch {
+        // Ignore SSE connection setup errors
+      }
+    };
+
+    connectSSE();
+
+    // When returning to tab from background, check card state without resetting QR timer
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible' && id) {
+        try {
+          const updatedCard = await walletApi.getCard(id);
+          if (updatedCard && typeof updatedCard.stamps === 'number') {
+            const changed = notifyStampChange(
+              updatedCard.stamps,
+              updatedCard.campaign?.stampsRequired || 10
+            );
+            if (changed) {
+              fetchQR(true);
+            }
+          }
+        } catch {
+          // Ignore background check error
+        }
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      clearInterval(interval);
+      cancelled = true;
+      if (eventSource) {
+        eventSource.close();
+      }
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [id, fetchQR]);
+  }, [id, fetchQR, notifyStampChange]);
 
-  // Countdown timer
+  // 3. Stable 1-second countdown timer (5:00 -> 0:00)
+  const hasData = Boolean(data);
   useEffect(() => {
-    if (secondsLeft <= 0) {
-      fetchQR(true);
-      return;
-    }
+    if (!hasData) return;
     const timer = setInterval(() => {
       setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(timer);
-  }, [secondsLeft, fetchQR]);
+  }, [hasData]);
+
+  // 4. Refresh QR token ONLY when the 5-minute countdown reaches 0:00
+  useEffect(() => {
+    if (hasData && secondsLeft === 0 && !isFetchingQRRef.current) {
+      fetchQR(true);
+    }
+  }, [hasData, secondsLeft, fetchQR]);
 
   const formatTime = (secs: number) => {
     const m = Math.floor(secs / 60);
