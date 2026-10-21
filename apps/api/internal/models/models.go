@@ -97,14 +97,18 @@ type Card struct {
 
 type Transaction struct {
 	BaseModel
-	Type       TransactionType `gorm:"type:varchar(20);not null" json:"type"`
-	Amount     int             `json:"amount"`
-	CardID     uuid.UUID       `gorm:"type:uuid;not null;index" json:"cardId"`
-	Card       *Card           `gorm:"foreignKey:CardID" json:"card,omitempty"`
-	StaffID    uuid.UUID       `gorm:"type:uuid;not null" json:"staffId"`
-	Staff      *User           `gorm:"foreignKey:StaffID" json:"staff,omitempty"`
-	BusinessID uuid.UUID       `gorm:"type:uuid;not null;index" json:"businessId"`
-	TokenJTI   string          `gorm:"type:varchar(255);uniqueIndex" json:"tokenJti"`
+	Type        TransactionType `gorm:"type:varchar(20);not null" json:"type"`
+	Amount      int             `json:"amount"`
+	CardID      uuid.UUID       `gorm:"type:uuid;not null;index" json:"cardId"`
+	Card        *Card           `gorm:"foreignKey:CardID" json:"card,omitempty"`
+	CustomerID  uuid.UUID       `gorm:"type:uuid;index" json:"customerId"`
+	Customer    *User           `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	ClientName  string          `gorm:"type:varchar(255)" json:"clientName"`
+	ClientEmail string          `gorm:"type:varchar(255)" json:"clientEmail"`
+	StaffID     uuid.UUID       `gorm:"type:uuid;not null" json:"staffId"`
+	Staff       *User           `gorm:"foreignKey:StaffID" json:"staff,omitempty"`
+	BusinessID  uuid.UUID       `gorm:"type:uuid;not null;index" json:"businessId"`
+	TokenJTI    string          `gorm:"type:varchar(255);uniqueIndex" json:"tokenJti"`
 }
 
 // ScannedToken prevents replay attacks within the QR token expiration window

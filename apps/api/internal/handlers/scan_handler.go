@@ -62,9 +62,9 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. Retrieve Card and Campaign
+	// 4. Retrieve Card, User, and Campaign
 	var card models.Card
-	if err := env.DB.Preload("Campaign.Business").First(&card, "id = ?", tokenClaims.CardID).Error; err != nil {
+	if err := env.DB.Preload("User").Preload("Campaign.Business").First(&card, "id = ?", tokenClaims.CardID).Error; err != nil {
 		respondError(w, http.StatusNotFound, "Loyalty card not found")
 		return
 	}
@@ -110,6 +110,13 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 			return err
 		}
 
+		clientName := ""
+		clientEmail := ""
+		if card.User != nil {
+			clientName = card.User.Name
+			clientEmail = card.User.Email
+		}
+
 		if card.Stamps < card.Campaign.StampsRequired {
 			// Add stamp
 			finalAction = "EARN"
@@ -121,12 +128,15 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 			}
 
 			txRecord := models.Transaction{
-				Type:       models.TxEarn,
-				Amount:     1,
-				CardID:     card.ID,
-				StaffID:    staffUser.ID,
-				BusinessID: campaignBusinessID,
-				TokenJTI:   tokenClaims.ID,
+				Type:        models.TxEarn,
+				Amount:      1,
+				CardID:      card.ID,
+				CustomerID:  card.UserID,
+				ClientName:  clientName,
+				ClientEmail: clientEmail,
+				StaffID:     staffUser.ID,
+				BusinessID:  campaignBusinessID,
+				TokenJTI:    tokenClaims.ID,
 			}
 			return tx.Create(&txRecord).Error
 		} else {
@@ -140,12 +150,15 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 			}
 
 			txRecord := models.Transaction{
-				Type:       models.TxRedeem,
-				Amount:     card.Campaign.StampsRequired,
-				CardID:     card.ID,
-				StaffID:    staffUser.ID,
-				BusinessID: campaignBusinessID,
-				TokenJTI:   tokenClaims.ID,
+				Type:        models.TxRedeem,
+				Amount:      card.Campaign.StampsRequired,
+				CardID:      card.ID,
+				CustomerID:  card.UserID,
+				ClientName:  clientName,
+				ClientEmail: clientEmail,
+				StaffID:     staffUser.ID,
+				BusinessID:  campaignBusinessID,
+				TokenJTI:    tokenClaims.ID,
 			}
 			return tx.Create(&txRecord).Error
 		}

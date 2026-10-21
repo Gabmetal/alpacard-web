@@ -10,12 +10,14 @@ import (
 )
 
 type DashboardStats struct {
-	CampaignsCount     int64                `json:"campaignsCount"`
-	StaffCount         int                  `json:"staffCount"`
-	CardsCount         int64                `json:"cardsCount"`
-	TotalStampsIssued  int64                `json:"totalStampsIssued"`
-	RewardsRedeemed    int64                `json:"rewardsRedeemed"`
-	RecentTransactions []models.Transaction `json:"recentTransactions"`
+	CampaignsCount      int64                `json:"campaignsCount"`
+	StaffCount          int                  `json:"staffCount"`
+	CardsCount          int64                `json:"cardsCount"`
+	TotalStampsIssued   int64                `json:"totalStampsIssued"`
+	RewardsRedeemed     int64                `json:"rewardsRedeemed"`
+	TotalCustomers      int64                `json:"totalCustomers"`
+	RegisteredCustomers int64                `json:"registeredCustomers"`
+	RecentTransactions  []models.Transaction `json:"recentTransactions"`
 }
 
 func (env *Env) GetDashboardStats(w http.ResponseWriter, r *http.Request) {
@@ -61,16 +63,30 @@ func (env *Env) GetDashboardStats(w http.ResponseWriter, r *http.Request) {
 	// Cards count
 	env.DB.Model(&models.Card{}).Joins("JOIN campaigns ON campaigns.id = cards.campaign_id").Where("campaigns.business_id = ?", businessID).Count(&stats.CardsCount)
 
-	// Total stamps current sum
-	var totalStamps struct{ Total int64 }
-	env.DB.Model(&models.Card{}).Select("COALESCE(SUM(stamps), 0) as total").Joins("JOIN campaigns ON campaigns.id = cards.campaign_id").Where("campaigns.business_id = ?", businessID).Scan(&totalStamps)
-	stats.TotalStampsIssued = totalStamps.Total
+	// Total stamps delivered: sum of all EARN transactions
+	var earnStamps struct{ Total int64 }
+	env.DB.Model(&models.Transaction{}).Where("business_id = ? AND type = ?", businessID, models.TxEarn).Select("COALESCE(SUM(amount), 0) as total").Scan(&earnStamps)
+
+	// If no transactions yet, fallback to active stamps sum on cards
+	if earnStamps.Total == 0 {
+		var activeStamps struct{ Total int64 }
+		env.DB.Model(&models.Card{}).Select("COALESCE(SUM(stamps), 0) as total").Joins("JOIN campaigns ON campaigns.id = cards.campaign_id").Where("campaigns.business_id = ?", businessID).Scan(&activeStamps)
+		stats.TotalStampsIssued = activeStamps.Total
+	} else {
+		stats.TotalStampsIssued = earnStamps.Total
+	}
 
 	// Rewards redeemed count
 	env.DB.Model(&models.Transaction{}).Where("business_id = ? AND type = ?", businessID, models.TxRedeem).Count(&stats.RewardsRedeemed)
 
-	// Recent transactions
-	env.DB.Preload("Staff").Preload("Card.Campaign").Where("business_id = ?", businessID).Order("created_at desc").Limit(10).Find(&stats.RecentTransactions)
+	// Total unique customers holding cards for this business
+	env.DB.Model(&models.Card{}).Joins("JOIN campaigns ON campaigns.id = cards.campaign_id").Where("campaigns.business_id = ?", businessID).Distinct("cards.user_id").Count(&stats.TotalCustomers)
+
+	// Registered customers (non-anonymous)
+	env.DB.Model(&models.Card{}).Joins("JOIN campaigns ON campaigns.id = cards.campaign_id JOIN users ON users.id = cards.user_id").Where("campaigns.business_id = ? AND users.is_anonymous = ?", businessID, false).Distinct("cards.user_id").Count(&stats.RegisteredCustomers)
+
+	// Recent transactions with both Staff and Customer preloaded
+	env.DB.Preload("Staff").Preload("Customer").Preload("Card.User").Preload("Card.Campaign").Where("business_id = ?", businessID).Order("created_at desc").Limit(25).Find(&stats.RecentTransactions)
 
 	respondJSON(w, http.StatusOK, stats)
 }
