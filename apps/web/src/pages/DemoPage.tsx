@@ -11,10 +11,10 @@ import {
   RefreshCw,
   Gift,
   Check,
-  Zap,
   Terminal,
   Activity,
-  Award
+  Award,
+  Coffee,
 } from 'lucide-react';
 
 export function DemoPage() {
@@ -23,25 +23,29 @@ export function DemoPage() {
   const maxStamps = 10;
   const [scanState, setScanState] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
-  const [eventLogs, setEventLogs] = useState<Array<{ id: string; time: string; text: string; type: 'info' | 'success' | 'danger' }>>([
+  const [eventLogs, setEventLogs] = useState<
+    Array<{ id: string; time: string; text: string; type: 'info' | 'success' | 'danger' }>
+  >([
     {
       id: 'init-1',
       time: '15:40:02',
       text: 'Connected to RabbitMQ exchange "alpacard.events" (direct)',
-      type: 'info'
+      type: 'info',
     },
     {
       id: 'init-2',
       time: '15:40:02',
       text: 'PostgreSQL connection pool ready: 10 connections alive',
-      type: 'info'
-    }
+      type: 'info',
+    },
   ]);
   const [timerSeconds, setTimerSeconds] = useState(285);
 
   const playAudio = (type: 'beep' | 'success' | 'error') => {
     try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       const ctx = new AudioCtx();
       if (type === 'beep') {
         const osc = ctx.createOscillator();
@@ -51,7 +55,7 @@ export function DemoPage() {
         gain.gain.setValueAtTime(0.12, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        osc.connect(ctx.destination);
         osc.start();
         osc.stop(ctx.currentTime + 0.08);
       } else if (type === 'success') {
@@ -63,7 +67,7 @@ export function DemoPage() {
           gain.gain.setValueAtTime(0.15, ctx.currentTime + idx * 0.09);
           gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.09 + 0.12);
           osc.connect(gain);
-          gain.connect(ctx.destination);
+          osc.connect(ctx.destination);
           osc.start(ctx.currentTime + idx * 0.09);
           osc.stop(ctx.currentTime + idx * 0.09 + 0.14);
         });
@@ -76,7 +80,7 @@ export function DemoPage() {
         gain.gain.setValueAtTime(0.18, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        osc.connect(ctx.destination);
         osc.start();
         osc.stop(ctx.currentTime + 0.28);
       }
@@ -103,7 +107,7 @@ export function DemoPage() {
     const timeStr = now.toTimeString().split(' ')[0];
     setEventLogs((prev) => [
       { id: Math.random().toString(), time: timeStr, text, type },
-      ...prev.slice(0, 19)
+      ...prev.slice(0, 19),
     ]);
   };
 
@@ -120,19 +124,15 @@ export function DemoPage() {
       setStamps(nextStamps);
       setScanState('success');
       playAudio('success');
+      const jti = `jti_${Math.random().toString(36).substring(2, 10)}`;
+      addLog(`POST /api/v1/stamps/scan [JTI: ${jti}] -> 200 OK (EARN +1)`, 'success');
+      addLog(
+        `RabbitMQ published event "stamp.earned" -> card balance: ${nextStamps}/${maxStamps}`,
+        'info'
+      );
 
-      const isCompleted = nextStamps >= maxStamps;
-      addLog(`[HTTP 200] POST /api/scan -> Stamp added (${nextStamps}/${maxStamps}). Atomic JTI marked spent.`, 'success');
-      addLog(`[RabbitMQ] Emitted event "stamp.punched" -> customer_id=c_9a82, count=${nextStamps}`, 'info');
-
-      if (isCompleted) {
-        addLog(`[Reward Unlocked] Customer card reached ${maxStamps} stamps! Reward coupon issued.`, 'success');
-      }
-
-      setTimeout(() => {
-        setScanState('idle');
-      }, 1800);
-    }, 700);
+      setTimeout(() => setScanState('idle'), 2200);
+    }, 600);
   };
 
   const handleRedeemReward = () => {
@@ -143,13 +143,12 @@ export function DemoPage() {
       setStamps(0);
       setScanState('success');
       playAudio('success');
-      addLog(`[HTTP 200] POST /api/scan -> Reward REDEEMED! 10 stamps converted to voucher #REWARD-${Math.floor(Math.random() * 9000 + 1000)}`, 'success');
-      addLog(`[RabbitMQ] Emitted event "reward.redeemed" -> customer_id=c_9a82, business=Alpaca Roasters`, 'info');
+      const jti = `jti_${Math.random().toString(36).substring(2, 10)}`;
+      addLog(`POST /api/v1/stamps/scan [JTI: ${jti}] -> 200 OK (REDEEM -10)`, 'success');
+      addLog(`RabbitMQ published event "reward.redeemed" -> Free Coffee claimed!`, 'success');
 
-      setTimeout(() => {
-        setScanState('idle');
-      }, 1800);
-    }, 700);
+      setTimeout(() => setScanState('idle'), 2500);
+    }, 600);
   };
 
   const handleSimulateReplayAttack = () => {
@@ -160,8 +159,14 @@ export function DemoPage() {
       setScanState('error');
       setErrorMessage(t.demo.replayAlertText);
       playAudio('error');
-      addLog(`[SECURITY ALERT] Replay attack blocked! Duplicate JTI detected in Redis/DB atomic table.`, 'danger');
-      addLog(`[HTTP 409 Conflict] Token replay prohibited. Audit log flagged IP: 192.168.1.144`, 'danger');
+      addLog(
+        `[SECURITY ALERT] Replay attack blocked! Duplicate JTI detected in atomic table.`,
+        'danger'
+      );
+      addLog(
+        `[HTTP 409 Conflict] Token replay prohibited. Audit log flagged IP: 192.168.1.144`,
+        'danger'
+      );
 
       setTimeout(() => {
         setScanState('idle');
@@ -178,33 +183,38 @@ export function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-indigo-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 selection:bg-[#4A3525] selection:text-white flex flex-col">
       {/* Top Header */}
-      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-30">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-400 hover:text-white transition">
+      <header className="border-b border-stone-200 bg-white/95 backdrop-blur-md sticky top-0 z-30">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 gap-2">
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 transition shrink-0"
+            >
               <ArrowLeft className="h-4 w-4" />
-              {t.common.back}
+              <span className="hidden xs:inline">{t.common.back}</span>
             </Link>
-            <span className="text-slate-700">|</span>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></div>
-              <span className="text-base font-black text-white">{t.nav.liveDemo}</span>
+            <span className="text-stone-300">|</span>
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="h-2 w-2 rounded-full bg-emerald-600 shrink-0"></div>
+              <span className="text-sm sm:text-base font-bold text-stone-900 truncate">
+                {t.nav.liveDemo}
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher variant="dark" />
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <LanguageSwitcher variant="light" />
             <Link
               to="/docs"
-              className="rounded-lg border border-slate-700 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
+              className="hidden sm:inline-flex rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
             >
               {t.nav.docs}
             </Link>
             <Link
               to="/login"
-              className="rounded-lg bg-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-indigo-500 transition shadow"
+              className="rounded-lg bg-[#3D2B1F] px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2C1F16] transition shadow-2xs"
             >
               {t.nav.console}
             </Link>
@@ -213,81 +223,76 @@ export function DemoPage() {
       </header>
 
       {/* Main Simulation Workspace */}
-      <main className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-6 lg:px-8 py-8">
+      <main className="mx-auto max-w-7xl w-full flex-1 px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <div className="mb-8 text-center max-w-2xl mx-auto space-y-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-300">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E6D9C6] bg-[#F5EFE6] px-3 py-1 text-xs font-semibold text-[#5C4028]">
             <Sparkles className="h-3.5 w-3.5" />
             {t.demo.badge}
           </span>
-          <h1 className="text-3xl font-black text-white sm:text-4xl">
-            {t.demo.title}
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-400">
-            {t.demo.subtitle}
-          </p>
+          <h1 className="text-2xl font-extrabold text-stone-900 sm:text-4xl">{t.demo.title}</h1>
+          <p className="text-xs sm:text-sm text-stone-600">{t.demo.subtitle}</p>
         </div>
 
         {/* Simulation Grid */}
         <div className="grid gap-8 lg:grid-cols-12 items-start">
           {/* LEFT: Customer Phone View */}
           <div className="lg:col-span-6 flex flex-col items-center">
-            <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-indigo-400">
+            <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-[#5C4028]">
               <Smartphone className="h-4 w-4" /> {t.demo.customerTitle}
             </div>
 
             {/* Mobile Phone Mockup Frame */}
-            <div className="w-full max-w-[340px] rounded-[40px] border-4 border-slate-700 bg-slate-900 p-3 shadow-2xl shadow-indigo-950/40 relative">
-              {/* Dynamic Island */}
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 h-4 w-28 rounded-full bg-slate-800 flex items-center justify-center">
-                <div className="h-2 w-2 rounded-full bg-slate-950 mr-2"></div>
-                <div className="h-1.5 w-1.5 rounded-full bg-indigo-900"></div>
-              </div>
-
+            <div className="w-full max-w-[340px] rounded-[36px] border-4 border-stone-800 bg-stone-900 p-2.5 shadow-xl relative">
               {/* Screen Area */}
-              <div className="rounded-[32px] bg-slate-950 p-4 pt-7 text-slate-100 min-h-[580px] flex flex-col justify-between border border-slate-800/80">
-                {/* PWA App Bar */}
+              <div className="rounded-[28px] bg-[#FAF8F5] p-4 pt-5 text-stone-900 min-h-[540px] flex flex-col justify-between border border-stone-200">
                 <div>
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div className="flex items-center justify-between border-b border-stone-200 pb-3">
                     <div className="flex items-center gap-2">
-                      <img src="/alpacard-logo.jpg" alt="Alpacard" className="h-6 w-6 rounded-md object-cover" />
-                      <span className="text-xs font-black tracking-tight text-white">Alpaca Wallet</span>
+                      <img
+                        src="/alpacard-logo.jpg"
+                        alt="Alpacard"
+                        className="h-6 w-6 rounded-md object-cover border border-stone-200"
+                      />
+                      <span className="text-xs font-bold tracking-tight text-stone-900">
+                        Alpacard Wallet
+                      </span>
                     </div>
-                    <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[9px] font-bold text-emerald-400 border border-emerald-500/30">
+                    <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800 border border-emerald-200">
                       {t.demo.pwaActiveBadge}
                     </span>
                   </div>
 
                   {/* Loyalty Card UI */}
-                  <div className="mt-4 rounded-2xl bg-gradient-to-br from-indigo-700 via-indigo-800 to-purple-900 p-4 text-white shadow-xl relative overflow-hidden">
+                  <div className="mt-4 rounded-2xl bg-[#3D2B1F] p-4 text-white shadow-sm relative overflow-hidden">
                     <div className="absolute -right-6 -bottom-6 opacity-10">
-                      <Award className="h-32 w-32" />
+                      <Award className="h-28 w-28" />
                     </div>
 
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between gap-2">
                       <div>
-                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-indigo-200">
+                        <span className="text-[9px] font-semibold uppercase tracking-widest text-stone-300">
                           {t.demo.cardTier}
                         </span>
-                        <h3 className="text-base font-black">{t.demo.cardName}</h3>
+                        <h3 className="text-base font-bold">{t.demo.cardName}</h3>
                       </div>
-                      <span className="rounded bg-white/20 px-2 py-0.5 text-[9px] font-bold backdrop-blur-xs">
+                      <span className="rounded bg-white/15 px-2 py-0.5 text-[9px] font-semibold">
                         {stamps >= maxStamps ? t.demo.rewardReady : t.demo.inProgress}
                       </span>
                     </div>
 
                     {/* Stamp Circles */}
-                    <div className="mt-5 grid grid-cols-5 gap-2">
+                    <div className="mt-4 grid grid-cols-5 gap-2">
                       {Array.from({ length: maxStamps }).map((_, i) => {
                         const isStamped = i < stamps;
                         const isReward = i === maxStamps - 1;
                         return (
                           <div
                             key={i}
-                            className={`aspect-square rounded-xl border flex items-center justify-center transition-all duration-300 ${
+                            className={`aspect-square rounded-xl border flex items-center justify-center transition-all duration-200 ${
                               isStamped
-                                ? 'border-amber-400 bg-amber-400 text-slate-950 font-black shadow-md shadow-amber-500/30 scale-100'
+                                ? 'border-[#E6D9C6] bg-[#F5EFE6] text-[#3D2B1F] font-bold shadow-2xs'
                                 : isReward
-                                ? 'border-dashed border-amber-300 bg-amber-400/20 text-amber-200 animate-pulse'
+                                ? 'border-dashed border-amber-300/70 bg-amber-400/15 text-amber-200'
                                 : 'border-white/20 bg-white/10 text-white/50'
                             }`}
                           >
@@ -303,33 +308,41 @@ export function DemoPage() {
                       })}
                     </div>
 
-                    <div className="mt-4 flex items-center justify-between text-[11px] text-indigo-200 font-semibold border-t border-white/10 pt-2">
-                      <span>{stamps} / {maxStamps} {t.demo.stampsCollected}</span>
-                      <span>{stamps >= maxStamps ? t.demo.freeRewardAvailable : `${maxStamps - stamps} ${t.demo.remainingToReward}`}</span>
+                    <div className="mt-4 flex items-center justify-between text-[11px] text-stone-200 font-medium border-t border-white/15 pt-2">
+                      <span>
+                        {stamps} / {maxStamps} {t.demo.stampsCollected}
+                      </span>
+                      <span>
+                        {stamps >= maxStamps
+                          ? t.demo.freeRewardAvailable
+                          : `${maxStamps - stamps} ${t.demo.remainingToReward}`}
+                      </span>
                     </div>
                   </div>
 
                   {/* Customer QR Code Presentation */}
-                  <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-center">
-                    <div className="text-[11px] font-bold text-slate-300 mb-2">
+                  <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-2xs">
+                    <div className="text-[11px] font-semibold text-stone-600 mb-2">
                       {t.demo.showQrInstructions}
                     </div>
 
-                    <div className="mx-auto w-40 h-40 rounded-xl bg-white p-2.5 shadow-md flex items-center justify-center relative">
+                    <div className="mx-auto w-36 h-36 rounded-xl bg-white p-2 border border-stone-200 flex items-center justify-center relative">
                       {scanState === 'scanning' && (
-                        <div className="absolute inset-x-2 top-0 h-1 bg-red-500 shadow-lg shadow-red-500/80 animate-bounce"></div>
+                        <div className="absolute inset-x-2 top-0 h-1 bg-[#5C4028] animate-bounce"></div>
                       )}
-                      <QrCode className="h-full w-full text-slate-950" />
+                      <QrCode className="h-full w-full text-stone-900" />
                     </div>
 
-                    <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] text-slate-400 font-mono">
-                      <RefreshCw className="h-3 w-3 animate-spin text-indigo-400" />
-                      <span>{t.demo.singleUseToken} {formatTimer(timerSeconds)}</span>
+                    <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] text-stone-500 font-mono">
+                      <RefreshCw className="h-3 w-3 animate-spin text-[#5C4028]" />
+                      <span>
+                        {t.demo.singleUseToken} {formatTimer(timerSeconds)}
+                      </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-3 text-center text-[10px] text-slate-500">
+                <div className="mt-3 text-center text-[10px] text-stone-400">
                   {t.demo.pwaFooter}
                 </div>
               </div>
@@ -338,62 +351,63 @@ export function DemoPage() {
 
           {/* RIGHT: Merchant Cashier Terminal */}
           <div className="lg:col-span-6 flex flex-col">
-            <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-emerald-400">
-              <Activity className="h-4 w-4" /> {t.demo.cashierTitle}
+            <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-wider text-stone-700">
+              <Activity className="h-4 w-4 text-[#5C4028]" /> {t.demo.cashierTitle}
             </div>
 
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-md space-y-6">
+            <div className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs space-y-6">
               {/* Cashier Status Bar */}
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-4">
                 <div>
-                  <h3 className="text-base font-bold text-white">{t.demo.stationName}</h3>
-                  <p className="text-xs text-slate-400">{t.demo.operatorLabel}</p>
+                  <h3 className="text-base font-bold text-stone-900">{t.demo.stationName}</h3>
+                  <p className="text-xs text-stone-500">{t.demo.operatorLabel}</p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-bold text-emerald-400 border border-emerald-500/20">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
-                    {t.demo.scannerReady}
-                  </span>
-                </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                  {t.demo.scannerReady}
+                </span>
               </div>
 
               {/* Interactive Action Triggers */}
               <div className="space-y-3">
-                <div className="text-xs font-bold text-slate-300">{t.demo.actionsHeading}</div>
+                <div className="text-xs font-bold text-stone-700">{t.demo.actionsHeading}</div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <button
                     onClick={handlePerformStamp}
                     disabled={scanState === 'scanning'}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 p-3.5 text-xs font-black text-white shadow-lg shadow-indigo-600/30 hover:from-indigo-500 hover:to-violet-500 transition active:scale-95 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#3D2B1F] p-3.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition active:scale-[0.99] disabled:opacity-50"
                   >
-                    <Zap className="h-4 w-4" />
+                    <Coffee className="h-4 w-4" />
                     {stamps >= maxStamps ? t.demo.redeemAction : t.demo.punchAction}
                   </button>
 
                   <button
                     onClick={handleSimulateReplayAttack}
                     disabled={scanState === 'scanning'}
-                    className="flex items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs font-bold text-rose-300 hover:bg-rose-500/20 transition active:scale-95 disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50/70 p-3.5 text-xs font-semibold text-red-800 hover:bg-red-100/80 transition active:scale-[0.99] disabled:opacity-50"
                   >
-                    <ShieldAlert className="h-4 w-4 text-rose-400" />
+                    <ShieldAlert className="h-4 w-4 text-red-700" />
                     {t.demo.simulateReplayBtn}
                   </button>
                 </div>
 
-                <div className="flex gap-2 pt-1">
+                <div className="flex flex-col xs:flex-row gap-2 pt-1">
                   <button
                     onClick={() => {
                       setStamps(10);
-                      addLog('Simulated customer reaching 10 stamps reward milestone.', 'success');
+                      addLog(
+                        'Simulated customer reaching 10 stamps reward milestone.',
+                        'success'
+                      );
                     }}
-                    className="flex-1 rounded-xl border border-slate-800 bg-slate-800/80 py-2 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition"
+                    className="flex-1 rounded-xl border border-stone-200 bg-stone-50 py-2 px-3 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition"
                   >
                     {t.demo.fastForwardBtn}
                   </button>
                   <button
                     onClick={handleReset}
-                    className="rounded-xl border border-slate-800 bg-slate-800/80 px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition"
+                    className="rounded-xl border border-stone-200 bg-white px-4 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition"
                   >
                     {t.demo.resetBtn}
                   </button>
@@ -402,57 +416,57 @@ export function DemoPage() {
 
               {/* Scanner Screen Visual Feedback */}
               <div
-                className={`rounded-2xl border p-5 text-center transition-all duration-300 ${
+                className={`rounded-xl border p-5 text-center transition-all duration-200 ${
                   scanState === 'scanning'
-                    ? 'border-indigo-500 bg-indigo-500/10'
+                    ? 'border-[#E6D9C6] bg-[#F5EFE6]/60'
                     : scanState === 'success'
-                    ? 'border-emerald-500 bg-emerald-500/10'
+                    ? 'border-emerald-200 bg-emerald-50/70'
                     : scanState === 'error'
-                    ? 'border-rose-500 bg-rose-500/20'
-                    : 'border-slate-800 bg-slate-950/60'
+                    ? 'border-red-200 bg-red-50'
+                    : 'border-stone-200 bg-stone-50/60'
                 }`}
               >
                 {scanState === 'scanning' && (
                   <div className="space-y-2">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent mx-auto"></div>
-                    <div className="text-xs font-bold text-indigo-400">{t.demo.readingQr}</div>
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4A3525] border-t-transparent mx-auto"></div>
+                    <div className="text-xs font-semibold text-[#4A3525]">{t.demo.readingQr}</div>
                   </div>
                 )}
 
                 {scanState === 'success' && (
                   <div className="space-y-1">
-                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-slate-950 font-black">
-                      <Check className="h-5 w-5 stroke-[3]" />
+                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-white font-bold">
+                      <Check className="h-5 w-5 stroke-[2.5]" />
                     </div>
-                    <div className="text-sm font-black text-emerald-400">
+                    <div className="text-sm font-bold text-emerald-900">
                       {stamps === 0 ? t.demo.rewardSuccessTitle : t.demo.stampSuccessTitle}
                     </div>
-                    <p className="text-xs text-slate-400">{t.demo.dbUpdatedNotice}</p>
+                    <p className="text-xs text-stone-600">{t.demo.dbUpdatedNotice}</p>
                   </div>
                 )}
 
                 {scanState === 'error' && (
                   <div className="space-y-1">
-                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500 text-white font-black">
+                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-700 text-white font-bold">
                       <ShieldAlert className="h-5 w-5" />
                     </div>
-                    <div className="text-sm font-black text-rose-400">{t.demo.scanRejectedTitle}</div>
-                    <p className="text-xs text-rose-300 font-mono">{errorMessage}</p>
+                    <div className="text-sm font-bold text-red-900">
+                      {t.demo.scanRejectedTitle}
+                    </div>
+                    <p className="text-xs text-red-700 font-mono">{errorMessage}</p>
                   </div>
                 )}
 
                 {scanState === 'idle' && (
-                  <div className="text-xs text-slate-500">
-                    {t.demo.awaitingScan}
-                  </div>
+                  <div className="text-xs text-stone-500">{t.demo.awaitingScan}</div>
                 )}
               </div>
 
               {/* Real-time Architecture & RabbitMQ Console */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4">
-                <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-3">
-                  <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                    <Terminal className="h-3.5 w-3.5 text-indigo-400" />
+              <div className="rounded-xl border border-stone-200 bg-stone-900 p-4 text-stone-200">
+                <div className="flex items-center justify-between border-b border-stone-800 pb-2 mb-3">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-stone-200">
+                    <Terminal className="h-3.5 w-3.5 text-stone-400" />
                     <span>{t.demo.consoleHeading}</span>
                   </div>
                   <span className="text-[10px] font-mono text-emerald-400">{t.common.online}</span>
@@ -464,14 +478,14 @@ export function DemoPage() {
                       key={log.id}
                       className={`flex items-start gap-2 ${
                         log.type === 'success'
-                          ? 'text-emerald-400'
+                          ? 'text-emerald-300'
                           : log.type === 'danger'
-                          ? 'text-rose-400 font-bold'
-                          : 'text-slate-400'
+                          ? 'text-red-300 font-semibold'
+                          : 'text-stone-300'
                       }`}
                     >
-                      <span className="text-slate-600 shrink-0">[{log.time}]</span>
-                      <span>{log.text}</span>
+                      <span className="text-stone-500 shrink-0">[{log.time}]</span>
+                      <span className="break-words min-w-0">{log.text}</span>
                     </div>
                   ))}
                 </div>

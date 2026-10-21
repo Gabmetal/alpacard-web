@@ -69,6 +69,15 @@ func main() {
 	r.Get("/health", healthHandler)
 	r.Get("/api/health", healthHandler)
 
+	// Static uploads directory serving
+	uploadDir := os.Getenv("UPLOAD_DIR")
+	if uploadDir == "" {
+		uploadDir = "./uploads"
+	}
+	_ = os.MkdirAll(uploadDir, 0755)
+	fileServer := http.FileServer(http.Dir(uploadDir))
+	r.Handle("/api/uploads/*", http.StripPrefix("/api/uploads/", fileServer))
+
 	// API Routes
 	r.Route("/api/v1", func(api chi.Router) {
 		// Public Auth
@@ -77,8 +86,9 @@ func main() {
 			a.Post("/login", env.Login)
 			a.Post("/guest", env.GuestLogin)
 
-			// Authenticated user profile
+			// Authenticated user profile & account linking
 			a.With(auth.RequireAuth(cfg.JWTSecret)).Get("/me", env.Me)
+			a.With(auth.RequireAuth(cfg.JWTSecret)).Post("/link-guest", env.LinkGuestCards)
 		})
 
 		// Campaigns (Public inspection + Authenticated management)
@@ -86,16 +96,21 @@ func main() {
 			c.Get("/", env.ListCampaigns)
 			c.Get("/{id}", env.GetCampaign)
 			c.With(auth.RequireAuth(cfg.JWTSecret)).Post("/", env.CreateCampaign)
+			c.With(auth.RequireAuth(cfg.JWTSecret)).Put("/{id}", env.UpdateCampaign)
 		})
 
 		// Protected Merchant Routes
 		api.Group(func(protected chi.Router) {
 			protected.Use(auth.RequireAuth(cfg.JWTSecret))
 
+			// File Uploads (Logos & Card Backgrounds)
+			protected.Post("/upload", env.UploadFile)
+
 			// Business
 			protected.Route("/businesses", func(b chi.Router) {
 				b.Post("/", env.CreateBusiness)
 				b.Get("/mine", env.GetMyBusinesses)
+				b.Put("/{businessId}", env.UpdateBusiness)
 				b.Get("/{businessId}/staff", env.ListStaff)
 				b.Post("/{businessId}/staff", env.AddStaff)
 				b.Delete("/{businessId}/staff/{staffId}", env.RemoveStaff)

@@ -54,13 +54,21 @@ type User struct {
 
 type Business struct {
 	BaseModel
-	Name      string     `gorm:"not null" json:"name"`
-	Slug      string     `gorm:"uniqueIndex;not null" json:"slug"`
-	LogoURL   string     `json:"logoUrl"`
-	OwnerID   uuid.UUID  `gorm:"type:uuid;not null;index" json:"ownerId"`
-	Owner     *User      `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
-	Staff     []User     `gorm:"many2many:business_staff;" json:"staff,omitempty"`
-	Campaigns []Campaign `gorm:"foreignKey:BusinessID" json:"campaigns,omitempty"`
+	Name        string     `gorm:"not null" json:"name"`
+	Slug        string     `gorm:"uniqueIndex;not null" json:"slug"`
+	LogoURL     string     `json:"logoUrl"`
+	BrandColor  string     `gorm:"type:varchar(50);default:'#4f46e5'" json:"brandColor"`
+	Description string     `json:"description"`
+	Category    string     `gorm:"type:varchar(100)" json:"category"`
+	Website     string     `json:"website"`
+	Instagram   string     `json:"instagram"`
+	MenuType    string     `gorm:"type:varchar(20);default:'link'" json:"menuType"`
+	MenuURL     string     `gorm:"type:text" json:"menuUrl"`
+	MenuItems   string     `gorm:"type:text" json:"menuItems"`
+	OwnerID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"ownerId"`
+	Owner       *User      `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
+	Staff       []User     `gorm:"many2many:business_staff;" json:"staff,omitempty"`
+	Campaigns   []Campaign `gorm:"foreignKey:BusinessID" json:"campaigns,omitempty"`
 }
 
 type Campaign struct {
@@ -72,6 +80,11 @@ type Campaign struct {
 	StampsRequired int       `gorm:"default:10" json:"stampsRequired"`
 	Reward         string    `json:"reward"`
 	LogoURL        string    `json:"logoUrl"`
+	BgType         string    `gorm:"type:varchar(20);default:'preset'" json:"bgType"`
+	BgValue        string    `gorm:"type:varchar(255);default:'espresso'" json:"bgValue"`
+	BgImageURL     string    `json:"bgImageUrl"`
+	TextColor      string    `gorm:"type:varchar(50);default:'#ffffff'" json:"textColor"`
+	StampIcon      string    `gorm:"type:varchar(50);default:'coffee'" json:"stampIcon"`
 	IsActive       bool      `gorm:"default:true" json:"isActive"`
 	CardsCount     int64     `gorm:"-" json:"cardsCount,omitempty"`
 }
@@ -87,14 +100,18 @@ type Card struct {
 
 type Transaction struct {
 	BaseModel
-	Type       TransactionType `gorm:"type:varchar(20);not null" json:"type"`
-	Amount     int             `json:"amount"`
-	CardID     uuid.UUID       `gorm:"type:uuid;not null;index" json:"cardId"`
-	Card       *Card           `gorm:"foreignKey:CardID" json:"card,omitempty"`
-	StaffID    uuid.UUID       `gorm:"type:uuid;not null" json:"staffId"`
-	Staff      *User           `gorm:"foreignKey:StaffID" json:"staff,omitempty"`
-	BusinessID uuid.UUID       `gorm:"type:uuid;not null;index" json:"businessId"`
-	TokenJTI   string          `gorm:"type:varchar(255);uniqueIndex" json:"tokenJti"`
+	Type        TransactionType `gorm:"type:varchar(20);not null" json:"type"`
+	Amount      int             `json:"amount"`
+	CardID      uuid.UUID       `gorm:"type:uuid;not null;index" json:"cardId"`
+	Card        *Card           `gorm:"foreignKey:CardID" json:"card,omitempty"`
+	CustomerID  uuid.UUID       `gorm:"type:uuid;index" json:"customerId"`
+	Customer    *User           `gorm:"foreignKey:CustomerID" json:"customer,omitempty"`
+	ClientName  string          `gorm:"type:varchar(255)" json:"clientName"`
+	ClientEmail string          `gorm:"type:varchar(255)" json:"clientEmail"`
+	StaffID     uuid.UUID       `gorm:"type:uuid;not null" json:"staffId"`
+	Staff       *User           `gorm:"foreignKey:StaffID" json:"staff,omitempty"`
+	BusinessID  uuid.UUID       `gorm:"type:uuid;not null;index" json:"businessId"`
+	TokenJTI    string          `gorm:"type:varchar(255);uniqueIndex" json:"tokenJti"`
 }
 
 // ScannedToken prevents replay attacks within the QR token expiration window

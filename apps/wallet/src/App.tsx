@@ -10,8 +10,10 @@ export function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<WalletPage />} />
+          <Route path="/wallet" element={<WalletPage />} />
           <Route path="/card/:id" element={<CardDetailPage />} />
           <Route path="/claim/:id" element={<ClaimPage />} />
+          <Route path="*" element={<WalletPage />} />
         </Routes>
       </BrowserRouter>
     </LanguageProvider>

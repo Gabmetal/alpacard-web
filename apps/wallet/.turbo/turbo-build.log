@@ -1,7 +1,0 @@
-$ tsc && vite build
-vite v6.4.4 building for production...
-[2K[1Gtransforming (1) src/main.tsx[2K[1Gtransforming (6) ../../node_modules/.pnpm/react@18.3.1/node_modules/react/cjs/r[2K[1Gtransforming (21) ../../node_modules/.pnpm/@remix-run+router@1.23.4/node_module[2K[1Gtransforming (25) src/services/api.ts[2K[1Gtransforming (1026) ../../node_modules/.pnpm/lucide-react@0.460.0_react@18.3.1/[2K[1Gtransforming (1569) ../../node_modules/.pnpm/qrcode-generator@2.0.4/node_module[2K[1Gtransforming (1570) ../../node_modules/.pnpm/scheduler@0.23.2/node_modules/sche[2K[1Gtransforming (1580) ../../node_modules/.pnpm/react-dom@18.3.1_react@18.3.1/node[2K[1G✓ 1587 modules transformed.
-[2K[1Grendering chunks (1)...[2K[1G[2K[1Gcomputing gzip size (0)...[2K[1Gcomputing gzip size (1)...[2K[1Gcomputing gzip size (2)...[2K[1Gcomputing gzip size (3)...[2K[1Gdist/index.html                   0.94 kB │ gzip:  0.53 kB
-dist/assets/index-BtmaSjPB.css   23.53 kB │ gzip:  5.13 kB
-dist/assets/index-BhV9b-SP.js   203.31 kB │ gzip: 66.57 kB
-✓ built in 2.72s

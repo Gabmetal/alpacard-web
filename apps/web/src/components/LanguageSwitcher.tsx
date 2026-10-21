@@ -7,32 +7,32 @@ interface LanguageSwitcherProps {
   className?: string;
 }
 
-export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'dark', className = '' }) => {
+export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'light', className = '' }) => {
   const { language, setLanguage } = useLanguage();
 
   const isDark = variant === 'dark';
 
   return (
     <div
-      className={`inline-flex items-center rounded-xl p-1 text-xs font-bold transition ${
+      className={`inline-flex items-center rounded-lg p-0.5 text-xs font-semibold transition ${
         isDark
-          ? 'bg-slate-800/80 border border-slate-700/80 text-slate-300'
-          : 'bg-gray-100 border border-gray-200 text-gray-700'
+          ? 'bg-stone-800 border border-stone-700 text-stone-300'
+          : 'bg-stone-100 border border-stone-200/80 text-stone-600'
       } ${className}`}
     >
-      <Globe className={`h-3.5 w-3.5 ml-1 mr-1.5 ${isDark ? 'text-slate-400' : 'text-gray-400'}`} />
+      <Globe className={`h-3.5 w-3.5 ml-1.5 mr-1 ${isDark ? 'text-stone-400' : 'text-stone-400'}`} />
       
       <button
         type="button"
         onClick={() => setLanguage('en')}
-        className={`px-2 py-1 rounded-lg transition ${
+        className={`px-2 py-1 rounded-md transition ${
           language === 'en'
             ? isDark
-              ? 'bg-indigo-600 text-white shadow'
-              : 'bg-white text-indigo-600 shadow-sm'
+              ? 'bg-stone-100 text-stone-900 shadow-2xs'
+              : 'bg-white text-stone-900 shadow-2xs'
             : isDark
             ? 'hover:text-white'
-            : 'hover:text-gray-900'
+            : 'hover:text-stone-900'
         }`}
         title="Switch to English"
       >
@@ -42,14 +42,14 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'd
       <button
         type="button"
         onClick={() => setLanguage('es')}
-        className={`px-2 py-1 rounded-lg transition ${
+        className={`px-2 py-1 rounded-md transition ${
           language === 'es'
             ? isDark
-              ? 'bg-indigo-600 text-white shadow'
-              : 'bg-white text-indigo-600 shadow-sm'
+              ? 'bg-stone-100 text-stone-900 shadow-2xs'
+              : 'bg-white text-stone-900 shadow-2xs'
             : isDark
             ? 'hover:text-white'
-            : 'hover:text-gray-900'
+            : 'hover:text-stone-900'
         }`}
         title="Cambiar a Español"
       >

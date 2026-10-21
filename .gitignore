@@ -5,6 +5,7 @@ node_modules/
 
 # Turborepo
 .turbo/
+**/.turbo/
 
 # Binaries & build artifacts
 apps/api/bin/

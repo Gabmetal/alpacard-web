@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { getMerchantToken, api } from './services/api';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { LandingPage } from './pages/LandingPage';
@@ -9,36 +9,40 @@ import { LoginPage } from './pages/LoginPage';
 import { Layout } from './pages/Layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { CampaignsPage } from './pages/CampaignsPage';
+import { BusinessesPage, BusinessItem } from './pages/BusinessesPage';
 import { StaffPage } from './pages/StaffPage';
 import { ScannerPage } from './pages/ScannerPage';
 import { Plus, X } from 'lucide-react';
 
-interface Business {
-  id: string;
-  name: string;
-}
-
 function LoginRoute({ token, onLoginSuccess }: { token: string | null; onLoginSuccess: () => void }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirect = searchParams.get('redirect') || '/dashboard';
 
   if (token) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={redirect} replace />;
   }
 
   return (
     <LoginPage
       onLoginSuccess={() => {
         onLoginSuccess();
-        navigate('/dashboard');
+        navigate(redirect);
       }}
     />
   );
 }
 
+function ProtectedFallback() {
+  const location = useLocation();
+  const currentPath = location.pathname + location.search;
+  return <Navigate to={`/login?redirect=${encodeURIComponent(currentPath)}`} replace />;
+}
+
 export function App() {
   const [token, setToken] = useState<string | null>(getMerchantToken());
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [activeBusiness, setActiveBusiness] = useState<Business | null>(null);
+  const [businesses, setBusinesses] = useState<BusinessItem[]>([]);
+  const [activeBusiness, setActiveBusiness] = useState<BusinessItem | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Create Business Modal
@@ -129,7 +133,10 @@ export function App() {
                     setBusinesses([]);
                     setActiveBusiness(null);
                   }}
-                  businessName={activeBusiness?.name || (businesses.length > 0 ? businesses[0].name : undefined)}
+                  businesses={businesses}
+                  activeBusiness={activeBusiness}
+                  onSelectBusiness={(b) => setActiveBusiness(b)}
+                  onCreateBusiness={() => setShowCreateBiz(true)}
                 />
               )
             }
@@ -145,7 +152,18 @@ export function App() {
             />
             <Route
               path="/campaigns"
-              element={<CampaignsPage businessId={activeBusiness?.id} />}
+              element={<CampaignsPage businessId={activeBusiness?.id} businessName={activeBusiness?.name} />}
+            />
+            <Route
+              path="/businesses"
+              element={
+                <BusinessesPage
+                  businesses={businesses}
+                  activeBusinessId={activeBusiness?.id}
+                  onSelectBusiness={(b) => setActiveBusiness(b)}
+                  onRefreshBusinesses={loadBusinesses}
+                />
+              }
             />
             <Route path="/staff" element={<StaffPage businessId={activeBusiness?.id} />} />
             <Route path="/scanner" element={<ScannerPage />} />
@@ -154,10 +172,11 @@ export function App() {
         ) : (
           /* Protected Fallbacks when not signed in */
           <>
-            <Route path="/dashboard" element={<Navigate to="/login" replace />} />
-            <Route path="/campaigns" element={<Navigate to="/login" replace />} />
-            <Route path="/staff" element={<Navigate to="/login" replace />} />
-            <Route path="/scanner" element={<Navigate to="/login" replace />} />
+            <Route path="/dashboard" element={<ProtectedFallback />} />
+            <Route path="/campaigns" element={<ProtectedFallback />} />
+            <Route path="/businesses" element={<ProtectedFallback />} />
+            <Route path="/staff" element={<ProtectedFallback />} />
+            <Route path="/scanner" element={<ProtectedFallback />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </>
         )}
