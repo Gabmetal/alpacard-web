@@ -1,29 +1,48 @@
 /**
  * Alpacard Video Tutorial Configuration
- * Google Drive native streaming with zero host server load.
+ * Direct high-speed CDN streaming with zero host server load.
  */
 
+export interface VideoChapter {
+  title: string;
+  time: number; // in seconds
+}
+
 export interface TutorialVideoConfig {
-  driveId: string;
-  previewUrl: string;
-  viewUrl: string;
+  streamUrl: string;
   downloadUrl: string;
   title: string;
+  subtitle: string;
+  chapters: VideoChapter[];
 }
 
 export const TUTORIAL_VIDEOS: Record<'es' | 'en', TutorialVideoConfig> = {
   es: {
-    driveId: '1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV',
-    previewUrl: 'https://drive.google.com/file/d/1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV/preview',
-    viewUrl: 'https://drive.google.com/file/d/1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV/view?usp=sharing',
-    downloadUrl: 'https://drive.google.com/uc?export=download&id=1IDkZxNoGlb0M58-paz1mISXQMRzbAbmV',
-    title: 'Tutorial Alpacard (Español)',
+    streamUrl: 'https://media.gabo.lat/alpacard-tutorial-es.mp4',
+    downloadUrl: 'https://media.gabo.lat/alpacard-tutorial-es.mp4',
+    title: 'Demostración de la Plataforma Alpacard',
+    subtitle: 'Modo Comercio y Billetera Digital de Clientes',
+    chapters: [
+      { title: 'Vista General', time: 0 },
+      { title: 'Marca y Diseño', time: 18 },
+      { title: 'Menú y Mostrador', time: 34 },
+      { title: 'Billetera Móvil PWA', time: 49 },
+      { title: 'Escaneo y Sellos', time: 64 },
+      { title: 'Comunidad MIT', time: 80 },
+    ],
   },
   en: {
-    driveId: '1JcFBTG3aMp17qiknnO_USik5ddH4AsIm',
-    previewUrl: 'https://drive.google.com/file/d/1JcFBTG3aMp17qiknnO_USik5ddH4AsIm/preview',
-    viewUrl: 'https://drive.google.com/file/d/1JcFBTG3aMp17qiknnO_USik5ddH4AsIm/view?usp=sharing',
-    downloadUrl: 'https://drive.google.com/uc?export=download&id=1JcFBTG3aMp17qiknnO_USik5ddH4AsIm',
-    title: 'Alpacard Walkthrough (English)',
+    streamUrl: 'https://media.gabo.lat/alpacard-tutorial-en.mp4',
+    downloadUrl: 'https://media.gabo.lat/alpacard-tutorial-en.mp4',
+    title: 'Alpacard Platform Walkthrough',
+    subtitle: 'Merchant Console & Customer Digital Wallet',
+    chapters: [
+      { title: 'Overview', time: 0 },
+      { title: 'Store Branding', time: 16 },
+      { title: 'Menus & Counter Stand', time: 30 },
+      { title: 'Customer Wallet', time: 45 },
+      { title: 'Camera Stamping', time: 60 },
+      { title: 'Open-Source Community', time: 76 },
+    ],
   },
 };
