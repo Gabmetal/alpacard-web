@@ -853,20 +853,31 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
             <h3 className="mt-1 text-xl font-bold text-stone-900">{qrModalCampaign.name}</h3>
             <p className="mt-1 text-xs text-stone-500">{qrModalCampaign.reward}</p>
 
-            <div className="mt-6 flex justify-center rounded-2xl bg-stone-50 p-6 border border-stone-200">
+            <div className="mt-6 flex flex-col items-center justify-center rounded-2xl bg-stone-50 p-6 border border-stone-200">
               <QRCode
                 value={`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
                 size={200}
               />
+              <p className="mt-3 text-[11px] font-semibold text-stone-600">
+                {isEs
+                  ? '📷 Escanea con la cámara de tu celular para abrir tu tarjeta'
+                  : '📷 Scan with phone camera to open your punch card'}
+              </p>
             </div>
 
-            <p className="mt-4 text-[11px] text-stone-400 font-mono break-all">
-              {`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
-            </p>
+            {/* Subtle viral branding on counter poster */}
+            <div className="mt-3 text-center">
+              <p className="text-[10px] text-stone-400 font-medium">
+                Powered by <strong className="text-stone-600 font-semibold">Alpacard</strong> • {isEs ? 'Tarjetas digitales gratis para tu negocio' : 'Free digital loyalty cards for your store'}
+              </p>
+              <p className="text-[9px] text-stone-400 font-mono mt-0.5">
+                alpacard.gabo.lat
+              </p>
+            </div>
 
             <button
               onClick={() => window.print()}
-              className="mt-6 w-full rounded-xl bg-[#3D2B1F] py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition"
+              className="mt-5 w-full rounded-xl bg-[#3D2B1F] py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition"
             >
               {isEs ? 'Imprimir Póster para Mostrador' : 'Print Counter Poster'}
             </button>
