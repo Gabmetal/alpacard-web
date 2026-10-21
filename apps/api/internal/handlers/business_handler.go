@@ -14,8 +14,23 @@ import (
 )
 
 type CreateBusinessRequest struct {
-	Name    string `json:"name"`
-	LogoURL string `json:"logoUrl"`
+	Name        string `json:"name"`
+	LogoURL     string `json:"logoUrl"`
+	BrandColor  string `json:"brandColor"`
+	Description string `json:"description"`
+	Category    string `json:"category"`
+	Website     string `json:"website"`
+	Instagram   string `json:"instagram"`
+}
+
+type UpdateBusinessRequest struct {
+	Name        *string `json:"name"`
+	LogoURL     *string `json:"logoUrl"`
+	BrandColor  *string `json:"brandColor"`
+	Description *string `json:"description"`
+	Category    *string `json:"category"`
+	Website     *string `json:"website"`
+	Instagram   *string `json:"instagram"`
 }
 
 type AddStaffRequest struct {
@@ -44,11 +59,21 @@ func (env *Env) CreateBusiness(w http.ResponseWriter, r *http.Request) {
 	// Create slug from name
 	slug := generateSlug(req.Name)
 
+	brandColor := strings.TrimSpace(req.BrandColor)
+	if brandColor == "" {
+		brandColor = "#4f46e5"
+	}
+
 	business := models.Business{
-		Name:    req.Name,
-		Slug:    slug,
-		LogoURL: req.LogoURL,
-		OwnerID: claims.UserID,
+		Name:        req.Name,
+		Slug:        slug,
+		LogoURL:     req.LogoURL,
+		BrandColor:  brandColor,
+		Description: req.Description,
+		Category:    req.Category,
+		Website:     req.Website,
+		Instagram:   req.Instagram,
+		OwnerID:     claims.UserID,
 	}
 
 	if err := env.DB.Create(&business).Error; err != nil {
@@ -60,6 +85,67 @@ func (env *Env) CreateBusiness(w http.ResponseWriter, r *http.Request) {
 	_ = env.DB.Model(&models.User{}).Where("id = ? AND role = ?", claims.UserID, models.RoleConsumer).Update("role", models.RoleOwner)
 
 	respondJSON(w, http.StatusCreated, business)
+}
+
+func (env *Env) UpdateBusiness(w http.ResponseWriter, r *http.Request) {
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		respondError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	businessIDStr := chi.URLParam(r, "businessId")
+	businessID, err := uuid.Parse(businessIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid business ID")
+		return
+	}
+
+	var business models.Business
+	if err := env.DB.First(&business, "id = ?", businessID).Error; err != nil {
+		respondError(w, http.StatusNotFound, "Business not found")
+		return
+	}
+
+	if business.OwnerID != claims.UserID {
+		respondError(w, http.StatusForbidden, "Only the business owner can edit business settings")
+		return
+	}
+
+	var req UpdateBusinessRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	if req.Name != nil && strings.TrimSpace(*req.Name) != "" {
+		business.Name = strings.TrimSpace(*req.Name)
+	}
+	if req.LogoURL != nil {
+		business.LogoURL = strings.TrimSpace(*req.LogoURL)
+	}
+	if req.BrandColor != nil && strings.TrimSpace(*req.BrandColor) != "" {
+		business.BrandColor = strings.TrimSpace(*req.BrandColor)
+	}
+	if req.Description != nil {
+		business.Description = strings.TrimSpace(*req.Description)
+	}
+	if req.Category != nil {
+		business.Category = strings.TrimSpace(*req.Category)
+	}
+	if req.Website != nil {
+		business.Website = strings.TrimSpace(*req.Website)
+	}
+	if req.Instagram != nil {
+		business.Instagram = strings.TrimSpace(*req.Instagram)
+	}
+
+	if err := env.DB.Save(&business).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update business")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, business)
 }
 
 func (env *Env) GetMyBusinesses(w http.ResponseWriter, r *http.Request) {

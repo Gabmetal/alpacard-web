@@ -44,8 +44,27 @@ export const api = {
   me: () => request('/auth/me'),
 
   // Business
-  createBusiness: (data: { name: string; logoUrl?: string }) =>
-    request('/businesses', { method: 'POST', body: JSON.stringify(data) }),
+  createBusiness: (data: {
+    name: string;
+    logoUrl?: string;
+    brandColor?: string;
+    description?: string;
+    category?: string;
+    website?: string;
+    instagram?: string;
+  }) => request('/businesses', { method: 'POST', body: JSON.stringify(data) }),
+  updateBusiness: (
+    businessId: string,
+    data: Partial<{
+      name: string;
+      logoUrl: string;
+      brandColor: string;
+      description: string;
+      category: string;
+      website: string;
+      instagram: string;
+    }>
+  ) => request(`/businesses/${businessId}`, { method: 'PUT', body: JSON.stringify(data) }),
   getMyBusinesses: () => request('/businesses/mine'),
   listStaff: (businessId: string) => request(`/businesses/${businessId}/staff`),
   addStaff: (businessId: string, email: string) =>

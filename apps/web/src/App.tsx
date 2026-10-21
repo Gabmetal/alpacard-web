@@ -9,14 +9,10 @@ import { LoginPage } from './pages/LoginPage';
 import { Layout } from './pages/Layout';
 import { DashboardPage } from './pages/DashboardPage';
 import { CampaignsPage } from './pages/CampaignsPage';
+import { BusinessesPage, BusinessItem } from './pages/BusinessesPage';
 import { StaffPage } from './pages/StaffPage';
 import { ScannerPage } from './pages/ScannerPage';
 import { Plus, X } from 'lucide-react';
-
-interface Business {
-  id: string;
-  name: string;
-}
 
 function LoginRoute({ token, onLoginSuccess }: { token: string | null; onLoginSuccess: () => void }) {
   const navigate = useNavigate();
@@ -45,8 +41,8 @@ function ProtectedFallback() {
 
 export function App() {
   const [token, setToken] = useState<string | null>(getMerchantToken());
-  const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [activeBusiness, setActiveBusiness] = useState<Business | null>(null);
+  const [businesses, setBusinesses] = useState<BusinessItem[]>([]);
+  const [activeBusiness, setActiveBusiness] = useState<BusinessItem | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Create Business Modal
@@ -137,7 +133,10 @@ export function App() {
                     setBusinesses([]);
                     setActiveBusiness(null);
                   }}
-                  businessName={activeBusiness?.name || (businesses.length > 0 ? businesses[0].name : undefined)}
+                  businesses={businesses}
+                  activeBusiness={activeBusiness}
+                  onSelectBusiness={(b) => setActiveBusiness(b)}
+                  onCreateBusiness={() => setShowCreateBiz(true)}
                 />
               )
             }
@@ -155,6 +154,17 @@ export function App() {
               path="/campaigns"
               element={<CampaignsPage businessId={activeBusiness?.id} businessName={activeBusiness?.name} />}
             />
+            <Route
+              path="/businesses"
+              element={
+                <BusinessesPage
+                  businesses={businesses}
+                  activeBusinessId={activeBusiness?.id}
+                  onSelectBusiness={(b) => setActiveBusiness(b)}
+                  onRefreshBusinesses={loadBusinesses}
+                />
+              }
+            />
             <Route path="/staff" element={<StaffPage businessId={activeBusiness?.id} />} />
             <Route path="/scanner" element={<ScannerPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
@@ -164,6 +174,7 @@ export function App() {
           <>
             <Route path="/dashboard" element={<ProtectedFallback />} />
             <Route path="/campaigns" element={<ProtectedFallback />} />
+            <Route path="/businesses" element={<ProtectedFallback />} />
             <Route path="/staff" element={<ProtectedFallback />} />
             <Route path="/scanner" element={<ProtectedFallback />} />
             <Route path="*" element={<Navigate to="/" replace />} />

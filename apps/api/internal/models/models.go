@@ -54,13 +54,18 @@ type User struct {
 
 type Business struct {
 	BaseModel
-	Name      string     `gorm:"not null" json:"name"`
-	Slug      string     `gorm:"uniqueIndex;not null" json:"slug"`
-	LogoURL   string     `json:"logoUrl"`
-	OwnerID   uuid.UUID  `gorm:"type:uuid;not null;index" json:"ownerId"`
-	Owner     *User      `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
-	Staff     []User     `gorm:"many2many:business_staff;" json:"staff,omitempty"`
-	Campaigns []Campaign `gorm:"foreignKey:BusinessID" json:"campaigns,omitempty"`
+	Name        string     `gorm:"not null" json:"name"`
+	Slug        string     `gorm:"uniqueIndex;not null" json:"slug"`
+	LogoURL     string     `json:"logoUrl"`
+	BrandColor  string     `gorm:"type:varchar(50);default:'#4f46e5'" json:"brandColor"`
+	Description string     `json:"description"`
+	Category    string     `gorm:"type:varchar(100)" json:"category"`
+	Website     string     `json:"website"`
+	Instagram   string     `json:"instagram"`
+	OwnerID     uuid.UUID  `gorm:"type:uuid;not null;index" json:"ownerId"`
+	Owner       *User      `gorm:"foreignKey:OwnerID" json:"owner,omitempty"`
+	Staff       []User     `gorm:"many2many:business_staff;" json:"staff,omitempty"`
+	Campaigns   []Campaign `gorm:"foreignKey:BusinessID" json:"campaigns,omitempty"`
 }
 
 type Campaign struct {

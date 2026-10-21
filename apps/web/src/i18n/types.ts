@@ -25,6 +25,7 @@ export interface Translations {
     getStarted: string;
     dashboard: string;
     campaigns: string;
+    businesses: string;
     staff: string;
     scanner: string;
     signOut: string;
@@ -196,5 +197,33 @@ export interface Translations {
     cancel: string;
     livePreview: string;
     sampleReward: string;
+  };
+  businesses: {
+    title: string;
+    subtitle: string;
+    createBusiness: string;
+    editBusiness: string;
+    activeBadge: string;
+    switchToBusiness: string;
+    allStores: string;
+    businessNameLabel: string;
+    businessNamePlaceholder: string;
+    categoryLabel: string;
+    brandColorLabel: string;
+    logoLabel: string;
+    uploadLogo: string;
+    descriptionLabel: string;
+    descriptionPlaceholder: string;
+    websiteLabel: string;
+    instagramLabel: string;
+    saveChanges: string;
+    createdSuccess: string;
+    updatedSuccess: string;
+    noBusinessesTitle: string;
+    noBusinessesDesc: string;
+    campaignsCount: string;
+    staffCount: string;
+    brandPreview: string;
+    chooseColor: string;
   };
 }

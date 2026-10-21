@@ -110,6 +110,7 @@ func main() {
 			protected.Route("/businesses", func(b chi.Router) {
 				b.Post("/", env.CreateBusiness)
 				b.Get("/mine", env.GetMyBusinesses)
+				b.Put("/{businessId}", env.UpdateBusiness)
 				b.Get("/{businessId}/staff", env.ListStaff)
 				b.Post("/{businessId}/staff", env.AddStaff)
 				b.Delete("/{businessId}/staff/{staffId}", env.RemoveStaff)
