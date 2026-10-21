@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gabmetal/alpacard/api/internal/metrics"
 	"github.com/google/uuid"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -43,6 +44,7 @@ func NewEventBus(rabbitMQURL string) *EventBus {
 
 	if rabbitMQURL == "" {
 		log.Println("RabbitMQ URL not provided. Event bus will operate in log-only mock mode.")
+		metrics.RabbitMQConnected.Set(0)
 		return bus
 	}
 
@@ -58,6 +60,7 @@ func (b *EventBus) connect() {
 	if err != nil {
 		log.Printf("Warning: Failed to connect to RabbitMQ: %v (retrying in background)", err)
 		b.isOnline = false
+		metrics.RabbitMQConnected.Set(0)
 		return
 	}
 
@@ -66,6 +69,7 @@ func (b *EventBus) connect() {
 		log.Printf("Warning: Failed to open RabbitMQ channel: %v", err)
 		conn.Close()
 		b.isOnline = false
+		metrics.RabbitMQConnected.Set(0)
 		return
 	}
 
@@ -84,6 +88,7 @@ func (b *EventBus) connect() {
 		ch.Close()
 		conn.Close()
 		b.isOnline = false
+		metrics.RabbitMQConnected.Set(0)
 		return
 	}
 
@@ -109,6 +114,7 @@ func (b *EventBus) connect() {
 	b.conn = conn
 	b.channel = ch
 	b.isOnline = true
+	metrics.RabbitMQConnected.Set(1)
 	log.Println("RabbitMQ connected successfully. Queue and Exchange initialized.")
 }
 
@@ -119,6 +125,7 @@ func (b *EventBus) PublishStampEvent(ctx context.Context, evt StampEvent) {
 	data, err := json.Marshal(evt)
 	if err != nil {
 		log.Printf("Error marshalling stamp event: %v", err)
+		metrics.EventsPublishedTotal.WithLabelValues(evt.Type, "error").Inc()
 		return
 	}
 
@@ -127,6 +134,7 @@ func (b *EventBus) PublishStampEvent(ctx context.Context, evt StampEvent) {
 
 	if !b.isOnline || b.channel == nil {
 		log.Printf("[Local Event Bus] Stamp event emitted: %s for card %s (stamps: %d)", evt.Type, evt.CardID, evt.StampsCurrent)
+		metrics.EventsPublishedTotal.WithLabelValues(evt.Type, "local_mock").Inc()
 		return
 	}
 
@@ -147,8 +155,10 @@ func (b *EventBus) PublishStampEvent(ctx context.Context, evt StampEvent) {
 
 	if err != nil {
 		log.Printf("Failed to publish RabbitMQ event: %v", err)
+		metrics.EventsPublishedTotal.WithLabelValues(evt.Type, "error").Inc()
 	} else {
 		log.Printf("[RabbitMQ] Published event %s to %s", evt.Type, routingKey)
+		metrics.EventsPublishedTotal.WithLabelValues(evt.Type, "success").Inc()
 	}
 }
 
@@ -156,6 +166,7 @@ func (b *EventBus) Close() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
+	metrics.RabbitMQConnected.Set(0)
 	if b.channel != nil {
 		_ = b.channel.Close()
 	}

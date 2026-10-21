@@ -14,10 +14,14 @@ spec:
     metadata:
       labels:
         app: alpacard-web
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: web
-        image: ghcr.io/gabmetal/alpacard-web:latest
+        image: localhost/alpacard-web:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -29,12 +33,24 @@ spec:
           limits:
             cpu: "100m"
             memory: "64Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: alpacard-web-service
   namespace: alpacard
+  labels:
+    app: alpacard-web
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
+    prometheus.io/path: "/metrics"
 spec:
   ports:
   - port: 80
@@ -59,10 +75,14 @@ spec:
     metadata:
       labels:
         app: alpacard-wallet
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
+        prometheus.io/path: "/metrics"
     spec:
       containers:
       - name: wallet
-        image: ghcr.io/gabmetal/alpacard-wallet:latest
+        image: localhost/alpacard-wallet:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 80
@@ -74,12 +94,24 @@ spec:
           limits:
             cpu: "100m"
             memory: "64Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: alpacard-wallet-service
   namespace: alpacard
+  labels:
+    app: alpacard-wallet
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "80"
+    prometheus.io/path: "/metrics"
 spec:
   ports:
   - port: 80

@@ -1,0 +1,39 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.serviceScrape.enabled }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
+metadata:
+  name: {{ include "alpacard.fullname" . }}-servicescrape
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: {{ .Values.monitoring.interval | default "15s" }}
+  - port: metrics
+    path: /metrics
+    interval: {{ .Values.monitoring.interval | default "15s" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+---
+{{- if and .Values.monitoring.enabled .Values.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "alpacard.fullname" . }}-servicemonitor
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+spec:
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: {{ .Values.monitoring.interval | default "15s" }}
+  - port: metrics
+    path: /metrics
+    interval: {{ .Values.monitoring.interval | default "15s" }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

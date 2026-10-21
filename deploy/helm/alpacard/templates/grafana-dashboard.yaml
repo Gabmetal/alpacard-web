@@ -1,0 +1,15 @@
+{{- if and .Values.monitoring.enabled .Values.monitoring.grafanaDashboard.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "alpacard.fullname" . }}-grafana-dashboard
+  namespace: {{ .Values.monitoring.grafanaDashboard.namespace | default "monitoring" }}
+  labels:
+    grafana_dashboard: "1"
+    {{- include "alpacard.labels" . | nindent 4 }}
+  annotations:
+    grafana_folder: {{ .Values.monitoring.grafanaDashboard.folder | default "Alpacard" | quote }}
+data:
+  alpacard-application.json: |-
+{{ .Files.Get "dashboards/alpacard-application.json" | indent 4 }}
+{{- end }}

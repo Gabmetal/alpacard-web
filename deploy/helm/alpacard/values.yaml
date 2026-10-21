@@ -110,3 +110,19 @@ ingress:
   className: traefik
   clusterIssuer: letsencrypt-prod
   tlsSecretName: alpacard-tls
+
+# Prometheus & VictoriaMetrics Monitoring Configuration
+monitoring:
+  enabled: true
+  interval: "15s"
+  # VictoriaMetrics Operator VMServiceScrape
+  serviceScrape:
+    enabled: true
+  # Prometheus Operator ServiceMonitor (if cluster uses prometheus-operator)
+  serviceMonitor:
+    enabled: false
+  # Grafana Dashboard (ConfigMap watched by Grafana sidecar operator)
+  grafanaDashboard:
+    enabled: true
+    namespace: "monitoring"
+    folder: "Alpacard"
