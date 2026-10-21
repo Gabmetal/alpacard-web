@@ -266,6 +266,12 @@ export function WalletPage() {
                 Math.round((card.stamps / card.campaign.stampsRequired) * 100)
               );
               const isReady = card.stamps >= card.campaign.stampsRequired;
+              const hasMenu = Boolean(
+                card.campaign.business &&
+                  (card.campaign.business.menuType !== 'none' ||
+                    card.campaign.business.menuUrl ||
+                    card.campaign.business.menuItems)
+              );
               const cardStyle = getWalletCardStyle({
                 bgType: card.campaign.bgType,
                 bgValue: card.campaign.bgValue,
@@ -301,22 +307,21 @@ export function WalletPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        {card.campaign.business?.menuType &&
-                          card.campaign.business.menuType !== 'none' && (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                setMenuBusiness(card.campaign.business);
-                              }}
-                              className="inline-flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold text-white transition active:scale-95 shadow-xs"
-                              title={t.viewMenuBtn}
-                            >
-                              <BookOpen className="h-3 w-3" />
-                              <span>{t.viewMenuBtn}</span>
-                            </button>
-                          )}
+                        {hasMenu && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setMenuBusiness(card.campaign.business);
+                            }}
+                            className="inline-flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold text-white transition active:scale-95 shadow-xs"
+                            title={t.viewMenuBtn}
+                          >
+                            <BookOpen className="h-3 w-3" />
+                            <span>{t.viewMenuBtn}</span>
+                          </button>
+                        )}
                         {isReady && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-0.5 text-xs font-bold text-emerald-200 backdrop-blur-xs border border-emerald-400/30">
                             <Sparkles className="h-3 w-3" /> {t.rewardReadyBadge}
@@ -328,6 +333,25 @@ export function WalletPage() {
                     <p className="mt-0.5 text-xs opacity-90 line-clamp-1">
                       🎁 {card.campaign.reward || card.campaign.description}
                     </p>
+
+                    {/* View Menu Button in Card Banner */}
+                    {hasMenu && (
+                      <div className="mt-3">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setMenuBusiness(card.campaign.business);
+                          }}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1 text-[11px] font-bold text-white transition active:scale-95 shadow-xs border border-white/20"
+                          title={t.viewMenuBtn}
+                        >
+                          <BookOpen className="h-3 w-3" />
+                          <span>{t.viewMenuBtn}</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-4">

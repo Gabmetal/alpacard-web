@@ -231,6 +231,13 @@ export function CardDetailPage() {
   const stamps = card.stamps || 0;
   const isRewardReady = stamps >= stampsRequired;
 
+  const hasMenu = Boolean(
+    card.campaign.business &&
+      (card.campaign.business.menuType !== 'none' ||
+        card.campaign.business.menuUrl ||
+        card.campaign.business.menuItems)
+  );
+
   const cardStyle = getWalletCardStyle({
     bgType: card.campaign.bgType,
     bgValue: card.campaign.bgValue,
@@ -310,27 +317,43 @@ export function CardDetailPage() {
         {/* The Digital Punch Card */}
         <div className="overflow-hidden rounded-3xl bg-white border border-stone-200/80 shadow-md">
           {/* Card Top Branding */}
-          <div style={cardStyle} className="p-6 text-center transition duration-300">
-            <div className="flex items-center justify-center gap-2.5 mb-2">
-              {card.campaign.logoUrl ? (
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/20 backdrop-blur-md p-1.5 shadow-sm shrink-0">
-                  <img
-                    src={card.campaign.logoUrl}
-                    alt="Logo"
-                    className="max-h-full max-w-full object-contain object-center"
-                  />
-                </div>
-              ) : (
-                <span className="text-xl">🦙</span>
+          <div style={cardStyle} className="p-6 transition duration-300 relative text-center">
+            {/* Top row with Store branding & View Menu pill in card */}
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                {card.campaign.logoUrl ? (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/20 bg-white/20 backdrop-blur-md p-1 shadow-xs shrink-0">
+                    <img
+                      src={card.campaign.logoUrl}
+                      alt="Logo"
+                      className="max-h-full max-w-full object-contain object-center"
+                    />
+                  </div>
+                ) : (
+                  <span className="text-xl">🦙</span>
+                )}
+                <span
+                  className={`text-xs font-bold uppercase tracking-wider truncate text-left ${
+                    isLightText ? 'text-white/85' : 'text-stone-700'
+                  }`}
+                >
+                  {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
+                </span>
+              </div>
+
+              {hasMenu && (
+                <button
+                  type="button"
+                  onClick={() => setIsMenuModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1 text-xs font-bold text-white transition active:scale-95 shadow-xs border border-white/25 shrink-0"
+                  title={t.viewMenuBtn}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>{t.viewMenuBtn}</span>
+                </button>
               )}
-              <span
-                className={`text-xs font-bold uppercase tracking-wider ${
-                  isLightText ? 'text-white/85' : 'text-stone-700'
-                }`}
-              >
-                {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
-              </span>
             </div>
+
             <h2 className="text-2xl font-black">{card.campaign.name}</h2>
             <p
               className={`mt-1 text-xs ${
@@ -339,9 +362,54 @@ export function CardDetailPage() {
             >
               🎁 {card.campaign.reward || card.campaign.description}
             </p>
+
+            {/* Quick button in card banner */}
+            {hasMenu && (
+              <div className="mt-3.5 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setIsMenuModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white/25 hover:bg-white/35 backdrop-blur-md px-4 py-1.5 text-xs font-bold text-white transition active:scale-95 shadow-xs border border-white/30"
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>{t.viewMenuBtn}</span>
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="p-6">
+            {/* View Menu Button inside Card Body */}
+            {hasMenu && (
+              <div className="mb-5">
+                <button
+                  type="button"
+                  onClick={() => setIsMenuModalOpen(true)}
+                  className="w-full flex items-center justify-between rounded-2xl py-2.5 px-4 text-xs font-bold shadow-xs transition active:scale-95 border"
+                  style={{
+                    backgroundColor: card.campaign.business?.brandColor
+                      ? `${card.campaign.business.brandColor}12`
+                      : '#F5EFE6',
+                    borderColor: card.campaign.business?.brandColor
+                      ? `${card.campaign.business.brandColor}40`
+                      : '#E6D9C6',
+                    color: card.campaign.business?.brandColor || '#4A3525',
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    <span>{t.viewMenuBtn}</span>
+                  </div>
+                  {card.campaign.business?.menuType === 'link' ||
+                  card.campaign.business?.menuType === 'file' ? (
+                    <ExternalLink className="h-3.5 w-3.5 opacity-70" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 opacity-70" />
+                  )}
+                </button>
+              </div>
+            )}
+
             {/* Visual Stamp Circles */}
             <div className="mb-6">
               <div className="flex items-center justify-between text-xs font-semibold text-stone-500 mb-3">
@@ -450,10 +518,8 @@ export function CardDetailPage() {
             </div>
 
             {/* Business Menu CTA Button */}
-            {card.campaign.business &&
-              card.campaign.business.menuType &&
-              card.campaign.business.menuType !== 'none' && (
-                <div className="mt-5 pt-4 border-t border-stone-100">
+            {hasMenu && card.campaign.business && (
+              <div className="mt-5 pt-4 border-t border-stone-100">
                   <button
                     onClick={() => setIsMenuModalOpen(true)}
                     className="w-full flex items-center justify-between rounded-2xl py-3 px-4 text-xs font-bold shadow-xs transition active:scale-95 border"

@@ -8,6 +8,7 @@ import {
   Cake,
   Crown,
   Tag,
+  BookOpen,
 } from 'lucide-react';
 import { CARD_THEME_PRESETS } from '@alpacard/shared';
 
@@ -158,15 +159,27 @@ export function CardPreview({
           </div>
         </div>
 
-        <span
-          className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase backdrop-blur-md ${
-            isLightText
-              ? 'bg-white/15 text-white border border-white/20'
-              : 'bg-black/10 text-gray-900 border border-black/10'
-          }`}
-        >
-          {stampsRequired} Stamps
-        </span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold backdrop-blur-md ${
+              isLightText
+                ? 'bg-white/20 text-white border border-white/20'
+                : 'bg-black/10 text-gray-900 border border-black/10'
+            }`}
+          >
+            <BookOpen className="h-3 w-3" />
+            <span>Menu</span>
+          </span>
+          <span
+            className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase backdrop-blur-md ${
+              isLightText
+                ? 'bg-white/15 text-white border border-white/20'
+                : 'bg-black/10 text-gray-900 border border-black/10'
+            }`}
+          >
+            {stampsRequired} Stamps
+          </span>
+        </div>
       </div>
 
       {/* Reward description tag */}
