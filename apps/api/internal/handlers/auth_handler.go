@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gabmetal/alpacard/api/internal/auth"
+	"github.com/gabmetal/alpacard/api/internal/metrics"
 	"github.com/gabmetal/alpacard/api/internal/models"
 	"github.com/google/uuid"
 )
@@ -63,6 +64,8 @@ func (env *Env) Register(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusConflict, "User with this email already exists")
 		return
 	}
+
+	metrics.UsersRegisteredTotal.WithLabelValues(string(user.Role)).Inc()
 
 	token, err := auth.GenerateAuthToken(&user, env.Config.JWTSecret)
 	if err != nil {
@@ -126,6 +129,8 @@ func (env *Env) GuestLogin(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusInternalServerError, "Failed to initialize guest wallet")
 		return
 	}
+
+	metrics.UsersRegisteredTotal.WithLabelValues("guest").Inc()
 
 	token, err := auth.GenerateAuthToken(&user, env.Config.JWTSecret)
 	if err != nil {

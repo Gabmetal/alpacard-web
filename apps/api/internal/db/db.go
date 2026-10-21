@@ -74,8 +74,10 @@ func Init(cfg *config.Config) (*gorm.DB, error) {
 		return nil, fmt.Errorf("failed to migrate database: %w", err)
 	}
 
-	// Backfill customer_id on legacy transactions from cards
-	_ = database.Exec(`UPDATE transactions SET customer_id = cards.user_id FROM cards WHERE transactions.card_id = cards.id AND (transactions.customer_id IS NULL OR transactions.customer_id = '00000000-0000-0000-0000-000000000000')`).Error
+	// Backfill customer_id on legacy transactions from cards (PostgreSQL only)
+	if cfg.DBDriver == "postgres" {
+		_ = database.Exec(`UPDATE transactions SET customer_id = cards.user_id FROM cards WHERE transactions.card_id = cards.id AND (transactions.customer_id IS NULL OR transactions.customer_id = '00000000-0000-0000-0000-000000000000')`).Error
+	}
 
 	log.Println("Database migration completed successfully.")
 	return database, nil

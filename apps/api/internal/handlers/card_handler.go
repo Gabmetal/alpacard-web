@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gabmetal/alpacard/api/internal/auth"
+	"github.com/gabmetal/alpacard/api/internal/metrics"
 	"github.com/gabmetal/alpacard/api/internal/models"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -94,6 +95,8 @@ func (env *Env) ClaimCard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	metrics.CardsClaimedTotal.Inc()
+
 	_ = env.DB.Preload("Campaign.Business").First(&newCard, "id = ?", newCard.ID)
 
 	respondJSON(w, http.StatusCreated, newCard)
@@ -164,6 +167,8 @@ func (env *Env) GetCardQRToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	metrics.QRTokensGeneratedTotal.Inc()
+
 	scanURL := fmt.Sprintf("%s/scanner?token=%s", env.Config.AppURL, tokenStr)
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
@@ -213,6 +218,9 @@ func (env *Env) StreamCardEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
 	w.WriteHeader(http.StatusOK)
+
+	metrics.SSESubscribers.Inc()
+	defer metrics.SSESubscribers.Dec()
 
 	_, _ = fmt.Fprintf(w, ": connected\n\n")
 	flusher.Flush()

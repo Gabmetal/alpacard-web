@@ -52,6 +52,10 @@ spec:
       app: {{ include "alpacard.fullname" . }}-api
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "4000"
       labels:
         app: {{ include "alpacard.fullname" . }}-api
     spec:
@@ -103,6 +107,10 @@ spec:
       app: {{ include "alpacard.fullname" . }}-worker
   template:
     metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "9090"
       labels:
         app: {{ include "alpacard.fullname" . }}-worker
     spec:
@@ -111,6 +119,9 @@ spec:
         image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.api.image.pullPolicy }}
         command: ["/app/worker"]
+        ports:
+        - containerPort: 9090
+          name: metrics
         envFrom:
         - configMapRef:
             name: {{ include "alpacard.fullname" . }}-api-config
@@ -118,6 +129,21 @@ spec:
             name: {{ include "alpacard.fullname" . }}-api-secrets
         resources:
           {{- toYaml .Values.worker.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "alpacard.fullname" . }}-worker-service
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    app: {{ include "alpacard.fullname" . }}-worker
+spec:
+  ports:
+  - port: 9090
+    targetPort: 9090
+    name: metrics
+  selector:
+    app: {{ include "alpacard.fullname" . }}-worker
 {{- end }}
 ---
 apiVersion: v1

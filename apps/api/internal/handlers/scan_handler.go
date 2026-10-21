@@ -7,6 +7,7 @@ import (
 
 	"github.com/gabmetal/alpacard/api/internal/auth"
 	"github.com/gabmetal/alpacard/api/internal/events"
+	"github.com/gabmetal/alpacard/api/internal/metrics"
 	"github.com/gabmetal/alpacard/api/internal/models"
 	"gorm.io/gorm"
 )
@@ -26,12 +27,14 @@ type ScanResponse struct {
 func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	claims, ok := auth.GetUserFromContext(r.Context())
 	if !ok {
+		metrics.ScansTotal.WithLabelValues("unauthorized").Inc()
 		respondError(w, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	var req ScanRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Token == "" {
+		metrics.ScansTotal.WithLabelValues("invalid_request").Inc()
 		respondError(w, http.StatusBadRequest, "QR token is required")
 		return
 	}
@@ -39,11 +42,13 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	// 1. Verify Staff or Owner identity in DB
 	var staffUser models.User
 	if err := env.DB.Preload("OwnedBusinesses").Preload("StaffAt").First(&staffUser, "id = ?", claims.UserID).Error; err != nil {
+		metrics.ScansTotal.WithLabelValues("unauthorized").Inc()
 		respondError(w, http.StatusUnauthorized, "Staff user not found")
 		return
 	}
 
 	if len(staffUser.OwnedBusinesses) == 0 && len(staffUser.StaffAt) == 0 {
+		metrics.ScansTotal.WithLabelValues("forbidden").Inc()
 		respondError(w, http.StatusForbidden, "Only business owners or registered staff can scan customer cards")
 		return
 	}
@@ -51,6 +56,7 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	// 2. Cryptographically verify the QR token
 	tokenClaims, err := auth.VerifyStampQRToken(req.Token, env.Config.JWTSecret)
 	if err != nil {
+		metrics.ScansTotal.WithLabelValues("invalid_token").Inc()
 		respondError(w, http.StatusBadRequest, "Invalid or expired QR code token")
 		return
 	}
@@ -58,6 +64,7 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	// 3. Prevent Replay Attack via JTI verification
 	var existingScan models.ScannedToken
 	if err := env.DB.First(&existingScan, "jti = ?", tokenClaims.ID).Error; err == nil {
+		metrics.ScansTotal.WithLabelValues("replay_attack").Inc()
 		respondError(w, http.StatusConflict, "This QR code has already been scanned and processed")
 		return
 	}
@@ -65,6 +72,7 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	// 4. Retrieve Card, User, and Campaign
 	var card models.Card
 	if err := env.DB.Preload("User").Preload("Campaign.Business").First(&card, "id = ?", tokenClaims.CardID).Error; err != nil {
+		metrics.ScansTotal.WithLabelValues("not_found").Inc()
 		respondError(w, http.StatusNotFound, "Loyalty card not found")
 		return
 	}
@@ -89,6 +97,7 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !isAuthorized {
+		metrics.ScansTotal.WithLabelValues("wrong_business").Inc()
 		respondError(w, http.StatusForbidden, "This loyalty card belongs to a different business")
 		return
 	}
@@ -165,11 +174,15 @@ func (env *Env) VerifyAndAddStamp(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
+		metrics.ScansTotal.WithLabelValues("tx_failed").Inc()
 		respondError(w, http.StatusInternalServerError, "Transaction failed: "+err.Error())
 		return
 	}
 
 	// 7. Dispatch async event to RabbitMQ & notify live SSE card subscribers immediately
+	metrics.ScansTotal.WithLabelValues("success").Inc()
+	metrics.StampsTotal.WithLabelValues(finalAction).Inc()
+
 	NotifyCardUpdate(card.ID, newStamps, finalAction)
 	env.EventBus.PublishStampEvent(r.Context(), events.StampEvent{
 		Type:          finalAction,

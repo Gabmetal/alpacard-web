@@ -9,6 +9,6 @@ COPY bin/worker /app/worker
 ENV PORT=4000 \
     DB_DRIVER=postgres
 
-EXPOSE 4000
+EXPOSE 4000 9090
 
 CMD ["/app/server"]

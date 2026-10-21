@@ -15,9 +15,11 @@ import (
 	"github.com/gabmetal/alpacard/api/internal/db"
 	"github.com/gabmetal/alpacard/api/internal/events"
 	"github.com/gabmetal/alpacard/api/internal/handlers"
+	"github.com/gabmetal/alpacard/api/internal/metrics"
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -30,6 +32,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Fatal: Database initialization failed: %v", err)
 	}
+
+	// Start background database connection pool metrics collector
+	metrics.StartDBCollector(database, 10*time.Second)
 
 	// Initialize RabbitMQ Event Bus
 	eventBus := events.NewEventBus(cfg.RabbitMQURL)
@@ -46,6 +51,7 @@ func main() {
 	// Global middlewares
 	r.Use(chimiddleware.RequestID)
 	r.Use(chimiddleware.RealIP)
+	r.Use(metrics.Middleware()) // Prometheus HTTP metrics middleware
 	r.Use(chimiddleware.Logger)
 	r.Use(chimiddleware.Recoverer)
 
@@ -58,6 +64,10 @@ func main() {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+
+	// Prometheus Metrics Endpoint
+	r.Handle("/metrics", promhttp.Handler())
+	r.Handle("/api/metrics", promhttp.Handler())
 
 	// Health Check
 	healthHandler := func(w http.ResponseWriter, r *http.Request) {
