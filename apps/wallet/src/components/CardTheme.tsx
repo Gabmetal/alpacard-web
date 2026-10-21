@@ -39,7 +39,7 @@ export function parseImageBgConfig(bgValue?: string): { mode: 'contain' | 'cover
 
 export function getWalletCardStyle(props: CampaignThemeProps): React.CSSProperties {
   const textColor = props.textColor || '#ffffff';
-  let background = 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)';
+  let background = 'linear-gradient(135deg, #2C221E 0%, #4A3525 100%)';
 
   if (props.bgType === 'image' && props.bgImageUrl) {
     const { mode, color } = parseImageBgConfig(props.bgValue);
@@ -70,7 +70,7 @@ export function getWalletCardStyle(props: CampaignThemeProps): React.CSSProperti
 
 export function getActiveStampColor(bgValue?: string): string {
   const preset = CARD_THEME_PRESETS.find((p) => p.id === bgValue);
-  return preset?.stampActiveColor || '#4f46e5';
+  return preset?.stampActiveColor || '#4A3525';
 }
 
 export function WalletStampIcon({

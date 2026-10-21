@@ -207,19 +207,19 @@ export function CardDetailPage() {
 
   if (loading && !data) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <RefreshCw className="h-8 w-8 animate-spin text-indigo-600" />
+      <div className="flex h-screen items-center justify-center bg-[#FAF8F5]">
+        <RefreshCw className="h-8 w-8 animate-spin text-[#4A3525]" />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-gray-50 p-6 text-center">
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+      <div className="flex h-screen flex-col items-center justify-center bg-[#FAF8F5] p-6 text-center">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error || (isEs ? 'Tarjeta no encontrada' : 'Card not found')}
         </div>
-        <Link to="/wallet" className="mt-4 text-sm font-semibold text-indigo-600 hover:underline">
+        <Link to="/wallet" className="mt-4 text-sm font-semibold text-[#4A3525] hover:underline">
           &larr; {t.backToWallet}
         </Link>
       </div>
@@ -246,13 +246,13 @@ export function CardDetailPage() {
   const isGuest = !user || user.isAnonymous;
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-12">
-      <header className="flex items-center justify-between bg-white px-4 py-4 shadow-sm">
+    <div className="min-h-screen bg-[#FAF8F5] pb-12 text-stone-900">
+      <header className="sticky top-0 z-10 flex items-center justify-between bg-white border-b border-stone-200 px-4 py-3.5 shadow-xs">
         <div className="flex items-center gap-3">
-          <Link to="/wallet" className="rounded-full p-2 text-gray-600 hover:bg-gray-100">
+          <Link to="/wallet" className="rounded-full p-2 text-stone-600 hover:bg-stone-100">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-lg font-bold text-gray-800">
+          <h1 className="text-base sm:text-lg font-bold text-stone-900">
             {isEs ? 'Tarjeta de Fidelidad' : 'Punch Card'}
           </h1>
         </div>
@@ -262,7 +262,7 @@ export function CardDetailPage() {
       <main className="mx-auto max-w-sm px-4 pt-5">
         {/* Real-time stamp received celebration banner */}
         {stampAlert && (
-          <div className="mb-3.5 flex items-center justify-between rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-3 text-white shadow-lg animate-bounce">
+          <div className="mb-3.5 flex items-center justify-between rounded-2xl bg-emerald-800 px-4 py-3 text-white shadow-md animate-bounce">
             <div className="flex items-center gap-2 font-bold text-xs">
               <Sparkles className="h-4 w-4 text-amber-300 shrink-0" />
               <span>{stampAlert.message}</span>
@@ -278,17 +278,17 @@ export function CardDetailPage() {
 
         {/* Compact Guest Sync Banner (Shown if not logged in) */}
         {isGuest && (
-          <div className="mb-4 rounded-2xl border border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 p-3 shadow-xs">
+          <div className="mb-4 rounded-2xl border border-[#E6D9C6] bg-[#F5EFE6]/70 p-3 shadow-xs">
             <div className="flex items-center justify-between gap-2.5">
               <div className="flex items-center gap-2.5 min-w-0">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
-                  <Sparkles className="h-4 w-4 text-amber-300" />
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#3D2B1F] text-white shadow-xs">
+                  <Sparkles className="h-4 w-4 text-amber-200" />
                 </div>
                 <div className="min-w-0">
-                  <h4 className="text-[11px] font-bold text-indigo-950 uppercase tracking-wide leading-tight">
+                  <h4 className="text-[11px] font-bold text-stone-900 uppercase tracking-wide leading-tight">
                     {t.guestBadge}
                   </h4>
-                  <p className="text-[11px] text-indigo-900 leading-tight">
+                  <p className="text-[11px] text-stone-600 leading-tight">
                     {t.guestCardPrompt}
                   </p>
                 </div>
@@ -298,7 +298,7 @@ export function CardDetailPage() {
                   setAuthModalTab('register');
                   setIsAuthModalOpen(true);
                 }}
-                className="shrink-0 flex items-center gap-1 rounded-xl bg-indigo-600 px-2.5 py-1.5 text-[11px] font-bold text-white shadow-xs transition hover:bg-indigo-700 active:scale-95"
+                className="shrink-0 flex items-center gap-1 rounded-xl bg-[#3D2B1F] px-2.5 py-1.5 text-[11px] font-bold text-white shadow-xs transition hover:bg-[#2A1D15] active:scale-95"
               >
                 <LogIn className="h-3 w-3" />
                 <span>{t.authTabSignIn}</span>
@@ -308,12 +308,12 @@ export function CardDetailPage() {
         )}
 
         {/* The Digital Punch Card */}
-        <div className="overflow-hidden rounded-3xl bg-white shadow-xl">
+        <div className="overflow-hidden rounded-3xl bg-white border border-stone-200/80 shadow-md">
           {/* Card Top Branding */}
           <div style={cardStyle} className="p-6 text-center transition duration-300">
             <div className="flex items-center justify-center gap-2.5 mb-2">
               {card.campaign.logoUrl ? (
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/20 backdrop-blur-md p-1.5 shadow-md shrink-0">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-white/20 backdrop-blur-md p-1.5 shadow-sm shrink-0">
                   <img
                     src={card.campaign.logoUrl}
                     alt="Logo"
@@ -325,7 +325,7 @@ export function CardDetailPage() {
               )}
               <span
                 className={`text-xs font-bold uppercase tracking-wider ${
-                  isLightText ? 'text-white/85' : 'text-gray-700'
+                  isLightText ? 'text-white/85' : 'text-stone-700'
                 }`}
               >
                 {card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
@@ -334,7 +334,7 @@ export function CardDetailPage() {
             <h2 className="text-2xl font-black">{card.campaign.name}</h2>
             <p
               className={`mt-1 text-xs ${
-                isLightText ? 'text-white/90' : 'text-gray-600'
+                isLightText ? 'text-white/90' : 'text-stone-600'
               }`}
             >
               🎁 {card.campaign.reward || card.campaign.description}
@@ -344,7 +344,7 @@ export function CardDetailPage() {
           <div className="p-6">
             {/* Visual Stamp Circles */}
             <div className="mb-6">
-              <div className="flex items-center justify-between text-xs font-semibold text-gray-500 mb-3">
+              <div className="flex items-center justify-between text-xs font-semibold text-stone-500 mb-3">
                 <span>{isEs ? 'Sellos Coleccionados' : 'Stamps Collected'}</span>
                 <span className="font-bold" style={{ color: activeColor }}>
                   {stamps} / {stampsRequired}
@@ -361,10 +361,10 @@ export function CardDetailPage() {
                       key={idx}
                       className={`flex aspect-square items-center justify-center rounded-2xl border-2 transition-all duration-300 ${
                         isStamped
-                          ? 'text-white shadow-sm scale-100'
+                          ? 'text-white shadow-xs scale-100'
                           : isLast
-                          ? 'border-dashed border-amber-400 bg-amber-50 text-amber-500'
-                          : 'border-dashed border-gray-300 bg-gray-50 text-gray-300'
+                          ? 'border-dashed border-amber-400 bg-amber-50/70 text-amber-600'
+                          : 'border-dashed border-stone-300 bg-stone-50 text-stone-300'
                       }`}
                       style={
                         isStamped
@@ -393,8 +393,8 @@ export function CardDetailPage() {
             </div>
 
             {/* Dynamic QR Presentation - Contains full scanner URL for native cellphone camera scanning */}
-            <div className="flex flex-col items-center rounded-2xl border border-gray-100 bg-gray-50/50 p-6">
-              <div className="rounded-2xl bg-white p-3 shadow-inner">
+            <div className="flex flex-col items-center rounded-2xl border border-stone-200/80 bg-[#FAF8F5] p-5 sm:p-6">
+              <div className="rounded-2xl bg-white p-3 shadow-xs border border-stone-200/60">
                 <QRCode
                   value={
                     data.scanUrl ||
@@ -405,14 +405,14 @@ export function CardDetailPage() {
               </div>
 
               {/* Countdown & Refresh */}
-              <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-gray-500">
-                <Clock className="h-3.5 w-3.5 text-gray-400" />
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-stone-500">
+                <Clock className="h-3.5 w-3.5 text-stone-400" />
                 <span>
-                  {t.expiresIn} <strong className="text-gray-700">{formatTime(secondsLeft)}</strong>
+                  {t.expiresIn} <strong className="text-stone-700">{formatTime(secondsLeft)}</strong>
                 </span>
                 <button
                   onClick={() => fetchQR(false)}
-                  className="ml-2 text-indigo-600 hover:text-indigo-700 font-semibold"
+                  className="ml-2 text-[#4A3525] hover:text-[#2A1D15] font-semibold"
                   title="Refresh Token"
                 >
                   <RefreshCw className="h-3.5 w-3.5 inline" />
@@ -429,8 +429,8 @@ export function CardDetailPage() {
               </div>
 
               {/* Phone Camera Compatibility Pill */}
-              <div className="mt-2.5 flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700">
-                <Smartphone className="h-3.5 w-3.5" />
+              <div className="mt-2.5 flex items-center gap-1.5 rounded-full bg-[#F5EFE6] border border-[#E6D9C6] px-3 py-1 text-[11px] font-semibold text-[#4A3525]">
+                <Smartphone className="h-3.5 w-3.5 shrink-0" />
                 <span>
                   {isEs
                     ? 'Escanéalo con la cámara del celular o app'
@@ -438,7 +438,7 @@ export function CardDetailPage() {
                 </span>
               </div>
 
-              <p className="mt-2 text-center text-[11px] text-gray-400">
+              <p className="mt-2 text-center text-[11px] text-stone-400">
                 {isRewardReady
                   ? isEs
                     ? '¡Muestra al personal para reclamar tu premio gratis!'
@@ -453,18 +453,18 @@ export function CardDetailPage() {
             {card.campaign.business &&
               card.campaign.business.menuType &&
               card.campaign.business.menuType !== 'none' && (
-                <div className="mt-5 pt-4 border-t border-gray-100">
+                <div className="mt-5 pt-4 border-t border-stone-100">
                   <button
                     onClick={() => setIsMenuModalOpen(true)}
                     className="w-full flex items-center justify-between rounded-2xl py-3 px-4 text-xs font-bold shadow-xs transition active:scale-95 border"
                     style={{
                       backgroundColor: card.campaign.business.brandColor
                         ? `${card.campaign.business.brandColor}12`
-                        : '#eef2ff',
+                        : '#F5EFE6',
                       borderColor: card.campaign.business.brandColor
                         ? `${card.campaign.business.brandColor}40`
-                        : '#c7d2fe',
-                      color: card.campaign.business.brandColor || '#4f46e5',
+                        : '#E6D9C6',
+                      color: card.campaign.business.brandColor || '#4A3525',
                     }}
                   >
                     <div className="flex items-center gap-2">

@@ -46,7 +46,11 @@ interface CampaignsPageProps {
   businessName?: string;
 }
 
-const AVAILABLE_STAMP_ICONS: { id: CardStampIcon; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const AVAILABLE_STAMP_ICONS: {
+  id: CardStampIcon;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+}[] = [
   { id: 'coffee', label: 'Coffee', icon: Coffee },
   { id: 'star', label: 'Star', icon: Star },
   { id: 'sparkle', label: 'Sparkle', icon: Sparkles },
@@ -227,12 +231,14 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-black text-gray-900 tracking-tight">{t.campaigns.title}</h2>
-          <p className="text-xs text-gray-500">{t.campaigns.subtitle}</p>
+          <h2 className="text-xl sm:text-2xl font-bold text-stone-900 tracking-tight">
+            {t.campaigns.title}
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-500">{t.campaigns.subtitle}</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-500 transition"
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#3D2B1F] px-4 py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
           {t.campaigns.newCampaign}
@@ -241,29 +247,31 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
       {loading ? (
         <div className="flex h-40 items-center justify-center">
-          <RefreshCw className="h-6 w-6 animate-spin text-indigo-600" />
+          <RefreshCw className="h-6 w-6 animate-spin text-[#5C4028]" />
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-xs text-red-600">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-center text-xs text-red-700">
           {error}
         </div>
       ) : campaigns.length === 0 ? (
-        <div className="rounded-3xl border-2 border-dashed border-gray-200 bg-white p-12 text-center shadow-sm">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 mb-4">
-            <Palette className="h-7 w-7" />
+        <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-white p-10 sm:p-12 text-center shadow-2xs">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#4A3525] mb-4">
+            <Palette className="h-6 w-6" />
           </div>
-          <h3 className="text-sm font-bold text-gray-800">{t.campaigns.noCampaignsTitle}</h3>
-          <p className="mt-1 text-xs text-gray-500 max-w-sm mx-auto">{t.campaigns.noCampaignsDesc}</p>
+          <h3 className="text-sm font-bold text-stone-800">{t.campaigns.noCampaignsTitle}</h3>
+          <p className="mt-1 text-xs text-stone-500 max-w-sm mx-auto">
+            {t.campaigns.noCampaignsDesc}
+          </p>
           <button
             onClick={openCreateModal}
-            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-indigo-500"
+            className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-4 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16]"
           >
             <Plus className="h-4 w-4" />
             {t.campaigns.newCampaign}
           </button>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {campaigns.map((camp) => {
             const cardStyle = getCardStyle({
               bgType: camp.bgType,
@@ -275,17 +283,14 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
             return (
               <div
                 key={camp.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl bg-white shadow-sm border border-gray-100 transition hover:shadow-lg hover:-translate-y-0.5"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-white shadow-2xs border border-stone-200 transition hover:shadow-md"
               >
                 {/* Visual Card Banner Header */}
-                <div
-                  style={cardStyle}
-                  className="relative p-5 text-white transition duration-300"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
+                <div style={cardStyle} className="relative p-5 text-white transition duration-300">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       {camp.logoUrl ? (
-                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-white/15 backdrop-blur-xs p-1 shadow-sm shrink-0 overflow-hidden">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-white/20 bg-white/15 backdrop-blur-xs p-1 shadow-2xs shrink-0 overflow-hidden">
                           <img
                             src={camp.logoUrl}
                             alt="Logo"
@@ -297,17 +302,17 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           🦙
                         </div>
                       )}
-                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-80">
+                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-85 truncate">
                         {businessName}
                       </span>
                     </div>
 
-                    <span className="rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold backdrop-blur-xs">
+                    <span className="rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold backdrop-blur-xs shrink-0">
                       {camp.stampsRequired} {t.campaigns.stampsRequired.split(' ')[0]}
                     </span>
                   </div>
 
-                  <h3 className="mt-3 text-lg font-black leading-tight line-clamp-1">{camp.name}</h3>
+                  <h3 className="mt-3 text-lg font-bold leading-tight line-clamp-1">{camp.name}</h3>
                   <p className="mt-0.5 text-xs opacity-90 line-clamp-1">
                     🎁 {camp.reward || 'Free Reward'}
                   </p>
@@ -316,18 +321,20 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                 {/* Card Content & Stats */}
                 <div className="p-5 flex flex-col justify-between flex-1">
                   <div>
-                    <p className="text-xs text-gray-500 line-clamp-2">{camp.description || 'No description'}</p>
-                    <div className="mt-3 flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2 text-xs font-medium text-gray-700">
+                    <p className="text-xs text-stone-500 line-clamp-2">
+                      {camp.description || 'No description'}
+                    </p>
+                    <div className="mt-3 flex items-center justify-between rounded-xl bg-stone-50 border border-stone-200/60 px-3 py-2 text-xs font-medium text-stone-700">
                       <span>{t.campaigns.cardsActive}</span>
-                      <strong className="text-indigo-600 font-bold">{camp.cardsCount || 0}</strong>
+                      <strong className="text-[#4A3525] font-bold">{camp.cardsCount || 0}</strong>
                     </div>
                   </div>
 
                   {/* Actions Bar */}
-                  <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                  <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
                     <button
                       onClick={() => openEditModal(camp)}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-gray-700 hover:text-indigo-600 transition"
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-stone-700 hover:text-stone-900 transition"
                     >
                       <Pencil className="h-3.5 w-3.5" />
                       {t.campaigns.editDesign}
@@ -335,7 +342,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                     <button
                       onClick={() => setQrModalCampaign(camp)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700 hover:bg-indigo-100 transition"
+                      className="inline-flex items-center gap-1 rounded-lg bg-[#F5EFE6] border border-[#E6D9C6] px-2.5 py-1 text-xs font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition"
                     >
                       <QrCode className="h-3.5 w-3.5" />
                       {t.campaigns.printQrPoster}
@@ -350,33 +357,33 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
       {/* Create / Edit Campaign & Card Customizer Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="my-8 w-full max-w-4xl rounded-3xl bg-white p-6 shadow-2xl transition-all">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
+          <div className="my-4 sm:my-8 w-full max-w-4xl rounded-2xl bg-white p-5 sm:p-6 shadow-xl border border-stone-200 transition-all">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+            <div className="flex items-center justify-between border-b border-stone-200 pb-4">
               <div>
-                <h3 className="text-lg font-black text-gray-900">
+                <h3 className="text-base sm:text-lg font-bold text-stone-900">
                   {editingCampaignId ? t.campaigns.editTitle : t.campaigns.createTitle}
                 </h3>
-                <p className="text-xs text-gray-500">{t.campaigns.subtitle}</p>
+                <p className="text-xs text-stone-500">{t.campaigns.subtitle}</p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="rounded-full p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                className="rounded-full p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
 
             {/* Navigation Tabs */}
-            <div className="mt-4 flex border-b border-gray-100">
+            <div className="mt-4 flex border-b border-stone-200 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setActiveTab('rules')}
-                className={`border-b-2 px-4 py-2 text-xs font-bold transition ${
+                className={`border-b-2 px-4 py-2 text-xs font-semibold whitespace-nowrap transition ${
                   activeTab === 'rules'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-400 hover:text-gray-700'
+                    ? 'border-[#3D2B1F] text-[#3D2B1F]'
+                    : 'border-transparent text-stone-400 hover:text-stone-700'
                 }`}
               >
                 {t.campaigns.basicInfoTab}
@@ -384,10 +391,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
               <button
                 type="button"
                 onClick={() => setActiveTab('design')}
-                className={`border-b-2 px-4 py-2 text-xs font-bold transition ${
+                className={`border-b-2 px-4 py-2 text-xs font-semibold whitespace-nowrap transition ${
                   activeTab === 'design'
-                    ? 'border-indigo-600 text-indigo-600'
-                    : 'border-transparent text-gray-400 hover:text-gray-700'
+                    ? 'border-[#3D2B1F] text-[#3D2B1F]'
+                    : 'border-transparent text-stone-400 hover:text-stone-700'
                 }`}
               >
                 {t.campaigns.designTab}
@@ -402,7 +409,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                   {activeTab === 'rules' ? (
                     <>
                       <div>
-                        <label className="block text-xs font-bold text-gray-700">
+                        <label className="block text-xs font-semibold text-stone-700">
                           {t.campaigns.nameLabel} <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -411,12 +418,12 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder={t.campaigns.namePlaceholder}
-                          className="mt-1 block w-full rounded-xl border border-gray-300 p-2.5 text-xs font-medium focus:border-indigo-600 focus:outline-none"
+                          className="mt-1 block w-full rounded-xl border border-stone-300 p-2.5 text-xs font-medium focus:border-[#4A3525] focus:outline-none"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold text-gray-700">
+                        <label className="block text-xs font-semibold text-stone-700">
                           {t.campaigns.descLabel}
                         </label>
                         <textarea
@@ -424,13 +431,13 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
                           placeholder={t.campaigns.descPlaceholder}
-                          className="mt-1 block w-full rounded-xl border border-gray-300 p-2.5 text-xs font-medium focus:border-indigo-600 focus:outline-none"
+                          className="mt-1 block w-full rounded-xl border border-stone-300 p-2.5 text-xs font-medium focus:border-[#4A3525] focus:outline-none"
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-bold text-gray-700">
+                          <label className="block text-xs font-semibold text-stone-700">
                             {t.campaigns.stampsLabel}
                           </label>
                           <input
@@ -440,11 +447,11 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                             required
                             value={stampsRequired}
                             onChange={(e) => setStampsRequired(Number(e.target.value))}
-                            className="mt-1 block w-full rounded-xl border border-gray-300 p-2.5 text-xs font-medium focus:border-indigo-600 focus:outline-none"
+                            className="mt-1 block w-full rounded-xl border border-stone-300 p-2.5 text-xs font-medium focus:border-[#4A3525] focus:outline-none"
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-700">
+                          <label className="block text-xs font-semibold text-stone-700">
                             {t.campaigns.rewardLabel} <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -453,7 +460,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                             value={reward}
                             onChange={(e) => setReward(e.target.value)}
                             placeholder={t.campaigns.rewardPlaceholder}
-                            className="mt-1 block w-full rounded-xl border border-gray-300 p-2.5 text-xs font-medium focus:border-indigo-600 focus:outline-none"
+                            className="mt-1 block w-full rounded-xl border border-stone-300 p-2.5 text-xs font-medium focus:border-[#4A3525] focus:outline-none"
                           />
                         </div>
                       </div>
@@ -462,7 +469,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                         <button
                           type="button"
                           onClick={() => setActiveTab('design')}
-                          className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:text-indigo-700"
+                          className="inline-flex items-center gap-1 text-xs font-semibold text-[#5C4028] hover:text-[#3D2B1F]"
                         >
                           {t.campaigns.designTab} &rarr;
                         </button>
@@ -472,10 +479,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                     <>
                       {/* Theme Presets Selection */}
                       <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-2">
+                        <label className="block text-xs font-semibold text-stone-700 mb-2">
                           {t.campaigns.themePresetsLabel}
                         </label>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 xs:grid-cols-4 gap-2">
                           {CARD_THEME_PRESETS.map((preset) => {
                             const isSelected = bgType === 'preset' && bgValue === preset.id;
                             return (
@@ -485,8 +492,8 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                 onClick={() => handleSelectPreset(preset)}
                                 className={`relative flex flex-col items-center justify-between rounded-xl p-2 text-center transition-all ${
                                   isSelected
-                                    ? 'ring-2 ring-indigo-600 ring-offset-2 scale-102 shadow-md'
-                                    : 'border border-gray-200 hover:border-gray-300'
+                                    ? 'ring-2 ring-[#4A3525] ring-offset-2 shadow-xs'
+                                    : 'border border-stone-200 hover:border-stone-300'
                                 }`}
                               >
                                 <div
@@ -495,7 +502,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                 >
                                   {isSelected && <Check className="h-4 w-4 stroke-[3]" />}
                                 </div>
-                                <span className="mt-1 text-[10px] font-bold text-gray-800 line-clamp-1">
+                                <span className="mt-1 text-[10px] font-semibold text-stone-800 line-clamp-1">
                                   {isEs ? preset.nameEs : preset.name}
                                 </span>
                               </button>
@@ -506,17 +513,17 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                       {/* Background Style Switcher */}
                       <div className="pt-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
                           {t.campaigns.cardBgLabel}
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={() => setBgType('preset')}
-                            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                               bgType === 'preset'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-[#3D2B1F] text-white'
+                                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                             }`}
                           >
                             {t.campaigns.presetBg}
@@ -524,10 +531,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           <button
                             type="button"
                             onClick={() => setBgType('color')}
-                            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                               bgType === 'color'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-[#3D2B1F] text-white'
+                                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                             }`}
                           >
                             <Paintbrush className="h-3.5 w-3.5 inline mr-1" />
@@ -536,10 +543,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           <button
                             type="button"
                             onClick={() => setBgType('image')}
-                            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                               bgType === 'image'
-                                ? 'bg-indigo-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-[#3D2B1F] text-white'
+                                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                             }`}
                           >
                             <ImageIcon className="h-3.5 w-3.5 inline mr-1" />
@@ -551,7 +558,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           <div className="mt-3 flex items-center gap-2">
                             <input
                               type="color"
-                              value={bgValue.startsWith('#') ? bgValue : '#1e293b'}
+                              value={bgValue.startsWith('#') ? bgValue : '#292524'}
                               onChange={(e) => setBgValue(e.target.value)}
                               className="h-8 w-12 rounded cursor-pointer border-0"
                             />
@@ -559,8 +566,8 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                               type="text"
                               value={bgValue}
                               onChange={(e) => setBgValue(e.target.value)}
-                              placeholder="#1e293b or gradient"
-                              className="w-full rounded-xl border border-gray-300 p-2 text-xs font-mono"
+                              placeholder="#292524 or gradient"
+                              className="w-full rounded-xl border border-stone-300 p-2 text-xs font-mono"
                             />
                           </div>
                         )}
@@ -568,9 +575,9 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                         {bgType === 'image' && (
                           <div className="mt-3 space-y-3">
                             {/* Image Uploader & Thumbnail */}
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                               {bgImageUrl && (
-                                <div className="flex h-12 w-16 items-center justify-center rounded-2xl border border-gray-200 bg-white p-1 shadow-sm overflow-hidden shrink-0">
+                                <div className="flex h-12 w-16 items-center justify-center rounded-xl border border-stone-200 bg-white p-1 shadow-2xs overflow-hidden shrink-0">
                                   <img
                                     src={bgImageUrl}
                                     alt="Card Background"
@@ -578,7 +585,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                   />
                                 </div>
                               )}
-                              <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-3 py-2 text-xs font-bold text-indigo-700 hover:bg-indigo-50 transition">
+                              <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-dashed border-stone-300 bg-stone-50 px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-100 transition">
                                 <Upload className="h-3.5 w-3.5" />
                                 {uploadingBg ? 'Uploading...' : t.campaigns.uploadBgLabel}
                                 <input
@@ -592,7 +599,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                 <button
                                   type="button"
                                   onClick={() => setBgImageUrl('')}
-                                  className="text-xs text-red-500 hover:underline"
+                                  className="text-xs text-red-600 hover:underline"
                                 >
                                   Remove Image
                                 </button>
@@ -601,20 +608,21 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                             {/* Fit & Position Mode */}
                             <div>
-                              <span className="block text-[11px] font-bold text-gray-600 mb-1">
+                              <span className="block text-[11px] font-semibold text-stone-600 mb-1">
                                 {t.campaigns.bgFitLabel}
                               </span>
                               {(() => {
-                                const { mode: currentMode, color: currentColor } = parseImageBgConfig(bgValue);
+                                const { mode: currentMode, color: currentColor } =
+                                  parseImageBgConfig(bgValue);
                                 return (
-                                  <div className="flex gap-2">
+                                  <div className="flex flex-wrap gap-2">
                                     <button
                                       type="button"
                                       onClick={() => setBgValue(`contain:${currentColor}`)}
-                                      className={`rounded-xl px-2.5 py-1 text-xs font-bold transition ${
+                                      className={`rounded-xl px-2.5 py-1 text-xs font-semibold transition ${
                                         currentMode === 'contain'
-                                          ? 'bg-indigo-600 text-white'
-                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                          ? 'bg-[#3D2B1F] text-white'
+                                          : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                                       }`}
                                     >
                                       {t.campaigns.fitContain}
@@ -622,10 +630,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                     <button
                                       type="button"
                                       onClick={() => setBgValue(`cover:${currentColor}`)}
-                                      className={`rounded-xl px-2.5 py-1 text-xs font-bold transition ${
+                                      className={`rounded-xl px-2.5 py-1 text-xs font-semibold transition ${
                                         currentMode === 'cover'
-                                          ? 'bg-indigo-600 text-white'
-                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                          ? 'bg-[#3D2B1F] text-white'
+                                          : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                                       }`}
                                     >
                                       {t.campaigns.fitCover}
@@ -633,10 +641,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                     <button
                                       type="button"
                                       onClick={() => setBgValue(`watermark:${currentColor}`)}
-                                      className={`rounded-xl px-2.5 py-1 text-xs font-bold transition ${
+                                      className={`rounded-xl px-2.5 py-1 text-xs font-semibold transition ${
                                         currentMode === 'watermark'
-                                          ? 'bg-indigo-600 text-white'
-                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                          ? 'bg-[#3D2B1F] text-white'
+                                          : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                                       }`}
                                     >
                                       {t.campaigns.fitWatermark}
@@ -648,25 +656,32 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                             {/* Base Background Color */}
                             <div>
-                              <span className="block text-[11px] font-bold text-gray-600 mb-1">
+                              <span className="block text-[11px] font-semibold text-stone-600 mb-1">
                                 {t.campaigns.baseColorLabel}
                               </span>
                               {(() => {
-                                const { mode: currentMode, color: currentColor } = parseImageBgConfig(bgValue);
+                                const { mode: currentMode, color: currentColor } =
+                                  parseImageBgConfig(bgValue);
                                 return (
                                   <div className="flex items-center gap-2">
                                     <input
                                       type="color"
-                                      value={currentColor.startsWith('#') ? currentColor : '#1e293b'}
-                                      onChange={(e) => setBgValue(`${currentMode}:${e.target.value}`)}
+                                      value={
+                                        currentColor.startsWith('#') ? currentColor : '#292524'
+                                      }
+                                      onChange={(e) =>
+                                        setBgValue(`${currentMode}:${e.target.value}`)
+                                      }
                                       className="h-8 w-12 rounded cursor-pointer border-0"
                                     />
                                     <input
                                       type="text"
                                       value={currentColor}
-                                      onChange={(e) => setBgValue(`${currentMode}:${e.target.value}`)}
-                                      placeholder="#1e293b"
-                                      className="w-40 rounded-xl border border-gray-300 p-1.5 text-xs font-mono"
+                                      onChange={(e) =>
+                                        setBgValue(`${currentMode}:${e.target.value}`)
+                                      }
+                                      placeholder="#292524"
+                                      className="w-40 rounded-xl border border-stone-300 p-1.5 text-xs font-mono"
                                     />
                                   </div>
                                 );
@@ -678,12 +693,12 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                       {/* Store Logo Uploader */}
                       <div className="pt-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
                           {t.campaigns.uploadLogoLabel}
                         </label>
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
                           {logoUrl && (
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-1 shadow-sm shrink-0 overflow-hidden">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-stone-200 bg-stone-50 p-1 shadow-2xs shrink-0 overflow-hidden">
                               <img
                                 src={logoUrl}
                                 alt="Logo"
@@ -691,8 +706,8 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                               />
                             </div>
                           )}
-                          <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-bold text-gray-700 hover:bg-gray-50 transition">
-                            <Upload className="h-3.5 w-3.5 text-gray-500" />
+                          <label className="flex cursor-pointer items-center gap-1.5 rounded-xl border border-stone-200 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition">
+                            <Upload className="h-3.5 w-3.5 text-stone-500" />
                             {uploadingLogo ? 'Uploading...' : 'Choose Logo File'}
                             <input
                               type="file"
@@ -705,7 +720,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                             <button
                               type="button"
                               onClick={() => setLogoUrl('')}
-                              className="text-xs text-red-500 hover:underline"
+                              className="text-xs text-red-600 hover:underline"
                             >
                               Remove
                             </button>
@@ -715,10 +730,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                       {/* Stamp Icon Selector */}
                       <div className="pt-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
                           {t.campaigns.stampIconLabel}
                         </label>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-2 xs:grid-cols-4 gap-2">
                           {AVAILABLE_STAMP_ICONS.map((item) => {
                             const IconComponent = item.icon;
                             const isSelected = stampIcon === item.id;
@@ -727,10 +742,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                                 key={item.id}
                                 type="button"
                                 onClick={() => setStampIcon(item.id)}
-                                className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-bold transition ${
+                                className={`flex items-center justify-center gap-1.5 rounded-xl border p-2 text-xs font-semibold transition ${
                                   isSelected
-                                    ? 'border-indigo-600 bg-indigo-50 text-indigo-700'
-                                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                                    ? 'border-[#4A3525] bg-[#F5EFE6] text-[#3D2B1F]'
+                                    : 'border-stone-200 text-stone-600 hover:border-stone-300'
                                 }`}
                               >
                                 <IconComponent className="h-4 w-4" />
@@ -743,17 +758,17 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
                       {/* Text Contrast Color */}
                       <div className="pt-2">
-                        <label className="block text-xs font-bold text-gray-700 mb-1">
+                        <label className="block text-xs font-semibold text-stone-700 mb-1">
                           {t.campaigns.textColorLabel}
                         </label>
                         <div className="flex gap-2">
                           <button
                             type="button"
                             onClick={() => setTextColor('#ffffff')}
-                            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                               textColor === '#ffffff'
-                                ? 'bg-gray-900 text-white'
-                                : 'bg-gray-100 text-gray-700'
+                                ? 'bg-stone-900 text-white'
+                                : 'bg-stone-100 text-stone-700'
                             }`}
                           >
                             {t.campaigns.lightText}
@@ -761,10 +776,10 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                           <button
                             type="button"
                             onClick={() => setTextColor('#18181b')}
-                            className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                               textColor === '#18181b'
-                                ? 'bg-gray-900 text-white'
-                                : 'bg-gray-100 text-gray-700'
+                                ? 'bg-stone-900 text-white'
+                                : 'bg-stone-100 text-stone-700'
                             }`}
                           >
                             {t.campaigns.darkText}
@@ -778,7 +793,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                 {/* Right Column: Real-time Live Preview */}
                 <div className="lg:col-span-5 flex flex-col justify-start">
                   <div className="sticky top-4 space-y-2">
-                    <span className="text-[11px] font-black uppercase tracking-wider text-gray-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400">
                       {t.campaigns.livePreview}
                     </span>
                     <CardPreview
@@ -799,18 +814,18 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
               </div>
 
               {/* Modal Actions */}
-              <div className="mt-8 flex items-center justify-end gap-3 border-t border-gray-100 pt-4">
+              <div className="mt-8 flex items-center justify-end gap-3 border-t border-stone-100 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="rounded-xl border border-gray-200 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-gray-50 transition"
+                  className="rounded-xl border border-stone-200 px-4 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
                 >
                   {t.campaigns.cancel}
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-indigo-600 px-5 py-2 text-xs font-bold text-white shadow-md hover:bg-indigo-500 transition disabled:opacity-50"
+                  className="rounded-xl bg-[#3D2B1F] px-5 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition disabled:opacity-50"
                 >
                   {submitting ? t.campaigns.saving : t.campaigns.saveCampaign}
                 </button>
@@ -823,35 +838,35 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
       {/* QR Poster Modal */}
       {qrModalCampaign && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-white p-6 shadow-2xl text-center">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-stone-200 text-center">
             <div className="flex justify-end">
               <button
                 onClick={() => setQrModalCampaign(null)}
-                className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+                className="rounded-full p-1 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <span className="text-xs font-black text-indigo-600 uppercase tracking-wider">
+            <span className="text-xs font-bold text-[#5C4028] uppercase tracking-wider">
               {t.campaigns.printQrPoster}
             </span>
-            <h3 className="mt-1 text-xl font-black text-gray-900">{qrModalCampaign.name}</h3>
-            <p className="mt-1 text-xs text-gray-500">{qrModalCampaign.reward}</p>
+            <h3 className="mt-1 text-xl font-bold text-stone-900">{qrModalCampaign.name}</h3>
+            <p className="mt-1 text-xs text-stone-500">{qrModalCampaign.reward}</p>
 
-            <div className="mt-6 flex justify-center rounded-2xl bg-gray-50 p-6 border border-gray-100 shadow-inner">
+            <div className="mt-6 flex justify-center rounded-2xl bg-stone-50 p-6 border border-stone-200">
               <QRCode
                 value={`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
                 size={200}
               />
             </div>
 
-            <p className="mt-4 text-[11px] text-gray-400 font-mono break-all">
+            <p className="mt-4 text-[11px] text-stone-400 font-mono break-all">
               {`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
             </p>
 
             <button
               onClick={() => window.print()}
-              className="mt-6 w-full rounded-xl bg-indigo-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-indigo-500 transition"
+              className="mt-6 w-full rounded-xl bg-[#3D2B1F] py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition"
             >
               {isEs ? 'Imprimir Póster para Mostrador' : 'Print Counter Poster'}
             </button>

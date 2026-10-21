@@ -44,7 +44,8 @@ export function ScannerPage() {
       if ('vibrate' in navigator) {
         navigator.vibrate(isSuccess ? [100, 50, 100] : 300);
       }
-      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const ctx = new (window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -88,7 +89,6 @@ export function ScannerPage() {
       const cleanToken = extractToken(rawUrlToken);
       if (cleanToken) {
         handleProcessToken(cleanToken);
-        // Clear query parameters to avoid duplicate submission on refresh
         setSearchParams({}, { replace: true });
       }
     }
@@ -116,13 +116,17 @@ export function ScannerPage() {
   return (
     <div className="max-w-md mx-auto space-y-6">
       <div className="text-center">
-        <h2 className="text-xl font-bold text-gray-900">{isEs ? 'Escáner de Fidelidad' : 'Loyalty Scanner'}</h2>
-        <p className="text-xs text-gray-500">
-          {isEs ? 'Apunta la cámara al código QR dinámico del cliente para sumar sellos o canjear premios' : 'Point camera at the customer\'s dynamic QR card to add a stamp or redeem rewards'}
+        <h2 className="text-xl font-bold text-stone-900">
+          {isEs ? 'Escáner de Fidelidad' : 'Loyalty Scanner'}
+        </h2>
+        <p className="text-xs text-stone-500 mt-1">
+          {isEs
+            ? 'Apunta la cámara al código QR dinámico del cliente para sumar sellos o canjear premios'
+            : "Point camera at the customer's dynamic QR card to add a stamp or redeem rewards"}
         </p>
       </div>
 
-      <div className="relative aspect-square overflow-hidden rounded-3xl bg-black shadow-2xl">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-stone-900 shadow-md border border-stone-200">
         {scanning && !result && !error && (
           <Scanner
             onScan={handleScan}
@@ -137,9 +141,13 @@ export function ScannerPage() {
 
         {/* Processing State */}
         {processing && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 text-white p-6">
-            <RefreshCw className="h-10 w-10 animate-spin text-indigo-400 mb-3" />
-            <p className="text-sm font-semibold">{isEs ? 'Validando firma criptográfica del sello...' : 'Validating stamp cryptographic signature...'}</p>
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-stone-950/85 text-white p-6 text-center">
+            <RefreshCw className="h-9 w-9 animate-spin text-stone-300 mb-3" />
+            <p className="text-sm font-medium">
+              {isEs
+                ? 'Validando firma criptográfica del sello...'
+                : 'Validating stamp cryptographic signature...'}
+            </p>
           </div>
         )}
 
@@ -147,26 +155,28 @@ export function ScannerPage() {
         {result && (
           <div
             className={`absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center text-white ${
-              result.action === 'REDEEM'
-                ? 'bg-gradient-to-br from-emerald-600 to-teal-700'
-                : 'bg-gradient-to-br from-indigo-600 to-violet-700'
+              result.action === 'REDEEM' ? 'bg-emerald-900' : 'bg-[#2C221E]'
             }`}
           >
             {result.action === 'REDEEM' ? (
-              <Sparkles className="h-16 w-16 mb-2 animate-bounce" />
+              <Sparkles className="h-14 w-14 mb-2 text-amber-300" />
             ) : (
-              <CheckCircle2 className="h-16 w-16 mb-2" />
+              <CheckCircle2 className="h-14 w-14 mb-2 text-stone-200" />
             )}
-            <h3 className="text-2xl font-black">{result.message}</h3>
+            <h3 className="text-xl sm:text-2xl font-bold">{result.message}</h3>
 
-            <div className="mt-4 rounded-2xl bg-white/20 backdrop-blur-md px-6 py-3">
-              <span className="text-xs uppercase font-semibold text-white/80">{isEs ? 'Nuevo Balance' : 'New Balance'}</span>
-              <p className="text-4xl font-black">{result.newCount} {isEs ? 'Sellos' : 'Stamps'}</p>
+            <div className="mt-4 rounded-xl bg-white/10 border border-white/15 px-6 py-3">
+              <span className="text-xs uppercase font-semibold text-stone-300">
+                {isEs ? 'Nuevo Balance' : 'New Balance'}
+              </span>
+              <p className="text-3xl sm:text-4xl font-bold mt-0.5">
+                {result.newCount} {isEs ? 'Sellos' : 'Stamps'}
+              </p>
             </div>
 
             <button
               onClick={resetScanner}
-              className="mt-8 rounded-full bg-white px-8 py-3 text-sm font-black text-gray-900 shadow-xl hover:bg-gray-100 transition active:scale-95"
+              className="mt-8 rounded-xl bg-white px-6 py-3 text-xs sm:text-sm font-bold text-stone-900 shadow-md hover:bg-stone-100 transition active:scale-95"
             >
               {isEs ? 'Escanear Próximo Cliente' : 'Scan Next Customer'}
             </button>
@@ -175,14 +185,14 @@ export function ScannerPage() {
 
         {/* Error Result Overlay */}
         {error && (
-          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-br from-red-600 to-rose-700 p-6 text-center text-white">
-            <AlertCircle className="h-16 w-16 mb-2 animate-pulse" />
-            <h3 className="text-xl font-black">{isEs ? 'Escaneo Rechazado' : 'Scan Rejected'}</h3>
+          <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-red-900 p-6 text-center text-white">
+            <AlertCircle className="h-14 w-14 mb-2 text-red-200" />
+            <h3 className="text-xl font-bold">{isEs ? 'Escaneo Rechazado' : 'Scan Rejected'}</h3>
             <p className="mt-2 text-xs text-red-100 max-w-xs">{error}</p>
 
             <button
               onClick={resetScanner}
-              className="mt-8 rounded-full bg-white px-8 py-3 text-sm font-black text-red-700 shadow-xl hover:bg-gray-100 transition active:scale-95"
+              className="mt-8 rounded-xl bg-white px-6 py-3 text-xs sm:text-sm font-bold text-red-900 shadow-md hover:bg-stone-100 transition active:scale-95"
             >
               {isEs ? 'Intentar Nuevamente' : 'Try Again'}
             </button>
@@ -191,31 +201,39 @@ export function ScannerPage() {
       </div>
 
       {/* Manual Token or URL input */}
-      <div className="rounded-2xl bg-white p-4 shadow-sm border border-gray-100">
-        <label className="block text-xs font-semibold text-gray-700 mb-1">
-          {isEs ? 'Entrada Manual de Token o URL (Pruebas / Debug)' : 'Manual Token or URL Entry (Debug / Testing)'}
+      <div className="rounded-2xl bg-white p-4 shadow-2xs border border-stone-200">
+        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+          {isEs
+            ? 'Entrada Manual de Token o URL (Pruebas / Debug)'
+            : 'Manual Token or URL Entry (Debug / Testing)'}
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-col xs:flex-row gap-2">
           <input
             type="text"
             value={manualToken}
             onChange={(e) => setManualToken(e.target.value)}
-            placeholder={isEs ? 'Pegar token JWT o URL completa...' : 'Paste JWT token or full scan URL...'}
-            className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-none"
+            placeholder={
+              isEs ? 'Pegar token JWT o URL completa...' : 'Paste JWT token or full scan URL...'
+            }
+            className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-xs focus:border-[#4A3525] focus:outline-none"
           />
           <button
             onClick={() => handleProcessToken(extractToken(manualToken))}
             disabled={!manualToken || processing}
-            className="rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white hover:bg-gray-800 disabled:opacity-50"
+            className="rounded-xl bg-[#3D2B1F] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2C1F16] disabled:opacity-50"
           >
             {isEs ? 'Verificar' : 'Verify'}
           </button>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400">
+      <div className="flex items-center justify-center gap-1.5 text-xs text-stone-400">
         <Volume2 className="h-3.5 w-3.5" />
-        <span>{isEs ? 'Sonido y vibración háptica activados' : 'Audio and vibration feedback are active'}</span>
+        <span>
+          {isEs
+            ? 'Sonido y vibración háptica activados'
+            : 'Audio and vibration feedback are active'}
+        </span>
       </div>
     </div>
   );

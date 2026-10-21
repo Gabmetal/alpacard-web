@@ -26,7 +26,7 @@ interface MenuModalProps {
 export function MenuModal({ isOpen, onClose, business }: MenuModalProps) {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
-  const brandColor = business.brandColor || '#4f46e5';
+  const brandColor = business.brandColor || '#4A3525';
 
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
 
@@ -112,10 +112,10 @@ export function MenuModal({ isOpen, onClose, business }: MenuModalProps) {
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* External Link or File Banner */}
           {isLinkOrFile && business.menuUrl && (
-            <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/70 to-violet-50/40 p-4">
+            <div className="rounded-2xl border border-[#E6D9C6] bg-[#F5EFE6]/70 p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2.5">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-xs">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3D2B1F] text-white shadow-xs">
                     {business.menuType === 'file' ? (
                       <FileText className="h-4 w-4" />
                     ) : (
@@ -123,7 +123,7 @@ export function MenuModal({ isOpen, onClose, business }: MenuModalProps) {
                     )}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-gray-900">
+                    <h4 className="text-xs font-bold text-stone-900">
                       {business.menuType === 'file'
                         ? isEs
                           ? 'Carta en PDF / Imagen'
@@ -132,7 +132,7 @@ export function MenuModal({ isOpen, onClose, business }: MenuModalProps) {
                         ? 'Menú Online Externo'
                         : 'External Online Menu'}
                     </h4>
-                    <p className="text-[11px] text-gray-500">
+                    <p className="text-[11px] text-stone-600">
                       {business.menuType === 'file'
                         ? isEs
                           ? 'Descarga o visualiza la carta completa'
@@ -147,7 +147,7 @@ export function MenuModal({ isOpen, onClose, business }: MenuModalProps) {
                   href={business.menuUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-3 py-2 text-xs font-bold text-white shadow-xs hover:bg-indigo-700 transition shrink-0 active:scale-95"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-3 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#2A1D15] transition shrink-0 active:scale-95"
                 >
                   <span>{t.openExternalMenu}</span>
                   <ExternalLink className="h-3 w-3" />

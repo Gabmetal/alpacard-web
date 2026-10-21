@@ -79,61 +79,66 @@ export function StaffPage({ businessId }: StaffPageProps) {
   return (
     <div className="space-y-6 max-w-4xl">
       <div>
-        <h2 className="text-xl font-bold text-gray-900">Staff Members</h2>
-        <p className="text-xs text-gray-500">
+        <h2 className="text-xl sm:text-2xl font-bold text-stone-900">Staff Members</h2>
+        <p className="text-xs sm:text-sm text-stone-500">
           Staff members are authorized to scan customer QR codes and validate rewards
         </p>
       </div>
 
       {/* Add Staff Card */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
-        <h3 className="text-sm font-bold text-gray-900 mb-3">Invite Team Member</h3>
-        <form onSubmit={handleAddStaff} className="flex gap-3">
+      <div className="rounded-2xl bg-white p-5 sm:p-6 shadow-2xs border border-stone-200">
+        <h3 className="text-sm font-bold text-stone-900 mb-3">Invite Team Member</h3>
+        <form onSubmit={handleAddStaff} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3">
           <input
             type="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="barista@yourcafe.com"
-            className="flex-1 rounded-xl border border-gray-300 px-3 py-2 text-xs focus:border-indigo-600 focus:outline-none"
+            className="flex-1 rounded-xl border border-stone-300 px-3.5 py-2.5 text-xs focus:border-[#4A3525] focus:outline-none"
           />
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white shadow hover:bg-indigo-500 disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[#3D2B1F] px-4 py-2.5 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16] disabled:opacity-50"
           >
             <UserPlus className="h-4 w-4" />
             {submitting ? 'Adding...' : 'Add Staff'}
           </button>
         </form>
-        {error && <p className="mt-2 text-xs text-red-500 font-medium">{error}</p>}
+        {error && <p className="mt-2 text-xs text-red-600 font-medium">{error}</p>}
       </div>
 
       {/* Staff Table */}
-      <div className="rounded-2xl bg-white shadow-sm border border-gray-100 overflow-hidden">
+      <div className="rounded-2xl bg-white shadow-2xs border border-stone-200 overflow-hidden">
         {loading ? (
           <div className="flex h-32 items-center justify-center">
-            <RefreshCw className="h-6 w-6 animate-spin text-indigo-600" />
+            <RefreshCw className="h-6 w-6 animate-spin text-[#5C4028]" />
           </div>
         ) : staff.length === 0 ? (
-          <div className="p-8 text-center text-xs text-gray-400">
+          <div className="p-8 text-center text-xs text-stone-400">
             No staff members added yet. Add team members to let them scan loyalty cards.
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-stone-100">
             {staff.map((member) => (
-              <div key={member.id} className="flex items-center justify-between p-4 hover:bg-gray-50/50">
-                <div>
-                  <h4 className="text-xs font-bold text-gray-900">{member.name || member.email}</h4>
-                  <p className="text-[11px] text-gray-500">{member.email}</p>
+              <div
+                key={member.id}
+                className="flex items-center justify-between p-4 hover:bg-stone-50/70 gap-3"
+              >
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-stone-900 truncate">
+                    {member.name || member.email}
+                  </h4>
+                  <p className="text-[11px] text-stone-500 truncate">{member.email}</p>
                 </div>
-                <div className="flex items-center gap-3">
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="rounded-md bg-[#F5EFE6] border border-[#E6D9C6] px-2 py-0.5 text-[10px] font-semibold text-[#4A3525]">
                     {member.role}
                   </span>
                   <button
                     onClick={() => handleRemoveStaff(member.id)}
-                    className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
+                    className="rounded-lg p-1.5 text-stone-400 hover:bg-red-50 hover:text-red-600"
                     title="Remove staff"
                   >
                     <Trash2 className="h-4 w-4" />
