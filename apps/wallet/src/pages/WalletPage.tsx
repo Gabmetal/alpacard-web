@@ -377,6 +377,34 @@ export function WalletPage() {
             })}
           </div>
         )}
+
+        {/* Viral Merchant Discovery Footer */}
+        <div className="pt-6 pb-2 text-center">
+          <div className="rounded-2xl border border-stone-200/80 bg-white/80 p-4 shadow-2xs backdrop-blur-xs">
+            <p className="text-xs font-bold text-stone-800">
+              {isEs
+                ? '¿Tienes una cafetería, pastelería o comercio?'
+                : 'Own a coffee shop, bakery, or local business?'}
+            </p>
+            <p className="text-[11px] text-stone-500 mt-0.5">
+              {isEs
+                ? 'Crea tu tarjeta de fidelidad digital 100% gratis con Alpacard.'
+                : 'Launch your 100% free digital punch card with Alpacard.'}
+            </p>
+            <a
+              href="https://alpacard.gabo.lat"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#2A1D15] active:scale-95 shadow-xs"
+            >
+              <span>{isEs ? 'Crear mi tarjeta gratis' : 'Create Free Store Card'}</span>
+              <span className="text-stone-300">→</span>
+            </a>
+          </div>
+          <p className="mt-3 text-[10px] text-stone-400">
+            Alpacard • Open-Source Digital Loyalty Platform
+          </p>
+        </div>
       </main>
 
       {/* Business Menu Modal */}

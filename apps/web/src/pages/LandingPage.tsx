@@ -19,11 +19,14 @@ import {
   Menu,
   X,
   Coffee,
+  Sparkles,
 } from 'lucide-react';
 
 export function LandingPage() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEs = language === 'es';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showVideoModal, setShowVideoModal] = useState(false);
 
   // Interactive Punch Card Demo Widget State
   const [stamps, setStamps] = useState(7);
@@ -208,11 +211,19 @@ export function LandingPage() {
                   <Coffee className="h-4 w-4" />
                   {t.landing.launchMerchantBtn}
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowVideoModal(true)}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-5 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
+                >
+                  <Play className="h-4 w-4 text-[#4A3525] fill-current" />
+                  <span>{isEs ? 'Ver Video Tutorial' : 'Video Tutorial'}</span>
+                </button>
                 <Link
                   to="/demo"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-6 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
                 >
-                  <Play className="h-4 w-4 text-[#5C4028]" />
+                  <Sparkles className="h-4 w-4 text-[#5C4028]" />
                   {t.landing.tryDemoBtn}
                 </Link>
                 <Link
@@ -554,6 +565,63 @@ export function LandingPage() {
           <div className="text-stone-500 text-center sm:text-right">{t.landing.footerDesc}</div>
         </div>
       </footer>
+
+      {/* Video Tutorial Modal */}
+      {showVideoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+          <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-stone-200">
+            <div className="flex items-center justify-between bg-[#2C221E] px-6 py-4 text-white">
+              <div className="flex items-center gap-2.5">
+                <Play className="h-4 w-4 text-amber-300 fill-current" />
+                <h3 className="text-sm sm:text-base font-bold">
+                  {isEs
+                    ? 'Tutorial Completo: Modo Comercio y Billetera de Clientes'
+                    : 'Full Platform Walkthrough: Merchant & Consumer Experience'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowVideoModal(false)}
+                className="rounded-full bg-white/15 p-1.5 text-white/80 hover:bg-white/25 hover:text-white transition"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="bg-black aspect-video w-full">
+              <video
+                src="/alpacard-tutorial.mp4"
+                controls
+                autoPlay
+                className="w-full h-full object-contain"
+              >
+                Your browser does not support the video tag.
+              </video>
+            </div>
+
+            <div className="p-4 sm:p-5 bg-[#FAF8F5] border-t border-stone-200 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-600">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <span className="font-semibold text-stone-800">
+                  {isEs ? 'Capítulos:' : 'Chapters:'}
+                </span>
+                <span>1. {isEs ? 'Personalización' : 'Store Branding'}</span>
+                <span>•</span>
+                <span>2. {isEs ? 'Menús y Mostrador' : 'Menus & Stand'}</span>
+                <span>•</span>
+                <span>3. {isEs ? 'Billetera Móvil' : 'Wallet PWA'}</span>
+                <span>•</span>
+                <span>4. {isEs ? 'Escaneo Cámara' : 'Camera Stamp'}</span>
+              </div>
+              <a
+                href="/alpacard-tutorial.mp4"
+                download="alpacard-tutorial.mp4"
+                className="font-bold text-[#4A3525] hover:underline"
+              >
+                Download MP4 (1.7 MB) ↓
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
