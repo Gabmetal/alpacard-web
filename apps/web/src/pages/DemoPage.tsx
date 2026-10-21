@@ -17,12 +17,18 @@ import {
   Coffee,
   Play,
   X,
+  Volume2,
 } from 'lucide-react';
 
 export function DemoPage() {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [videoLang, setVideoLang] = useState<'es' | 'en'>(isEs ? 'es' : 'en');
+
+  useEffect(() => {
+    setVideoLang(isEs ? 'es' : 'en');
+  }, [isEs]);
   const [stamps, setStamps] = useState(7);
   const maxStamps = 10;
   const [scanState, setScanState] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
@@ -514,26 +520,56 @@ export function DemoPage() {
       {showVideoModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-xs p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl border border-stone-200">
-            <div className="flex items-center justify-between bg-[#2C221E] px-6 py-4 text-white">
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-[#2C221E] px-5 sm:px-6 py-3.5 text-white">
               <div className="flex items-center gap-2.5">
-                <Play className="h-4 w-4 text-amber-300 fill-current" />
+                <Play className="h-4 w-4 text-amber-300 fill-current shrink-0" />
                 <h3 className="text-sm sm:text-base font-bold">
-                  {isEs
-                    ? 'Tutorial Completo: Modo Comercio y Billetera de Clientes'
-                    : 'Full Platform Walkthrough: Merchant & Consumer Experience'}
+                  {videoLang === 'es'
+                    ? 'Tutorial con Voz IA (ES): Modo Comercio y Billetera de Clientes'
+                    : 'AI Voice-Over Tutorial (EN): Merchant & Consumer Walkthrough'}
                 </h3>
               </div>
-              <button
-                onClick={() => setShowVideoModal(false)}
-                className="rounded-full bg-white/15 p-1.5 text-white/80 hover:bg-white/25 hover:text-white transition"
-              >
-                <X className="h-4 w-4" />
-              </button>
+
+              <div className="flex items-center gap-2.5 ml-auto">
+                <div className="inline-flex items-center rounded-xl bg-white/10 p-0.5 border border-white/15 text-xs font-semibold">
+                  <Volume2 className="h-3.5 w-3.5 text-amber-300 ml-2 mr-1.5" />
+                  <button
+                    type="button"
+                    onClick={() => setVideoLang('es')}
+                    className={`rounded-lg px-2.5 py-1 transition ${
+                      videoLang === 'es'
+                        ? 'bg-[#D4A373] text-[#1C1613] font-bold shadow-2xs'
+                        : 'text-stone-300 hover:text-white'
+                    }`}
+                  >
+                    ES Voz
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setVideoLang('en')}
+                    className={`rounded-lg px-2.5 py-1 transition ${
+                      videoLang === 'en'
+                        ? 'bg-[#D4A373] text-[#1C1613] font-bold shadow-2xs'
+                        : 'text-stone-300 hover:text-white'
+                    }`}
+                  >
+                    EN Voice
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setShowVideoModal(false)}
+                  className="rounded-full bg-white/15 p-1.5 text-white/80 hover:bg-white/25 hover:text-white transition"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <div className="bg-black aspect-video w-full">
               <video
-                src="/alpacard-tutorial.mp4"
+                key={videoLang}
+                src={`/alpacard-tutorial-${videoLang}.mp4`}
                 controls
                 autoPlay
                 className="w-full h-full object-contain"
@@ -545,22 +581,24 @@ export function DemoPage() {
             <div className="p-4 sm:p-5 bg-[#FAF8F5] border-t border-stone-200 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-600">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <span className="font-semibold text-stone-800">
-                  {isEs ? 'Capítulos:' : 'Chapters:'}
+                  {videoLang === 'es' ? 'Capítulos:' : 'Chapters:'}
                 </span>
-                <span>1. {isEs ? 'Personalización' : 'Store Branding'}</span>
+                <span>1. {videoLang === 'es' ? 'Personalización' : 'Store Branding'}</span>
                 <span>•</span>
-                <span>2. {isEs ? 'Menús y Mostrador' : 'Menus & Stand'}</span>
+                <span>2. {videoLang === 'es' ? 'Menús y Mostrador' : 'Menus & Stand'}</span>
                 <span>•</span>
-                <span>3. {isEs ? 'Billetera Móvil' : 'Wallet PWA'}</span>
+                <span>3. {videoLang === 'es' ? 'Billetera Móvil' : 'Wallet PWA'}</span>
                 <span>•</span>
-                <span>4. {isEs ? 'Escaneo Cámara' : 'Camera Stamp'}</span>
+                <span>4. {videoLang === 'es' ? 'Escaneo Cámara' : 'Camera Stamp'}</span>
               </div>
               <a
-                href="/alpacard-tutorial.mp4"
-                download="alpacard-tutorial.mp4"
+                href={`/alpacard-tutorial-${videoLang}.mp4`}
+                download={`alpacard-tutorial-${videoLang}.mp4`}
                 className="font-bold text-[#4A3525] hover:underline"
               >
-                Download MP4 (1.7 MB) ↓
+                {videoLang === 'es'
+                  ? 'Descargar Video ES (7.0 MB) ↓'
+                  : 'Download EN Video (7.0 MB) ↓'}
               </a>
             </div>
           </div>
