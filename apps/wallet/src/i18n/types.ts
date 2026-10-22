@@ -51,4 +51,8 @@ export interface WalletTranslations {
   noMenuItemsYet: string;
   closeMenu: string;
   allCategories: string;
+  // Store Links
+  visitWebsiteBtn: string;
+  visitInstagramBtn: string;
+  storeLinks: string;
 }

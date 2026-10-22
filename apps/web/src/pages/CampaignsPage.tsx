@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus,
   QrCode,
@@ -73,6 +73,33 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
   const [showModal, setShowModal] = useState(false);
   const [editingCampaignId, setEditingCampaignId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'rules' | 'design'>('rules');
+  const [qrModalCampaign, setQrModalCampaign] = useState<Campaign | null>(null);
+  const modalContainerRef = useRef<HTMLDivElement>(null);
+
+  // Prevent background scroll and reset modal scroll when opening
+  useEffect(() => {
+    if (showModal || qrModalCampaign) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [showModal, qrModalCampaign]);
+
+  // Scroll to top whenever tab changes or modal opens
+  useEffect(() => {
+    if (showModal && modalContainerRef.current) {
+      modalContainerRef.current.scrollTop = 0;
+    }
+  }, [showModal, activeTab]);
+
+  const handleTabChange = (tab: 'rules' | 'design') => {
+    setActiveTab(tab);
+    if (modalContainerRef.current) {
+      modalContainerRef.current.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  };
 
   // Form Fields
   const [name, setName] = useState('');
@@ -89,9 +116,6 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
   const [submitting, setSubmitting] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBg, setUploadingBg] = useState(false);
-
-  // QR Preview Modal State
-  const [qrModalCampaign, setQrModalCampaign] = useState<Campaign | null>(null);
 
   const loadCampaigns = async () => {
     if (!businessId) return;
@@ -357,8 +381,11 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
       {/* Create / Edit Campaign & Card Customizer Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
-          <div className="my-4 sm:my-8 w-full max-w-4xl rounded-2xl bg-white p-5 sm:p-6 shadow-xl border border-stone-200 transition-all">
+        <div
+          ref={modalContainerRef}
+          className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50 backdrop-blur-xs p-3 sm:p-6 flex justify-center items-start"
+        >
+          <div className="my-2 sm:my-8 w-full max-w-4xl rounded-2xl bg-white p-5 sm:p-6 shadow-xl border border-stone-200 transition-all">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-stone-200 pb-4">
               <div>
@@ -379,7 +406,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
             <div className="mt-4 flex border-b border-stone-200 overflow-x-auto">
               <button
                 type="button"
-                onClick={() => setActiveTab('rules')}
+                onClick={() => handleTabChange('rules')}
                 className={`border-b-2 px-4 py-2 text-xs font-semibold whitespace-nowrap transition ${
                   activeTab === 'rules'
                     ? 'border-[#3D2B1F] text-[#3D2B1F]'
@@ -390,7 +417,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('design')}
+                onClick={() => handleTabChange('design')}
                 className={`border-b-2 px-4 py-2 text-xs font-semibold whitespace-nowrap transition ${
                   activeTab === 'design'
                     ? 'border-[#3D2B1F] text-[#3D2B1F]'
@@ -468,7 +495,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                       <div className="pt-2">
                         <button
                           type="button"
-                          onClick={() => setActiveTab('design')}
+                          onClick={() => handleTabChange('design')}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-[#5C4028] hover:text-[#3D2B1F]"
                         >
                           {t.campaigns.designTab} &rarr;
@@ -837,8 +864,8 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
 
       {/* QR Poster Modal */}
       {qrModalCampaign && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-stone-200 text-center">
+        <div className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50 backdrop-blur-xs p-4 flex items-center justify-center">
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl border border-stone-200 text-center my-auto">
             <div className="flex justify-end">
               <button
                 onClick={() => setQrModalCampaign(null)}
