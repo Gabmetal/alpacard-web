@@ -29,7 +29,7 @@ spec:
               set -e
               TIMESTAMP=$(date +%Y%m%d_%H%M%S)
               echo "[$(date)] Starting Alpacard database backup..."
-              PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump -h {{ include "alpacard.fullname" . }}-postgres-service -U {{ .Values.postgres.user }} {{ .Values.postgres.db }} > /backup/alpacard_${TIMESTAMP}.sql
+              PGPASSWORD="${POSTGRES_PASSWORD}" pg_dump -h {{ include "alpacard.fullname" . }}-postgres-service -U "${POSTGRES_USER}" "${POSTGRES_DB}" > /backup/alpacard_${TIMESTAMP}.sql
               echo "[$(date)] Backup completed: /backup/alpacard_${TIMESTAMP}.sql ($(wc -c < /backup/alpacard_${TIMESTAMP}.sql) bytes)"
               # Retain latest 14 files
               ls -t /backup/alpacard_*.sql 2>/dev/null | tail -n +15 | xargs -r rm -f
@@ -38,8 +38,18 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "alpacard.fullname" . }}-secrets
-                  key: postgres-password
+                  name: {{ include "alpacard.fullname" . }}-db-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "alpacard.fullname" . }}-db-secret
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "alpacard.fullname" . }}-db-secret
+                  key: POSTGRES_DB
             volumeMounts:
             - name: backup-storage
               mountPath: /backup
