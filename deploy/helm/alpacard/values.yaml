@@ -121,8 +121,21 @@ monitoring:
   # Prometheus Operator ServiceMonitor (if cluster uses prometheus-operator)
   serviceMonitor:
     enabled: false
+  # Alerting rules
+  alertRules:
+    enabled: true
+    vmRule:
+      enabled: true
+    prometheusRule:
+      enabled: false
   # Grafana Dashboard (ConfigMap watched by Grafana sidecar operator)
   grafanaDashboard:
     enabled: true
     namespace: "monitoring"
     folder: "Alpacard"
+
+# Automated Nightly Database Backup CronJob
+backup:
+  enabled: true
+  schedule: "0 3 * * *"
+  retentionDays: 14
