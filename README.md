@@ -3,7 +3,7 @@
 > **Open-Source Digital Loyalty Punch Cards & Menus for Local Businesses.**  
 > Self-hosted, decoupled, ultra-lightweight, and zero SaaS subscription fees.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](LICENSE)
 [![Go 1.22+](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev/)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
@@ -124,4 +124,7 @@ We are actively seeking collaborators, beta testers, and community maintainers!
 
 ## 📄 License
 
-MIT License. Free for personal, commercial, and self-hosted use.
+GNU Affero General Public License v3.0 (AGPL-3.0). See [LICENSE](LICENSE) for details.  
+Copyright (c) 2026 Gabriel Cavallo.
+
+Free for personal and self-hosted use. Any modified versions operated as a network service or cloud offering must provide their complete corresponding source code under the same AGPL-3.0 license.

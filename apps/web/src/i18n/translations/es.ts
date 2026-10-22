@@ -90,7 +90,7 @@ export const es: Translations = {
     step2Desc: 'El cliente apunta su cámara al código del mostrador. Se crea una tarjeta digital anónima al instante sin necesidad de formularios de registro.',
     step3Title: 'Sella y Entrega Premios en Caja',
     step3Desc: 'El cliente muestra su código QR dinámico de 5 minutos. Tu personal lo escanea con el escáner web y suma sellos con confirmación de audio y vibración.',
-    footerDesc: 'Código abierto bajo licencia MIT. Creado para self-hosters.'
+    footerDesc: 'Código abierto bajo licencia AGPLv3. Creado para self-hosters.'
   },
   demo: {
     badge: 'Banco de Pruebas Interactivo de Extremo a Extremo',

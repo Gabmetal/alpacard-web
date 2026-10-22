@@ -111,7 +111,7 @@ Merchants can also upload a PDF/image of their menu or use the built-in digital 
 
 ## Try It or Get Involved!
 
-Alpacard is 100% open-source under the MIT license. We welcome contributions, bug reports, and feedback from developers and small business owners alike!
+Alpacard is 100% open-source under the GNU AGPLv3 license. We welcome contributions, bug reports, and feedback from developers and small business owners alike!
 
 - **GitHub Repository**: [https://github.com/Gabmetal/alpacard-web](https://github.com/Gabmetal/alpacard-web)
 - **Live Demo**: [https://alpacard.gabo.lat](https://alpacard.gabo.lat)
