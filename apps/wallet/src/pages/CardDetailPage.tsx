@@ -472,10 +472,10 @@ export function CardDetailPage() {
                     href={formatInstagramUrl(card.campaign.business.instagram)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition active:scale-95 shadow-xs border border-white/25"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition active:scale-95 shadow-xs border border-white/25"
                     title="Instagram"
                   >
-                    <Instagram className="h-3.5 w-3.5" />
+                    <Instagram className="h-4 w-4" />
                   </a>
                 )}
                 {card.campaign.business?.website && (
@@ -483,22 +483,11 @@ export function CardDetailPage() {
                     href={formatWebsiteUrl(card.campaign.business.website)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition active:scale-95 shadow-xs border border-white/25"
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white transition active:scale-95 shadow-xs border border-white/25"
                     title={t.visitWebsiteBtn}
                   >
-                    <Globe className="h-3.5 w-3.5" />
+                    <Globe className="h-4 w-4" />
                   </a>
-                )}
-                {hasMenu && (
-                  <button
-                    type="button"
-                    onClick={() => setIsMenuModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md px-3 py-1 text-xs font-bold text-white transition active:scale-95 shadow-xs border border-white/25 shrink-0"
-                    title={t.viewMenuBtn}
-                  >
-                    <BookOpen className="h-3.5 w-3.5" />
-                    <span>{t.viewMenuBtn}</span>
-                  </button>
                 )}
               </div>
             </div>
@@ -528,37 +517,6 @@ export function CardDetailPage() {
           </div>
 
           <div className="p-6">
-            {/* View Menu Button inside Card Body */}
-            {hasMenu && (
-              <div className="mb-5">
-                <button
-                  type="button"
-                  onClick={() => setIsMenuModalOpen(true)}
-                  className="w-full flex items-center justify-between rounded-2xl py-2.5 px-4 text-xs font-bold shadow-xs transition active:scale-95 border"
-                  style={{
-                    backgroundColor: card.campaign.business?.brandColor
-                      ? `${card.campaign.business.brandColor}12`
-                      : '#F5EFE6',
-                    borderColor: card.campaign.business?.brandColor
-                      ? `${card.campaign.business.brandColor}40`
-                      : '#E6D9C6',
-                    color: card.campaign.business?.brandColor || '#4A3525',
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" />
-                    <span>{t.viewMenuBtn}</span>
-                  </div>
-                  {card.campaign.business?.menuType === 'link' ||
-                  card.campaign.business?.menuType === 'file' ? (
-                    <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-                  ) : (
-                    <ChevronRight className="h-3.5 w-3.5 opacity-70" />
-                  )}
-                </button>
-              </div>
-            )}
-
             {/* Visual Stamp Circles */}
             <div className="mb-6">
               <div className="flex items-center justify-between text-xs font-semibold text-stone-500 mb-3">
@@ -666,68 +624,15 @@ export function CardDetailPage() {
               </p>
             </div>
 
-            {/* Business Website & Instagram Buttons */}
-            {card.campaign.business && (card.campaign.business.website || card.campaign.business.instagram) && (
-              <div className="mt-5 pt-4 border-t border-stone-100 space-y-2">
+            {/* Store Actions & Links (Menu, Website, Instagram) */}
+            {(hasMenu || card.campaign.business?.website || card.campaign.business?.instagram) && (
+              <div className="mt-5 pt-4 border-t border-stone-100 space-y-2.5">
                 <span className="block text-[10px] font-bold uppercase tracking-wider text-stone-400">
                   {t.storeLinks}
                 </span>
 
-                <div className={`grid gap-2.5 ${card.campaign.business.website && card.campaign.business.instagram ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
-                  {card.campaign.business.website && (
-                    <a
-                      href={formatWebsiteUrl(card.campaign.business.website)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 hover:bg-stone-100 p-3 text-xs font-bold text-stone-800 transition active:scale-95 shadow-xs"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white border border-stone-200 text-[#4A3525] shrink-0 shadow-2xs">
-                          <Globe className="h-4 w-4" />
-                        </div>
-                        <div className="min-w-0 text-left">
-                          <span className="block text-[10px] text-stone-500 font-semibold uppercase tracking-wider leading-none">
-                            {t.visitWebsiteBtn}
-                          </span>
-                          <span className="block truncate text-xs font-bold text-stone-900 mt-0.5">
-                            {formatWebsiteDisplay(card.campaign.business.website)}
-                          </span>
-                        </div>
-                      </div>
-                      <ExternalLink className="h-4 w-4 text-stone-400 shrink-0 ml-1" />
-                    </a>
-                  )}
-
-                  {card.campaign.business.instagram && (
-                    <a
-                      href={formatInstagramUrl(card.campaign.business.instagram)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-between rounded-2xl border border-pink-200/80 bg-gradient-to-r from-pink-50/70 to-rose-50/70 hover:from-pink-100 hover:to-rose-100 p-3 text-xs font-bold text-stone-800 transition active:scale-95 shadow-xs"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white border border-pink-200 text-pink-600 shrink-0 shadow-2xs">
-                          <Instagram className="h-4 w-4" />
-                        </div>
-                        <div className="min-w-0 text-left">
-                          <span className="block text-[10px] text-pink-700/80 font-semibold uppercase tracking-wider leading-none">
-                            {t.visitInstagramBtn}
-                          </span>
-                          <span className="block truncate text-xs font-bold text-stone-900 mt-0.5">
-                            {formatInstagramDisplay(card.campaign.business.instagram)}
-                          </span>
-                        </div>
-                      </div>
-                      <ExternalLink className="h-4 w-4 text-pink-400 shrink-0 ml-1" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Business Menu CTA Button */}
-            {hasMenu && card.campaign.business && (
-              <div className="mt-5 pt-4 border-t border-stone-100">
+                {/* Primary Menu Button if configured */}
+                {hasMenu && card.campaign.business && (
                   <button
                     onClick={() => setIsMenuModalOpen(true)}
                     className="w-full flex items-center justify-between rounded-2xl py-3 px-4 text-xs font-bold shadow-xs transition active:scale-95 border"
@@ -741,9 +646,11 @@ export function CardDetailPage() {
                       color: card.campaign.business.brandColor || '#4A3525',
                     }}
                   >
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-4 w-4" />
-                      <span>{t.viewMenuBtn}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-white border border-stone-200/80 shadow-2xs">
+                        <BookOpen className="h-4 w-4" />
+                      </div>
+                      <span className="font-bold">{t.viewMenuBtn}</span>
                     </div>
                     {card.campaign.business.menuType === 'link' ||
                     card.campaign.business.menuType === 'file' ? (
@@ -752,8 +659,62 @@ export function CardDetailPage() {
                       <ChevronRight className="h-3.5 w-3.5 opacity-70" />
                     )}
                   </button>
-                </div>
-              )}
+                )}
+
+                {/* Website & Instagram Buttons */}
+                {(card.campaign.business?.website || card.campaign.business?.instagram) && (
+                  <div className={`grid gap-2.5 ${card.campaign.business.website && card.campaign.business.instagram ? 'grid-cols-2' : 'grid-cols-1'}`}>
+                    {card.campaign.business.website && (
+                      <a
+                        href={formatWebsiteUrl(card.campaign.business.website)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between rounded-2xl border border-stone-200 bg-stone-50 hover:bg-stone-100 p-2.5 sm:p-3 text-xs font-bold text-stone-800 transition active:scale-95 shadow-xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-white border border-stone-200 text-[#4A3525] shrink-0 shadow-2xs">
+                            <Globe className="h-3.5 w-3.5" />
+                          </div>
+                          <div className="min-w-0 text-left">
+                            <span className="block text-[9px] text-stone-500 font-semibold uppercase tracking-wider leading-none">
+                              {t.visitWebsiteBtn}
+                            </span>
+                            <span className="block truncate text-xs font-bold text-stone-900 mt-0.5">
+                              {formatWebsiteDisplay(card.campaign.business.website)}
+                            </span>
+                          </div>
+                        </div>
+                        <ExternalLink className="h-3.5 w-3.5 text-stone-400 shrink-0 ml-1" />
+                      </a>
+                    )}
+
+                    {card.campaign.business.instagram && (
+                      <a
+                        href={formatInstagramUrl(card.campaign.business.instagram)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-between rounded-2xl border border-pink-200/80 bg-gradient-to-r from-pink-50/70 to-rose-50/70 hover:from-pink-100 hover:to-rose-100 p-2.5 sm:p-3 text-xs font-bold text-stone-800 transition active:scale-95 shadow-xs"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-white border border-pink-200 text-pink-600 shrink-0 shadow-2xs">
+                            <Instagram className="h-3.5 w-3.5" />
+                          </div>
+                          <div className="min-w-0 text-left">
+                            <span className="block text-[9px] text-pink-700/80 font-semibold uppercase tracking-wider leading-none">
+                              {t.visitInstagramBtn}
+                            </span>
+                            <span className="block truncate text-xs font-bold text-stone-900 mt-0.5">
+                              {formatInstagramDisplay(card.campaign.business.instagram)}
+                            </span>
+                          </div>
+                        </div>
+                        <ExternalLink className="h-3.5 w-3.5 text-pink-400 shrink-0 ml-1" />
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>
