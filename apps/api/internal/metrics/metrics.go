@@ -107,6 +107,63 @@ var (
 		},
 	)
 
+	// Business Scale & Growth Metrics (Updated periodically from DB)
+	MerchantsTotal = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: "alpacard",
+			Subsystem: "business",
+			Name:      "merchants_total",
+			Help:      "Total number of registered business entities / merchants",
+		},
+	)
+
+	CampaignsActiveTotal = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: "alpacard",
+			Subsystem: "business",
+			Name:      "campaigns_active_total",
+			Help:      "Total number of active loyalty campaigns across all merchants",
+		},
+	)
+
+	UsersByRoleTotal = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: "alpacard",
+			Subsystem: "business",
+			Name:      "users_total",
+			Help:      "Total number of registered user accounts by role",
+		},
+		[]string{"role"},
+	)
+
+	CardsActiveTotal = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: "alpacard",
+			Subsystem: "business",
+			Name:      "cards_active_total",
+			Help:      "Total number of active customer punch cards in wallets",
+		},
+	)
+
+	LifetimeStampsTotal = promauto.NewGauge(
+		prometheus.GaugeOpts{
+			Namespace: "alpacard",
+			Subsystem: "business",
+			Name:      "lifetime_stamps_total",
+			Help:      "Cumulative sum of stamps currently held across all cards",
+		},
+	)
+
+	LifetimeTransactionsTotal = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Namespace: "alpacard",
+			Subsystem: "business",
+			Name:      "lifetime_transactions_total",
+			Help:      "Total completed transactions by type (EARN or REDEEM)",
+		},
+		[]string{"type"},
+	)
+
 	// Database Metrics
 	DBConnectionsOpen = promauto.NewGauge(
 		prometheus.GaugeOpts{
@@ -202,12 +259,16 @@ func cleanPath(p string) string {
 	return p
 }
 
-// StartDBCollector runs a periodic goroutine updating database connection stats
+// StartDBCollector runs a periodic goroutine updating database connection and business scale stats
 func StartDBCollector(db *gorm.DB, interval time.Duration) {
 	sqlDB, err := db.DB()
 	if err != nil {
 		return
 	}
+
+	// Initial immediate collection
+	updateDBStats(sqlDB)
+	updateBusinessStats(db)
 
 	go func() {
 		ticker := time.NewTicker(interval)
@@ -215,6 +276,7 @@ func StartDBCollector(db *gorm.DB, interval time.Duration) {
 
 		for range ticker.C {
 			updateDBStats(sqlDB)
+			updateBusinessStats(db)
 		}
 	}()
 }
@@ -224,4 +286,50 @@ func updateDBStats(sqlDB *sql.DB) {
 	DBConnectionsOpen.Set(float64(stats.OpenConnections))
 	DBConnectionsInUse.Set(float64(stats.InUse))
 	DBConnectionsIdle.Set(float64(stats.Idle))
+}
+
+func updateBusinessStats(db *gorm.DB) {
+	var merchantsCount int64
+	if err := db.Table("businesses").Where("deleted_at IS NULL").Count(&merchantsCount).Error; err == nil {
+		MerchantsTotal.Set(float64(merchantsCount))
+	}
+
+	var campaignsCount int64
+	if err := db.Table("campaigns").Where("is_active = true AND deleted_at IS NULL").Count(&campaignsCount).Error; err == nil {
+		CampaignsActiveTotal.Set(float64(campaignsCount))
+	}
+
+	type roleCount struct {
+		Role  string
+		Count int64
+	}
+	var roles []roleCount
+	if err := db.Table("users").Select("role, count(*) as count").Where("deleted_at IS NULL").Group("role").Scan(&roles).Error; err == nil {
+		for _, r := range roles {
+			UsersByRoleTotal.WithLabelValues(r.Role).Set(float64(r.Count))
+		}
+	}
+
+	var cardsCount int64
+	if err := db.Table("cards").Where("deleted_at IS NULL").Count(&cardsCount).Error; err == nil {
+		CardsActiveTotal.Set(float64(cardsCount))
+	}
+
+	var stampsSum struct {
+		Total int64
+	}
+	if err := db.Table("cards").Select("COALESCE(SUM(stamps), 0) as total").Where("deleted_at IS NULL").Scan(&stampsSum).Error; err == nil {
+		LifetimeStampsTotal.Set(float64(stampsSum.Total))
+	}
+
+	type txCount struct {
+		Type  string
+		Count int64
+	}
+	var txs []txCount
+	if err := db.Table("transactions").Select("type, count(*) as count").Where("deleted_at IS NULL").Group("type").Scan(&txs).Error; err == nil {
+		for _, t := range txs {
+			LifetimeTransactionsTotal.WithLabelValues(t.Type).Set(float64(t.Count))
+		}
+	}
 }

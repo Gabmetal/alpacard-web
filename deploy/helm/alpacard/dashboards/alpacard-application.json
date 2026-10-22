@@ -176,7 +176,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_rabbitmq_connected or alpacard_worker_rabbitmq_connected or vector(0)",
+          "expr": "alpacard_rabbitmq_connected{job=\"alpacard-api-service\",namespace=\"alpacard\"} or vector(0)",
           "instant": true,
           "legendFormat": "RabbitMQ Bus"
         }
@@ -407,6 +407,513 @@
         "x": 0,
         "y": 5
       },
+      "id": 150,
+      "panels": [],
+      "title": "Merchant & User Growth (Scale & Adoption Metrics)",
+      "type": "row"
+    },
+    {
+      "id": 151,
+      "title": "Registered Merchants",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "max(alpacard_business_merchants_total{job=\"alpacard-api-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Merchants"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#6366F1"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#6366F1",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 152,
+      "title": "Active Campaigns",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "max(alpacard_business_campaigns_active_total{job=\"alpacard-api-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Campaigns"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#EC4899"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#EC4899",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 153,
+      "title": "Total Users",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(alpacard_business_users_total{job=\"alpacard-api-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Users"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#3B82F6"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#3B82F6",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 154,
+      "title": "Cards in Customer Wallets",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "max(alpacard_business_cards_active_total{job=\"alpacard-api-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Wallet Cards"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#10B981"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#10B981",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 155,
+      "title": "Lifetime Completed Transactions",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(alpacard_business_lifetime_transactions_total{job=\"alpacard-api-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Transactions"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#F59E0B"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#F59E0B",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 156,
+      "title": "Stamps Held in Wallets",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "max(alpacard_business_lifetime_stamps_total{job=\"alpacard-api-service\"}) or vector(0)",
+          "instant": true,
+          "legendFormat": "Stamps"
+        }
+      ],
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#8B5CF6"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#8B5CF6",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 157,
+      "title": "Users by Role (Consumers vs Staff vs Owners)",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "alpacard_business_users_total{job=\"alpacard-api-service\"}",
+          "legendFormat": "{{role}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 158,
+      "title": "Lifetime Transactions Breakdown (Earn vs Redeem)",
+      "type": "piechart",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "alpacard_business_lifetime_transactions_total{job=\"alpacard-api-service\"}",
+          "legendFormat": "{{type}}"
+        }
+      ],
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "values": false
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": {
+            "mode": "palette-classic"
+          }
+        }
+      }
+    },
+    {
+      "id": 159,
+      "title": "Customer QR Rotating Tokens Generated (per minute)",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "rate(alpacard_business_qr_tokens_generated_total{job=\"alpacard-api-service\"}[5m]) * 60",
+          "legendFormat": "QR Tokens / min"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "fillOpacity": 15
+          },
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#38BDF8"
+          }
+        }
+      }
+    },
+    {
+      "id": 160,
+      "title": "Live In-Flight API Requests",
+      "type": "timeseries",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "alpacard_http_requests_in_flight{job=\"alpacard-api-service\"}",
+          "legendFormat": "In-Flight Concurrency"
+        }
+      ],
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "fillOpacity": 20
+          },
+          "unit": "short",
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "#F43F5E"
+          }
+        }
+      }
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 19
+      },
       "id": 200,
       "title": "Business KPIs & Customer Loyalty Activity",
       "type": "row"
@@ -419,7 +926,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 6
+        "y": 20
       },
       "datasource": {
         "type": "prometheus"
@@ -469,7 +976,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 6
+        "y": 20
       },
       "datasource": {
         "type": "prometheus"
@@ -519,7 +1026,7 @@
         "h": 4,
         "w": 6,
         "x": 12,
-        "y": 6
+        "y": 20
       },
       "datasource": {
         "type": "prometheus"
@@ -569,7 +1076,7 @@
         "h": 4,
         "w": 6,
         "x": 18,
-        "y": 6
+        "y": 20
       },
       "datasource": {
         "type": "prometheus"
@@ -619,7 +1126,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 10
+        "y": 24
       },
       "datasource": {
         "type": "prometheus"
@@ -653,7 +1160,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 10
+        "y": 24
       },
       "datasource": {
         "type": "prometheus"
@@ -684,7 +1191,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 32
       },
       "id": 300,
       "title": "API HTTP Traffic & Response Latency",
@@ -698,7 +1205,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 19
+        "y": 33
       },
       "datasource": {
         "type": "prometheus"
@@ -727,7 +1234,7 @@
         "h": 8,
         "w": 6,
         "x": 12,
-        "y": 19
+        "y": 33
       },
       "datasource": {
         "type": "prometheus"
@@ -759,7 +1266,7 @@
         "h": 8,
         "w": 6,
         "x": 18,
-        "y": 19
+        "y": 33
       },
       "datasource": {
         "type": "prometheus"
@@ -794,7 +1301,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 41
       },
       "id": 400,
       "title": "RabbitMQ Event Worker Pipeline",
@@ -808,7 +1315,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 28
+        "y": 42
       },
       "datasource": {
         "type": "prometheus"
@@ -841,7 +1348,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 28
+        "y": 42
       },
       "datasource": {
         "type": "prometheus"
@@ -868,7 +1375,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 50
       },
       "id": 500,
       "title": "Database Connection Pool & Host Resources",
@@ -882,7 +1389,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 51
       },
       "datasource": {
         "type": "prometheus"
@@ -919,7 +1426,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 51
       },
       "datasource": {
         "type": "prometheus"
@@ -948,7 +1455,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 51
       },
       "datasource": {
         "type": "prometheus"
