@@ -52,4 +52,11 @@ export const es: WalletTranslations = {
   visitWebsiteBtn: 'Sitio Web',
   visitInstagramBtn: 'Instagram',
   storeLinks: 'Enlaces del Comercio',
+  redeemCelebrationTitle: '¡Premio Desbloqueado!',
+  redeemCelebrationSubtitle: 'Tu recompensa de lealtad fue canjeada con éxito',
+  redeemCelebrationRewardBadge: 'PREMIO CANJEADO',
+  redeemCelebrationCongrats: '¡Felicitaciones! Disfruta de tu merecido premio.',
+  redeemCelebrationTapPrompt: 'Toca la pantalla para fuegos artificiales ✨',
+  redeemCelebrationActionBtn: '¡Genial! Disfrutar Premio 🎁',
+  redeemPreviewBtn: 'Celebrar Premio',
 };

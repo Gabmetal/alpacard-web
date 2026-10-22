@@ -286,7 +286,9 @@ export function WalletPage() {
                 <Link
                   key={card.id}
                   to={`/card/${card.id}`}
-                  className="group block overflow-hidden rounded-3xl bg-white shadow-xs transition hover:shadow-md border border-stone-200/80"
+                  className={`group block overflow-hidden rounded-3xl bg-white shadow-xs transition hover:shadow-md border ${
+                    isReady ? 'border-amber-300 ring-2 ring-amber-400/40 shadow-amber-500/15' : 'border-stone-200/80'
+                  }`}
                 >
                   <div style={cardStyle} className="p-5 text-white transition duration-300">
                     <div className="flex items-center justify-between gap-2">
@@ -341,8 +343,8 @@ export function WalletPage() {
                           </button>
                         )}
                         {isReady && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-400/20 px-2.5 py-0.5 text-xs font-bold text-emerald-200 backdrop-blur-xs border border-emerald-400/30">
-                            <Sparkles className="h-3 w-3" /> {t.rewardReadyBadge}
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 px-2.5 py-0.5 text-[10px] font-black text-stone-900 shadow-xs animate-pulse">
+                            <Sparkles className="h-3 w-3 fill-stone-900" /> {t.rewardReadyBadge}
                           </span>
                         )}
                       </div>

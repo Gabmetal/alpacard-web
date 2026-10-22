@@ -52,4 +52,11 @@ export const en: WalletTranslations = {
   visitWebsiteBtn: 'Visit Website',
   visitInstagramBtn: 'Instagram',
   storeLinks: 'Store & Social Links',
+  redeemCelebrationTitle: 'Reward Unlocked!',
+  redeemCelebrationSubtitle: 'Your loyalty reward has been redeemed successfully',
+  redeemCelebrationRewardBadge: 'FREE REWARD CLAIMED',
+  redeemCelebrationCongrats: 'Congratulations! Enjoy your well-earned reward.',
+  redeemCelebrationTapPrompt: 'Tap screen for fireworks & sparkles ✨',
+  redeemCelebrationActionBtn: 'Awesome! Enjoy Reward 🎁',
+  redeemPreviewBtn: 'Celebration Preview',
 };
