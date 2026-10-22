@@ -64,7 +64,7 @@ That’s it! It spins up PostgreSQL, RabbitMQ, the Go REST API, and both fronten
 
 ### 🤝 Looking for Contributors & Beta Testers!
 
-The project is 100% open-source under the **MIT License**. I would love for the community to try it out, self-host it for local shops, and help test edge cases!
+The project is 100% open-source under the **GNU AGPLv3 License**. I would love for the community to try it out, self-host it for local shops, and help test edge cases!
 
 Some things on our immediate roadmap:
 - Apple Wallet `.pkpass` and Google Wallet pass generator.

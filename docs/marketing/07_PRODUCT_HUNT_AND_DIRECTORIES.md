@@ -25,7 +25,7 @@
 > 🎨 **Personalization & Menus**: Custom colors, merchant logos, stamp icons, and integrated digital/PDF menus.  
 > ⚡ **Ultra-Efficient**: The Go backend runs with ~20MB of RAM—easy to self-host with 1-command Docker Compose or Kubernetes.
 > 
-> Everything is MIT licensed and free forever. We’d love your feedback!
+> Everything is AGPLv3 licensed and free forever for self-hosters. We’d love your feedback!
 
 ---
 
@@ -33,7 +33,7 @@
 
 - **Software Name**: Alpacard
 - **Website**: `https://alpacard.gabo.lat`
-- **License**: Open Source (MIT)
+- **License**: Open Source (AGPL-3.0)
 - **Platforms**: Self-Hosted, Web, Linux, Docker
 - **Alternative to**:
   - Stamp Me

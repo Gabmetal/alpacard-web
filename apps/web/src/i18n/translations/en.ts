@@ -90,7 +90,7 @@ export const en: Translations = {
     step2Desc: 'Customers scan the counter stand with their smartphone camera. An anonymous digital card is created immediately without filling out sign-up forms.',
     step3Title: 'Cashier Stamps & Rewards',
     step3Desc: 'Customer displays their dynamic 5-minute QR code. Staff scans it using the web scanner, adding a stamp with audio/haptic confirmation.',
-    footerDesc: 'Open-source under MIT License. Built for self-hosters.'
+    footerDesc: 'Open-source under AGPLv3 License. Built for self-hosters.'
   },
   demo: {
     badge: 'Interactive End-to-End Testbench',
