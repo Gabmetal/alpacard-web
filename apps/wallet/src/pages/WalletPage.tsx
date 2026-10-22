@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen } from 'lucide-react';
+import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, Globe, Instagram } from 'lucide-react';
 import { walletApi, getStoredUser, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -30,6 +30,8 @@ interface Card {
       menuType?: string;
       menuUrl?: string;
       menuItems?: string;
+      website?: string;
+      instagram?: string;
     };
   };
 }
@@ -307,6 +309,22 @@ export function WalletPage() {
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
+                        {card.campaign.business?.instagram && (
+                          <span
+                            className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/20 backdrop-blur-xs text-white"
+                            title="Instagram"
+                          >
+                            <Instagram className="h-3 w-3" />
+                          </span>
+                        )}
+                        {card.campaign.business?.website && (
+                          <span
+                            className="inline-flex items-center justify-center h-6 w-6 rounded-full bg-white/20 backdrop-blur-xs text-white"
+                            title={t.visitWebsiteBtn}
+                          >
+                            <Globe className="h-3 w-3" />
+                          </span>
+                        )}
                         {hasMenu && (
                           <button
                             type="button"

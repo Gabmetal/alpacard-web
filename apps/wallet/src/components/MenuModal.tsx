@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { X, BookOpen, ExternalLink, UtensilsCrossed, FileText } from 'lucide-react';
+import { X, BookOpen, ExternalLink, UtensilsCrossed, FileText, Globe, Instagram } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export interface MenuItemData {
@@ -20,6 +20,8 @@ interface MenuModalProps {
     menuType?: string;
     menuUrl?: string;
     menuItems?: string;
+    website?: string;
+    instagram?: string;
   };
 }
 
@@ -234,7 +236,42 @@ export function MenuModal({ isOpen, onClose, business }: MenuModalProps) {
         </div>
 
         {/* Modal Footer */}
-        <div className="border-t border-gray-100 bg-gray-50/70 px-6 py-3 text-center">
+        <div className="border-t border-gray-100 bg-gray-50/70 px-6 py-3 text-center space-y-2">
+          {(business.website || business.instagram) && (
+            <div className="flex items-center justify-center gap-3 pb-1">
+              {business.website && (
+                <a
+                  href={business.website.startsWith('http') ? business.website : `https://${business.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-700 hover:text-stone-900 transition"
+                >
+                  <Globe className="h-3.5 w-3.5 text-[#4A3525]" />
+                  <span>{t.visitWebsiteBtn}</span>
+                  <ExternalLink className="h-3 w-3 text-stone-400" />
+                </a>
+              )}
+              {business.website && business.instagram && (
+                <span className="text-stone-300">•</span>
+              )}
+              {business.instagram && (
+                <a
+                  href={
+                    business.instagram.startsWith('http')
+                      ? business.instagram
+                      : `https://instagram.com/${business.instagram.replace(/^@/, '')}`
+                  }
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-pink-700 hover:text-pink-900 transition"
+                >
+                  <Instagram className="h-3.5 w-3.5 text-pink-600" />
+                  <span>Instagram</span>
+                  <ExternalLink className="h-3 w-3 text-pink-400" />
+                </a>
+              )}
+            </div>
+          )}
           <button
             onClick={onClose}
             className="w-full rounded-xl bg-gray-200/80 py-2.5 text-xs font-bold text-gray-700 hover:bg-gray-300 transition"

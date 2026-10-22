@@ -49,4 +49,7 @@ export const en: WalletTranslations = {
   noMenuItemsYet: 'No items currently listed on the menu.',
   closeMenu: 'Close Menu',
   allCategories: 'All',
+  visitWebsiteBtn: 'Visit Website',
+  visitInstagramBtn: 'Instagram',
+  storeLinks: 'Store & Social Links',
 };

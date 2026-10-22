@@ -49,4 +49,7 @@ export const es: WalletTranslations = {
   noMenuItemsYet: 'No hay productos publicados en el menú por el momento.',
   closeMenu: 'Cerrar Menú',
   allCategories: 'Todos',
+  visitWebsiteBtn: 'Sitio Web',
+  visitInstagramBtn: 'Instagram',
+  storeLinks: 'Enlaces del Comercio',
 };

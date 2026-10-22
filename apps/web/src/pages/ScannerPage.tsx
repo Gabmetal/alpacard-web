@@ -36,7 +36,6 @@ export function ScannerPage() {
   const [processing, setProcessing] = useState(false);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [manualToken, setManualToken] = useState('');
 
   // Audio & haptic feedback on scan
   const playBeep = (isSuccess: boolean) => {
@@ -110,7 +109,6 @@ export function ScannerPage() {
     setError(null);
     setScanning(true);
     setProcessing(false);
-    setManualToken('');
   };
 
   return (
@@ -198,33 +196,6 @@ export function ScannerPage() {
             </button>
           </div>
         )}
-      </div>
-
-      {/* Manual Token or URL input */}
-      <div className="rounded-2xl bg-white p-4 shadow-2xs border border-stone-200">
-        <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-          {isEs
-            ? 'Entrada Manual de Token o URL (Pruebas / Debug)'
-            : 'Manual Token or URL Entry (Debug / Testing)'}
-        </label>
-        <div className="flex flex-col xs:flex-row gap-2">
-          <input
-            type="text"
-            value={manualToken}
-            onChange={(e) => setManualToken(e.target.value)}
-            placeholder={
-              isEs ? 'Pegar token JWT o URL completa...' : 'Paste JWT token or full scan URL...'
-            }
-            className="flex-1 rounded-xl border border-stone-300 px-3 py-2 text-xs focus:border-[#4A3525] focus:outline-none"
-          />
-          <button
-            onClick={() => handleProcessToken(extractToken(manualToken))}
-            disabled={!manualToken || processing}
-            className="rounded-xl bg-[#3D2B1F] px-4 py-2 text-xs font-semibold text-white hover:bg-[#2C1F16] disabled:opacity-50"
-          >
-            {isEs ? 'Verificar' : 'Verify'}
-          </button>
-        </div>
       </div>
 
       <div className="flex items-center justify-center gap-1.5 text-xs text-stone-400">
