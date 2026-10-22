@@ -48,7 +48,7 @@
       },
       "targets": [
         {
-          "expr": "up{job=~\".*alpacard-api.*\"} or vector(1)",
+          "expr": "max(up{job=\"alpacard-api-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "API Server"
         }
@@ -112,7 +112,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_worker_up or vector(0)",
+          "expr": "max(alpacard_worker_up{job=\"alpacard-worker-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "Background Worker"
         }
@@ -176,7 +176,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_rabbitmq_connected{job=\"alpacard-api-service\",namespace=\"alpacard\"} or vector(0)",
+          "expr": "max(alpacard_rabbitmq_connected{job=\"alpacard-api-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "RabbitMQ Bus"
         }
@@ -240,7 +240,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_db_connections_in_use or vector(0)",
+          "expr": "max(alpacard_db_connections_in_use{job=\"alpacard-api-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "DB Pool In-Use"
         }
@@ -294,7 +294,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_web_up or vector(1)",
+          "expr": "max(up{job=\"alpacard-web-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "Web Console"
         }
@@ -354,7 +354,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_wallet_up or vector(1)",
+          "expr": "max(up{job=\"alpacard-wallet-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "Customer Wallet"
         }
@@ -1033,7 +1033,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_business_cards_claimed_total or vector(0)",
+          "expr": "sum(alpacard_business_cards_claimed_total) or vector(0)",
           "instant": true,
           "legendFormat": "Cards Claimed Total"
         }
@@ -1083,7 +1083,7 @@
       },
       "targets": [
         {
-          "expr": "alpacard_sse_active_subscribers or vector(0)",
+          "expr": "max(alpacard_sse_active_subscribers{job=\"alpacard-api-service\",namespace=\"alpacard\"}) or vector(0)",
           "instant": true,
           "legendFormat": "Active SSE Watchers"
         }
