@@ -119,19 +119,8 @@ export function CardDetailPage() {
   // Business Menu modal state
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
 
-  // Addictive prize redemption celebration state & glowing card effect
+  // Addictive prize redemption celebration modal state
   const [isRedeemCelebrating, setIsRedeemCelebrating] = useState(false);
-  const [cardCelebrationGlowing, setCardCelebrationGlowing] = useState(false);
-  const glowTimeoutRef = useRef<number | null>(null);
-
-  const triggerRedeemCelebration = useCallback(() => {
-    setIsRedeemCelebrating(true);
-    setCardCelebrationGlowing(true);
-    if (glowTimeoutRef.current) clearTimeout(glowTimeoutRef.current);
-    glowTimeoutRef.current = window.setTimeout(() => {
-      setCardCelebrationGlowing(false);
-    }, 12000);
-  }, []);
 
   // Real-time autoupdate toast notification
   const [stampAlert, setStampAlert] = useState<{ message: string; type: 'earn' | 'redeem' } | null>(
@@ -156,7 +145,8 @@ export function CardDetailPage() {
       prevStampsRef.current = newStamps;
 
       if (isRedeem) {
-        triggerRedeemCelebration();
+        // Trigger celebration only when prize is claimed and stamps restart
+        setIsRedeemCelebrating(true);
         setStampAlert({
           type: 'redeem',
           message: isEsRef.current
@@ -175,7 +165,7 @@ export function CardDetailPage() {
       setTimeout(() => setStampAlert(null), 6000);
       return true;
     },
-    [triggerRedeemCelebration]
+    []
   );
 
   // Fetches a single-use 5-minute QR token ONLY on initial load, manual refresh,
@@ -379,19 +369,7 @@ export function CardDetailPage() {
             {isEs ? 'Tarjeta de Fidelidad' : 'Punch Card'}
           </h1>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={triggerRedeemCelebration}
-            className="flex items-center gap-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200/80 px-2.5 py-1 text-xs font-bold text-amber-900 transition active:scale-95 shadow-2xs"
-            title={t.redeemPreviewBtn}
-          >
-            <Sparkles className="h-3.5 w-3.5 text-amber-600 fill-amber-500" />
-            <span className="hidden sm:inline">{t.redeemPreviewBtn}</span>
-            <span className="sm:hidden text-xs">🎉</span>
-          </button>
-          <LanguageSwitcher />
-        </div>
+        <LanguageSwitcher />
       </header>
 
       <main className="mx-auto max-w-sm px-4 pt-5">
@@ -442,17 +420,17 @@ export function CardDetailPage() {
           </div>
         )}
 
-        {/* The Digital Punch Card */}
+        {/* The Digital Punch Card - glows when reward is ready to claim, resets with stamps */}
         <div
           className={`relative overflow-hidden rounded-3xl bg-white border border-stone-200/80 shadow-md transition-all duration-500 ${
-            cardCelebrationGlowing || isRedeemCelebrating
-              ? 'animate-card-glow ring-4 ring-amber-400/50 scale-[1.01]'
+            isRewardReady
+              ? 'animate-card-glow ring-4 ring-amber-400/60 scale-[1.01]'
               : ''
           }`}
         >
-          {/* Holographic celebration shimmer running across card */}
-          {(cardCelebrationGlowing || isRedeemCelebrating) && (
-            <div className="absolute inset-0 z-20 pointer-events-none animate-shimmer-slide opacity-40 rounded-3xl" />
+          {/* Subtle golden shimmer while reward is ready to claim */}
+          {isRewardReady && (
+            <div className="absolute inset-0 z-20 pointer-events-none animate-shimmer-slide opacity-35 rounded-3xl" />
           )}
 
           {/* Card Top Branding */}
@@ -515,17 +493,17 @@ export function CardDetailPage() {
               🎁 {card.campaign.reward || card.campaign.description}
             </p>
 
-            {/* If reward is ready, celebratory interactive pill */}
+            {/* Prominent badge letting user know reward is ready to claim */}
             {isRewardReady && (
               <div className="mt-3 flex justify-center">
-                <button
-                  type="button"
-                  onClick={triggerRedeemCelebration}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 px-4 py-1.5 text-xs font-black text-stone-900 shadow-lg shadow-amber-500/30 transition hover:scale-105 active:scale-95 animate-pulse"
-                >
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 px-4 py-1.5 text-xs font-black text-stone-900 shadow-lg shadow-amber-500/30 animate-pulse">
                   <Sparkles className="h-3.5 w-3.5 fill-stone-900" />
-                  <span>{isEs ? '¡Premio Listo! Toca para Celebrar' : 'Reward Ready! Tap to Celebrate'}</span>
-                </button>
+                  <span>
+                    {isEs
+                      ? '¡Premio Listo para Canjear!'
+                      : 'Reward Ready to Claim!'}
+                  </span>
+                </div>
               </div>
             )}
 
