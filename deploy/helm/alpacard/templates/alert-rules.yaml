@@ -13,34 +13,34 @@ spec:
   - name: alpacard.rules
     rules:
     - alert: AlpacardApiDown
-      expr: up{job="alpacard-api-service"} == 0
+      expr: up{job="alpacard-api-service",namespace="{{ .Release.Namespace }}"} == 0
       for: 1m
       labels:
         severity: critical
         app: alpacard
       annotations:
         summary: "🚨 Alpacard API is DOWN"
-        description: 'Alpacard API service instance {{ "{{ $labels.instance }}" }} is unreachable.'
+        description: 'Alpacard API service instance {{ "{{ $labels.instance }}" }} in namespace {{ .Release.Namespace }} is unreachable.'
 
     - alert: AlpacardWorkerDown
-      expr: alpacard_worker_up == 0 or absent(alpacard_worker_up) == 1
+      expr: up{job="alpacard-worker-service",namespace="{{ .Release.Namespace }}"} == 0 or alpacard_worker_up{job="alpacard-worker-service",namespace="{{ .Release.Namespace }}"} == 0
       for: 1m
       labels:
         severity: critical
         app: alpacard
       annotations:
         summary: "🚨 Alpacard Background Worker is DOWN"
-        description: "Alpacard async event consumer is down. Real-time loyalty events and webhook dispatching are halted."
+        description: "Alpacard async event consumer in namespace {{ .Release.Namespace }} is down. Real-time loyalty events and webhook dispatching are halted."
 
     - alert: AlpacardRabbitMqDisconnected
-      expr: alpacard_rabbitmq_connected{job="alpacard-api-service"} == 0 or alpacard_worker_rabbitmq_connected == 0
+      expr: (alpacard_rabbitmq_connected{job="alpacard-api-service",namespace="{{ .Release.Namespace }}"} == 0) or (alpacard_worker_rabbitmq_connected{job="alpacard-worker-service",namespace="{{ .Release.Namespace }}"} == 0)
       for: 1m
       labels:
         severity: critical
         app: alpacard
       annotations:
         summary: "⚠️ RabbitMQ Broker Disconnected"
-        description: "RabbitMQ message broker is disconnected on Alpacard API or Worker."
+        description: "RabbitMQ message broker is disconnected on Alpacard API or Worker in namespace {{ .Release.Namespace }}."
 
     - alert: AlpacardHighHttpErrorRate
       expr: (sum(rate(alpacard_http_requests_total{status=~"5.."}[5m])) / (sum(rate(alpacard_http_requests_total[5m])) + 0.001)) * 100 > 5

@@ -13,7 +13,7 @@ import (
 
 	"github.com/gabmetal/alpacard/api/internal/config"
 	"github.com/gabmetal/alpacard/api/internal/events"
-	"github.com/gabmetal/alpacard/api/internal/metrics"
+	metrics "github.com/gabmetal/alpacard/api/internal/workermetrics"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
