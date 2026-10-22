@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Building2,
   Plus,
@@ -82,6 +82,32 @@ export function BusinessesPage({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<'branding' | 'menu'>('branding');
   const [editingBusiness, setEditingBusiness] = useState<BusinessItem | null>(null);
+  const modalContainerRef = useRef<HTMLDivElement>(null);
+
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (isModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isModalOpen]);
+
+  // Reset scroll to top when modal opens or tab changes
+  useEffect(() => {
+    if (isModalOpen && modalContainerRef.current) {
+      modalContainerRef.current.scrollTop = 0;
+    }
+  }, [isModalOpen, modalTab]);
+
+  const handleTabChange = (tab: 'branding' | 'menu') => {
+    setModalTab(tab);
+    if (modalContainerRef.current) {
+      modalContainerRef.current.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  };
 
   // Form Fields - Branding
   const [name, setName] = useState('');
@@ -422,8 +448,11 @@ export function BusinessesPage({
 
       {/* Business Create / Edit & Branding Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
-          <div className="my-4 sm:my-8 w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-xl border border-stone-200 transition-all">
+        <div
+          ref={modalContainerRef}
+          className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/50 backdrop-blur-xs p-3 sm:p-6 flex justify-center items-start"
+        >
+          <div className="my-2 sm:my-8 w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-xl border border-stone-200 transition-all">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-stone-200 px-5 sm:px-6 py-4">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -452,7 +481,7 @@ export function BusinessesPage({
             <div className="flex border-b border-stone-200 bg-stone-50/80 px-4 sm:px-6 overflow-x-auto">
               <button
                 type="button"
-                onClick={() => setModalTab('branding')}
+                onClick={() => handleTabChange('branding')}
                 className={`inline-flex items-center gap-2 border-b-2 py-3 px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition ${
                   modalTab === 'branding'
                     ? 'border-[#3D2B1F] text-[#3D2B1F] bg-white'
@@ -464,7 +493,7 @@ export function BusinessesPage({
               </button>
               <button
                 type="button"
-                onClick={() => setModalTab('menu')}
+                onClick={() => handleTabChange('menu')}
                 className={`inline-flex items-center gap-2 border-b-2 py-3 px-3 sm:px-4 text-xs font-semibold whitespace-nowrap transition ${
                   modalTab === 'menu'
                     ? 'border-[#3D2B1F] text-[#3D2B1F] bg-white'
@@ -600,7 +629,13 @@ export function BusinessesPage({
                       <div className="flex items-center gap-2">
                         <input
                           type="color"
-                          value={brandColor}
+                          value={
+                            brandColor.startsWith('#') && (brandColor.length === 7 || brandColor.length === 4)
+                              ? brandColor.length === 4
+                                ? `#${brandColor[1]}${brandColor[1]}${brandColor[2]}${brandColor[2]}${brandColor[3]}${brandColor[3]}`
+                                : brandColor
+                              : '#4A3525'
+                          }
                           onChange={(e) => setBrandColor(e.target.value)}
                           className="h-8 w-12 cursor-pointer rounded-lg border border-stone-300 p-0.5"
                         />
