@@ -1,0 +1,85 @@
+{{- if and .Values.monitoring.enabled (default true .Values.monitoring.alertRules.enabled) }}
+{{- if (default true .Values.monitoring.alertRules.vmRule.enabled) }}
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMRule
+metadata:
+  name: {{ include "alpacard.fullname" . }}-alerts
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "alpacard.labels" . | nindent 4 }}
+    role: alert-rules
+spec:
+  groups:
+  - name: alpacard.rules
+    rules:
+    - alert: AlpacardApiDown
+      expr: up{job="alpacard-api-service"} == 0
+      for: 1m
+      labels:
+        severity: critical
+        app: alpacard
+      annotations:
+        summary: "🚨 Alpacard API is DOWN"
+        description: 'Alpacard API service instance {{ "{{ $labels.instance }}" }} is unreachable.'
+
+    - alert: AlpacardWorkerDown
+      expr: alpacard_worker_up == 0 or absent(alpacard_worker_up) == 1
+      for: 1m
+      labels:
+        severity: critical
+        app: alpacard
+      annotations:
+        summary: "🚨 Alpacard Background Worker is DOWN"
+        description: "Alpacard async event consumer is down. Real-time loyalty events and webhook dispatching are halted."
+
+    - alert: AlpacardRabbitMqDisconnected
+      expr: alpacard_rabbitmq_connected{job="alpacard-api-service"} == 0 or alpacard_worker_rabbitmq_connected == 0
+      for: 1m
+      labels:
+        severity: critical
+        app: alpacard
+      annotations:
+        summary: "⚠️ RabbitMQ Broker Disconnected"
+        description: "RabbitMQ message broker is disconnected on Alpacard API or Worker."
+
+    - alert: AlpacardHighHttpErrorRate
+      expr: (sum(rate(alpacard_http_requests_total{status=~"5.."}[5m])) / (sum(rate(alpacard_http_requests_total[5m])) + 0.001)) * 100 > 5
+      for: 2m
+      labels:
+        severity: critical
+        app: alpacard
+      annotations:
+        summary: "🔥 Alpacard High HTTP 5xx Error Rate (>5%)"
+        description: 'HTTP 5xx error rate on Alpacard API is {{ "{{ $value | printf \"%.2f\" }}" }}% over the last 5 minutes.'
+
+    - alert: AlpacardHighHttpLatency
+      expr: histogram_quantile(0.95, sum(rate(alpacard_http_request_duration_seconds_bucket[5m])) by (le)) > 1.5
+      for: 5m
+      labels:
+        severity: warning
+        app: alpacard
+      annotations:
+        summary: "⏱️ Alpacard High HTTP P95 Latency (>1.5s)"
+        description: '95th percentile request latency on Alpacard API is {{ "{{ $value | humanizeDuration }}" }}.'
+
+    - alert: AlpacardScanFailureSpike
+      expr: sum(rate(alpacard_business_scans_total{status!="success"}[5m])) > 2
+      for: 2m
+      labels:
+        severity: warning
+        app: alpacard
+      annotations:
+        summary: "🛡️ Alpacard QR Scan Rejection Spike"
+        description: "Abnormal surge in rejected customer QR scan attempts (potential anti-replay attack or expired token storm)."
+
+    - alert: AlpacardPvcVolumeFillingUp
+      expr: (kubelet_volume_stats_used_bytes{namespace="alpacard"} / kubelet_volume_stats_capacity_bytes{namespace="alpacard"}) * 100 > 85
+      for: 5m
+      labels:
+        severity: warning
+        app: alpacard
+      annotations:
+        summary: "💾 Alpacard Persistent Volume Usage High (>85%)"
+        description: 'PVC {{ "{{ $labels.persistentvolumeclaim }}" }} in namespace alpacard is {{ "{{ $value | printf \"%.1f\" }}" }}% full.'
+{{- end }}
+{{- end }}
