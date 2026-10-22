@@ -21,6 +21,8 @@ import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { getWalletCardStyle, getActiveStampColor, WalletStampIcon } from '../components/CardTheme';
 import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
+import { RedeemCelebrationModal } from '../components/RedeemCelebrationModal';
+import { playStampCelebrationSound } from '../utils/audio';
 
 interface QRData {
   token: string;
@@ -52,35 +54,6 @@ interface QRData {
       };
     };
   };
-}
-
-// Pleasant celebratory audio chime & haptic feedback on receiving a stamp
-function playCelebrationSound(isEarn: boolean) {
-  try {
-    if ('vibrate' in navigator) {
-      navigator.vibrate(isEarn ? [150, 70, 180] : [200, 100, 200, 100, 300]);
-    }
-    const AudioCtx =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    const freqs = isEarn ? [523.25, 659.25, 783.99, 1046.5] : [440, 554.37, 659.25, 880];
-    freqs.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.08);
-      gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.08);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.3);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + idx * 0.08);
-      osc.stop(ctx.currentTime + idx * 0.08 + 0.35);
-    });
-  } catch {
-    // Audio not allowed without gesture or unsupported
-  }
 }
 
 function formatWebsiteUrl(url?: string): string {
@@ -146,6 +119,20 @@ export function CardDetailPage() {
   // Business Menu modal state
   const [isMenuModalOpen, setIsMenuModalOpen] = useState(false);
 
+  // Addictive prize redemption celebration state & glowing card effect
+  const [isRedeemCelebrating, setIsRedeemCelebrating] = useState(false);
+  const [cardCelebrationGlowing, setCardCelebrationGlowing] = useState(false);
+  const glowTimeoutRef = useRef<number | null>(null);
+
+  const triggerRedeemCelebration = useCallback(() => {
+    setIsRedeemCelebrating(true);
+    setCardCelebrationGlowing(true);
+    if (glowTimeoutRef.current) clearTimeout(glowTimeoutRef.current);
+    glowTimeoutRef.current = window.setTimeout(() => {
+      setCardCelebrationGlowing(false);
+    }, 12000);
+  }, []);
+
   // Real-time autoupdate toast notification
   const [stampAlert, setStampAlert] = useState<{ message: string; type: 'earn' | 'redeem' } | null>(
     null
@@ -158,34 +145,38 @@ export function CardDetailPage() {
     isEsRef.current = isEs;
   }, [isEs]);
 
-  const notifyStampChange = useCallback((newStamps: number, stampsRequired: number) => {
-    if (prevStampsRef.current === null || newStamps === prevStampsRef.current) {
+  const notifyStampChange = useCallback(
+    (newStamps: number, stampsRequired: number, action?: string) => {
+      if (prevStampsRef.current === null || (newStamps === prevStampsRef.current && action !== 'REDEEM')) {
+        prevStampsRef.current = newStamps;
+        return false;
+      }
+
+      const isRedeem = action === 'REDEEM' || (prevStampsRef.current !== null && newStamps < prevStampsRef.current);
       prevStampsRef.current = newStamps;
-      return false;
-    }
 
-    const earned = newStamps > prevStampsRef.current;
-    prevStampsRef.current = newStamps;
-    playCelebrationSound(earned);
-
-    if (earned) {
-      setStampAlert({
-        type: 'earn',
-        message: isEsRef.current
-          ? `¡Sello recibido! Ahora tienes ${newStamps} de ${stampsRequired} sellos.`
-          : `Stamp added! You now have ${newStamps} of ${stampsRequired} stamps.`,
-      });
-    } else {
-      setStampAlert({
-        type: 'redeem',
-        message: isEsRef.current
-          ? '¡Premio canjeado con éxito! Tu tarjeta ha sido reiniciada.'
-          : 'Reward redeemed successfully! Your card has been reset.',
-      });
-    }
-    setTimeout(() => setStampAlert(null), 6000);
-    return true;
-  }, []);
+      if (isRedeem) {
+        triggerRedeemCelebration();
+        setStampAlert({
+          type: 'redeem',
+          message: isEsRef.current
+            ? '¡Premio canjeado con éxito! Tu tarjeta ha sido reiniciada.'
+            : 'Reward redeemed successfully! Your card has been reset.',
+        });
+      } else {
+        playStampCelebrationSound(true);
+        setStampAlert({
+          type: 'earn',
+          message: isEsRef.current
+            ? `¡Sello recibido! Ahora tienes ${newStamps} de ${stampsRequired} sellos.`
+            : `Stamp added! You now have ${newStamps} of ${stampsRequired} stamps.`,
+        });
+      }
+      setTimeout(() => setStampAlert(null), 6000);
+      return true;
+    },
+    [triggerRedeemCelebration]
+  );
 
   // Fetches a single-use 5-minute QR token ONLY on initial load, manual refresh,
   // token expiration (0:00), or after a stamp is scanned.
@@ -241,13 +232,13 @@ export function CardDetailPage() {
 
         eventSource.onmessage = (event) => {
           try {
-            const payload = JSON.parse(event.data) as { stamps?: number };
+            const payload = JSON.parse(event.data) as { stamps?: number; action?: string };
             if (typeof payload.stamps === 'number') {
               // Update card stamps in-place and rotate consumed QR token once if stamps changed
               setData((prev) => {
                 if (!prev) return prev;
                 const reqStamps = prev.card.campaign.stampsRequired || 10;
-                const changed = notifyStampChange(payload.stamps!, reqStamps);
+                const changed = notifyStampChange(payload.stamps!, reqStamps, payload.action);
                 if (changed) {
                   // Rotate the single-use QR token once after the scan was processed
                   setTimeout(() => fetchQR(true), 150);
@@ -388,7 +379,19 @@ export function CardDetailPage() {
             {isEs ? 'Tarjeta de Fidelidad' : 'Punch Card'}
           </h1>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={triggerRedeemCelebration}
+            className="flex items-center gap-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200/80 px-2.5 py-1 text-xs font-bold text-amber-900 transition active:scale-95 shadow-2xs"
+            title={t.redeemPreviewBtn}
+          >
+            <Sparkles className="h-3.5 w-3.5 text-amber-600 fill-amber-500" />
+            <span className="hidden sm:inline">{t.redeemPreviewBtn}</span>
+            <span className="sm:hidden text-xs">🎉</span>
+          </button>
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <main className="mx-auto max-w-sm px-4 pt-5">
@@ -440,7 +443,18 @@ export function CardDetailPage() {
         )}
 
         {/* The Digital Punch Card */}
-        <div className="overflow-hidden rounded-3xl bg-white border border-stone-200/80 shadow-md">
+        <div
+          className={`relative overflow-hidden rounded-3xl bg-white border border-stone-200/80 shadow-md transition-all duration-500 ${
+            cardCelebrationGlowing || isRedeemCelebrating
+              ? 'animate-card-glow ring-4 ring-amber-400/50 scale-[1.01]'
+              : ''
+          }`}
+        >
+          {/* Holographic celebration shimmer running across card */}
+          {(cardCelebrationGlowing || isRedeemCelebrating) && (
+            <div className="absolute inset-0 z-20 pointer-events-none animate-shimmer-slide opacity-40 rounded-3xl" />
+          )}
+
           {/* Card Top Branding */}
           <div style={cardStyle} className="p-6 transition duration-300 relative text-center">
             {/* Top row with Store branding & View Menu pill in card */}
@@ -501,9 +515,23 @@ export function CardDetailPage() {
               🎁 {card.campaign.reward || card.campaign.description}
             </p>
 
+            {/* If reward is ready, celebratory interactive pill */}
+            {isRewardReady && (
+              <div className="mt-3 flex justify-center">
+                <button
+                  type="button"
+                  onClick={triggerRedeemCelebration}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 px-4 py-1.5 text-xs font-black text-stone-900 shadow-lg shadow-amber-500/30 transition hover:scale-105 active:scale-95 animate-pulse"
+                >
+                  <Sparkles className="h-3.5 w-3.5 fill-stone-900" />
+                  <span>{isEs ? '¡Premio Listo! Toca para Celebrar' : 'Reward Ready! Tap to Celebrate'}</span>
+                </button>
+              </div>
+            )}
+
             {/* Quick button in card banner */}
             {hasMenu && (
-              <div className="mt-3.5 flex justify-center">
+              <div className="mt-3 flex justify-center">
                 <button
                   type="button"
                   onClick={() => setIsMenuModalOpen(true)}
@@ -734,6 +762,16 @@ export function CardDetailPage() {
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
         defaultTab={authModalTab}
+      />
+
+      {/* Addictive Reward Redemption Celebration Modal */}
+      <RedeemCelebrationModal
+        isOpen={isRedeemCelebrating}
+        onClose={() => setIsRedeemCelebrating(false)}
+        reward={card.campaign.reward || card.campaign.description}
+        businessName={card.campaign.business?.name || (isEs ? 'Comercio' : 'Store')}
+        logoUrl={card.campaign.logoUrl || card.campaign.business?.logoUrl}
+        brandColor={card.campaign.business?.brandColor}
       />
     </div>
   );

@@ -55,4 +55,12 @@ export interface WalletTranslations {
   visitWebsiteBtn: string;
   visitInstagramBtn: string;
   storeLinks: string;
+  // Redeem Celebration
+  redeemCelebrationTitle: string;
+  redeemCelebrationSubtitle: string;
+  redeemCelebrationRewardBadge: string;
+  redeemCelebrationCongrats: string;
+  redeemCelebrationTapPrompt: string;
+  redeemCelebrationActionBtn: string;
+  redeemPreviewBtn: string;
 }
