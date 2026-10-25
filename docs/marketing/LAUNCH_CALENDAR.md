@@ -13,7 +13,7 @@ This 7-day tactical calendar outlines step-by-step actions to drive organic traf
   1. Post to `r/selfhosted` using [01_REDDIT_SELFHOSTED.md](01_REDDIT_SELFHOSTED.md).
   2. Pin an issue or discussion on GitHub inviting contributors.
   3. Respond to every comment within 15 minutes to boost Reddit's ranking algorithm.
-- **Goal**: 100+ visitors to `alpacard.gabo.lat`, 10–25 GitHub stars, 2–3 new collaborator inquiries.
+- **Goal**: 100+ visitors to `alpacard.app`, 10–25 GitHub stars, 2–3 new collaborator inquiries.
 
 ---
 

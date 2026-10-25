@@ -16,7 +16,7 @@ I wanted to share an open-source project I’ve been working on called **Alpacar
 
 - **Repo**: https://github.com/Gabmetal/alpacard-web
 - **API code**: `apps/api/` (Chi, GORM, native JWTs, RabbitMQ)
-- **Live Demo**: https://alpacard.gabo.lat
+- **Live Demo**: https://alpacard.app
 
 ### Highlights from the Go Backend:
 1. **Lightweight Concurrency & Low Memory**:
@@ -47,8 +47,8 @@ Most loyalty programs fail at local coffee shops because no customer wants to do
 
 We built **Alpacard**, an open-source, mobile-first PWA:
 - **Repo**: https://github.com/Gabmetal/alpacard-web
-- **Live Wallet**: https://alpacard.gabo.lat/wallet
-- **Interactive Sandbox**: https://alpacard.gabo.lat/demo
+- **Live Wallet**: https://alpacard.app/wallet
+- **Interactive Sandbox**: https://alpacard.app/demo
 
 ### Frontend Highlights:
 - **1-Click Guest Onboarding**:

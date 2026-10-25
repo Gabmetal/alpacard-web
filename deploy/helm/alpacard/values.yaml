@@ -1,6 +1,10 @@
 global:
-  domain: alpacard.gabo.lat
-  appUrl: https://alpacard.gabo.lat
+  domain: alpacard.app
+  domains:
+    - alpacard.app
+    - www.alpacard.app
+    - alpacard.gabo.lat
+  appUrl: https://alpacard.app
 
 # PostgreSQL Database Configuration
 postgres:

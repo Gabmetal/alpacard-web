@@ -1,7 +1,7 @@
 # Dev.to / Hashnode Publication Article
 
 **Title**: Building an Open-Source Digital Loyalty Card Platform: Why We Ditched SaaS for Go and React PWA  
-**Cover Image**: (Use hero screenshot from `https://alpacard.gabo.lat`)  
+**Cover Image**: (Use hero screenshot from `https://alpacard.app`)  
 **Tags**: `#opensource`, `#golang`, `#react`, `#webdev`  
 
 ---
@@ -114,7 +114,7 @@ Merchants can also upload a PDF/image of their menu or use the built-in digital 
 Alpacard is 100% open-source under the GNU AGPLv3 license. We welcome contributions, bug reports, and feedback from developers and small business owners alike!
 
 - **GitHub Repository**: [https://github.com/Gabmetal/alpacard-web](https://github.com/Gabmetal/alpacard-web)
-- **Live Demo**: [https://alpacard.gabo.lat](https://alpacard.gabo.lat)
-- **Customer Wallet**: [https://alpacard.gabo.lat/wallet](https://alpacard.gabo.lat/wallet)
+- **Live Demo**: [https://alpacard.app](https://alpacard.app)
+- **Customer Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)
 
 Feel free to star the repo and let us know what you think in the comments!

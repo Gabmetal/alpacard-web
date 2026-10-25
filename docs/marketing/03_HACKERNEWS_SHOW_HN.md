@@ -4,7 +4,7 @@
 **Title**:
 > **Show HN: Alpacard – Open-source digital loyalty punch cards for local shops**
 
-**URL**: `https://alpacard.gabo.lat`  
+**URL**: `https://alpacard.app`  
 *(Or submit as text post if providing full context)*
 
 ---
@@ -13,8 +13,8 @@
 
 Hi HN! I’m Gabo, and I built **Alpacard**: an open-source, self-hosted digital loyalty punch card platform.
 
-- **Demo**: https://alpacard.gabo.lat
-- **Wallet PWA**: https://alpacard.gabo.lat/wallet
+- **Demo**: https://alpacard.app
+- **Wallet PWA**: https://alpacard.app/wallet
 - **Code**: https://github.com/Gabmetal/alpacard-web
 
 ### Why build this?

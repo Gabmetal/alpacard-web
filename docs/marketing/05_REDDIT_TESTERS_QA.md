@@ -20,8 +20,8 @@ We’re building **Alpacard**—a 100% open-source alternative to expensive loya
 
 Instead of paper punch cards that get lost, customers scan a QR code with their regular phone camera, and their card immediately opens in their browser wallet.
 
-- **Interactive Live Demo**: https://alpacard.gabo.lat/demo
-- **Live Wallet**: https://alpacard.gabo.lat/wallet
+- **Interactive Live Demo**: https://alpacard.app/demo
+- **Live Wallet**: https://alpacard.app/wallet
 - **GitHub**: https://github.com/Gabmetal/alpacard-web
 
 ### What we need help testing:
