@@ -7,7 +7,7 @@
 [![Go 1.22+](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev/)
 [![React 18](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-purple)](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-k3s-326CE5?logo=kubernetes)](https://k3s.io/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Cloud--Native-326CE5?logo=kubernetes)](https://kubernetes.io/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ---
@@ -64,7 +64,7 @@ alpacard/
 │   └── shared/          # Shared TypeScript models, themes, and card presets
 ├── deploy/
 │   ├── docker-compose.yml # 1-command local development stack (Postgres + RabbitMQ + Apps)
-│   └── helm/alpacard/   # Helm chart for Kubernetes / k3s
+│   └── helm/alpacard/   # Production Helm chart for Kubernetes & Cloud Native
 └── docs/
     └── marketing/       # Free community marketing guides, Reddit posts, and launch calendar
 ```
@@ -82,7 +82,7 @@ flowchart TD
 
     subgraph Services["Services (alpacard namespace)"]
         GoAPI["Alpacard Go API (Port 4000)<br/>Go + Chi + Native JWT"]
-        Postgres[("PostgreSQL 16 StatefulSet<br/>ACID Ledger & local-path PVC")]
+        Postgres[("PostgreSQL 16 StatefulSet<br/>ACID Ledger & Persistent Storage")]
         RabbitMQ[("RabbitMQ 3.13 Broker<br/>Async Stamp Events & Webhooks")]
         GoWorker["Alpacard Event Worker<br/>Async background consumer"]
     end

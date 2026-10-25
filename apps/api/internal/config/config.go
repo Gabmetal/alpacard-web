@@ -19,7 +19,7 @@ func Load() *Config {
 	port := getEnv("PORT", "4000")
 	dbDriver := getEnv("DB_DRIVER", "sqlite")
 	databaseURL := getEnv("DATABASE_URL", "./alpacard.db")
-	jwtSecret := getEnv("JWT_SECRET", "super_secret_alpacard_jwt_signing_key_homelab_2026")
+	jwtSecret := getEnv("JWT_SECRET", "alpacard_default_jwt_secret_signing_key_2026")
 	rabbitMQURL := getEnv("RABBITMQ_URL", "") // optional, e.g. "amqp://guest:guest@localhost:5672/"
 	appURL := getEnv("APP_URL", "https://alpacard.gabo.lat")
 

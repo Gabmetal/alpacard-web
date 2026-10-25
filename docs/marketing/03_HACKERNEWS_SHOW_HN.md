@@ -25,6 +25,6 @@ Independent coffee shops, bakeries, and food trucks have two bad options for loy
 Alpacard is built on three simple principles:
 1. **Zero Customer Friction**: Customers scan a counter QR with their regular phone camera. An anonymous PWA wallet is generated instantly in local storage. No email or password needed in line.
 2. **Anti-Replay Fraud Protection**: Dynamic rotating QR codes with 5-minute cryptographic tokens. Atomic database transactions ensure a single-use JTI cannot be redeemed twice or screenshot-shared.
-3. **Low-Resource Self-Hosting**: Built with Go 1.22 (Chi, GORM, native JWTs) and React 18 / Tailwind. The static Go binary runs in ~20MB of RAM on any homelab, VPS, or Raspberry Pi.
+3. **Low-Resource Cloud Native**: Built with Go 1.22 (Chi, GORM, native JWTs) and React 18 / Tailwind. The static Go binary runs in ~20MB of RAM on any cloud container, VPS, or micro-VM.
 
 I’d love to hear your thoughts on the architecture, UX, and how small merchants in your neighborhood handle loyalty. The project is 100% open-source under GNU AGPLv3.

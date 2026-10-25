@@ -17,7 +17,7 @@ import {
 export function DocumentationPage() {
   const { t, language } = useLanguage();
   const [activeTab, setActiveTab] = useState<
-    'getting-started' | 'architecture' | 'security' | 'k3s' | 'api'
+    'getting-started' | 'architecture' | 'security' | 'cloud' | 'api'
   >('getting-started');
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -93,9 +93,9 @@ export function DocumentationPage() {
                 label: isEs ? 'Seguridad y Anti-Replay' : 'Security & Replay Guard',
               },
               {
-                id: 'k3s' as const,
+                id: 'cloud' as const,
                 icon: Server,
-                label: isEs ? 'Despliegue k3s y Helm' : 'Homelab k3s & Helm',
+                label: isEs ? 'Despliegue Cloud & Helm' : 'Production Cloud & Helm',
               },
               {
                 id: 'api' as const,
@@ -137,7 +137,7 @@ export function DocumentationPage() {
         <main className="flex-1 max-w-4xl min-w-0 space-y-6">
           {/* Mobile Tab Selector */}
           <div className="lg:hidden flex overflow-x-auto gap-2 border-b border-stone-200 pb-3 scrollbar-none">
-            {(['getting-started', 'architecture', 'security', 'k3s', 'api'] as const).map((tab) => (
+            {(['getting-started', 'architecture', 'security', 'cloud', 'api'] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -317,24 +317,29 @@ export function DocumentationPage() {
             </div>
           )}
 
-          {/* Tab 4: Homelab k3s */}
-          {activeTab === 'k3s' && (
+          {/* Tab 4: Production Cloud & Helm */}
+          {activeTab === 'cloud' && (
             <div className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-8 shadow-2xs space-y-6">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold text-stone-900">
-                  Homelab Kubernetes & Helm Deployment
+                  {isEs ? 'Despliegue Cloud con Kubernetes y Helm' : 'Production Kubernetes & Helm Deployment'}
                 </h2>
                 <p className="text-xs sm:text-sm text-stone-500 mt-1">
-                  Deploying on k3s clusters with Traefik, Cert-Manager, and automated backups.
+                  {isEs
+                    ? 'Arquitectura cloud-native contenerizada con alta disponibilidad, ingress TLS y copias de seguridad continuas.'
+                    : 'Cloud-native containerized architecture with high availability, automated TLS certificates, and resilient backups.'}
                 </p>
               </div>
 
               <div className="space-y-4 text-xs text-stone-600">
-                <p>Deploy the production Helm chart with a single command:</p>
+                <p>
+                  {isEs
+                    ? 'Despliega el chart de Helm en producción con un único comando:'
+                    : 'Deploy the production-ready Helm chart with a single command:'}
+                </p>
                 <div className="rounded-xl bg-stone-900 border border-stone-800 p-4 font-mono text-xs text-stone-200 flex items-center justify-between gap-2 overflow-x-auto">
                   <code className="whitespace-nowrap">
-                    helm upgrade --install alpacard deploy/helm/alpacard -n alpacard
-                    --create-namespace
+                    helm upgrade --install alpacard deploy/helm/alpacard -n alpacard --create-namespace
                   </code>
                   <button
                     onClick={() =>
@@ -354,14 +359,12 @@ export function DocumentationPage() {
                 </div>
 
                 <h3 className="text-sm font-bold text-stone-900 pt-4">
-                  Automated Nightly Backups
+                  {isEs ? 'Copias de Seguridad Automatizadas y Recuperación ante Desastres' : 'Automated Cloud Backups & Disaster Recovery'}
                 </h3>
                 <p className="text-stone-600 leading-relaxed">
-                  The homelab systemd backup service (<code>/usr/local/bin/homelab-backup.py</code>
-                  ) runs nightly at 03:00 AM Cordoba time. It automatically executes a PostgreSQL
-                  database dump (<code>pg_dump</code>), snapshots storage PVCs under{' '}
-                  <code>/var/lib/rancher/k3s/storage/*_alpacard_*</code>, uploads the archive to
-                  Cloudflare R2, and reports health via Telegram.
+                  {isEs
+                    ? 'Alpacard incluye un pipeline automatizado que ejecuta volcados atómicos de PostgreSQL cada noche a las 03:00 UTC, gestiona la rotación de 14 días y sincroniza archivos comprimidos y cifrados directamente hacia almacenamiento de objetos S3 compatible (Cloudflare R2), con alertas proactivas ante cualquier anomalía.'
+                    : 'Alpacard includes an automated Kubernetes CronJob performing atomic PostgreSQL database snapshots nightly at 03:00 UTC, rotating historical retention windows, and synchronizing encrypted archives directly to S3-compatible cloud object storage (Cloudflare R2) with proactive health alerting.'}
                 </p>
               </div>
             </div>
