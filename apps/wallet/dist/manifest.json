@@ -1,6 +1,7 @@
 {
   "short_name": "Alpacard",
   "name": "Alpacard Loyalty Wallet",
+  "description": "Your digital loyalty punch cards in one place",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -13,9 +14,10 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "/",
-  "background_color": "#ffffff",
-  "theme_color": "#4f46e5",
+  "start_url": "/wallet",
+  "scope": "/",
+  "background_color": "#FAF8F5",
+  "theme_color": "#4A3525",
   "display": "standalone",
   "orientation": "portrait"
 }

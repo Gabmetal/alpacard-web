@@ -59,4 +59,12 @@ export const es: WalletTranslations = {
   redeemCelebrationTapPrompt: 'Toca la pantalla para fuegos artificiales ✨',
   redeemCelebrationActionBtn: '¡Genial! Disfrutar Premio 🎁',
   redeemPreviewBtn: 'Celebrar Premio',
+  // PWA Install
+  installAppBtn: 'Instalar App',
+  installAppTitle: 'Instala la Billetera Alpaca',
+  installAppDesc: 'Agrega Alpacard a tu pantalla de inicio para acceder a tus tarjetas y sellos en 1 solo toque.',
+  installAppIosStep1: 'Toca el botón Compartir en la barra de Safari abajo',
+  installAppIosStep2: 'Desliza y selecciona "Agregar a Inicio"',
+  installAppDismiss: 'Quizás más tarde',
+  installAppSuccess: '¡App instalada con éxito!',
 };

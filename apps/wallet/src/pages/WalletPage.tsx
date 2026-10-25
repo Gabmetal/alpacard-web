@@ -8,6 +8,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { getWalletCardStyle, getActiveStampColor } from '../components/CardTheme';
 import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
+import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 
 interface Card {
   id: string;
@@ -178,6 +179,9 @@ export function WalletPage() {
       </header>
 
       <main className="mx-auto max-w-lg px-4 pt-5 space-y-4">
+        {/* PWA Mobile App Install Promotion */}
+        <PWAInstallPrompt />
+
         {/* Guest Sync Banner */}
         {isGuest && (
           <div className="rounded-2xl border border-[#E6D9C6] bg-[#F5EFE6]/70 p-4 shadow-xs">

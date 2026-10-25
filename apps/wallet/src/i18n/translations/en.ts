@@ -59,4 +59,12 @@ export const en: WalletTranslations = {
   redeemCelebrationTapPrompt: 'Tap screen for fireworks & sparkles ✨',
   redeemCelebrationActionBtn: 'Awesome! Enjoy Reward 🎁',
   redeemPreviewBtn: 'Celebration Preview',
+  // PWA Install
+  installAppBtn: 'Install App',
+  installAppTitle: 'Install Alpacard Wallet',
+  installAppDesc: 'Add Alpacard to your home screen for 1-tap instant access to your punch cards and rewards.',
+  installAppIosStep1: 'Tap the Share button in Safari toolbar below',
+  installAppIosStep2: 'Scroll down and tap "Add to Home Screen"',
+  installAppDismiss: 'Maybe Later',
+  installAppSuccess: 'App installed successfully!',
 };
