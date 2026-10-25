@@ -23,6 +23,8 @@ export interface Translations {
     docs: string;
     signIn: string;
     getStarted: string;
+    openWallet: string;
+    merchantLogin: string;
     dashboard: string;
     campaigns: string;
     businesses: string;
@@ -38,6 +40,7 @@ export interface Translations {
     heroTitleGradient: string;
     heroSubtitle: string;
     launchMerchantBtn: string;
+    openWalletHeroBtn: string;
     tryDemoBtn: string;
     docsBtn: string;
     metricOpenSource: string;
