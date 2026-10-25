@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { getMerchantToken, api } from './services/api';
 import { LanguageProvider } from './i18n/LanguageContext';
+import { ThemeProvider } from './theme/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
 import { DocumentationPage } from './pages/DocumentationPage';
 import { DemoPage } from './pages/DemoPage';
@@ -99,7 +100,8 @@ export function App() {
 
   return (
     <LanguageProvider>
-      <BrowserRouter>
+      <ThemeProvider>
+        <BrowserRouter>
         <Routes>
         {/* Public Marketing & Product Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -226,7 +228,8 @@ export function App() {
           </div>
         </div>
       )}
-      </BrowserRouter>
+        </BrowserRouter>
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, setMerchantToken } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { ArrowLeft } from 'lucide-react';
 
 interface LoginPageProps {
@@ -51,35 +52,38 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAF8F5] px-4 py-8 text-stone-900">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#FAF8F5] dark:bg-stone-950 px-4 py-8 text-stone-900 dark:text-stone-100 transition-colors">
       <div className="mb-4 flex items-center justify-between w-full max-w-md px-1">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 transition"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition"
         >
           <ArrowLeft className="h-4 w-4" />
           {t.auth.backToHome}
         </Link>
-        <LanguageSwitcher variant="light" />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
+        </div>
       </div>
 
-      <div className="w-full max-w-md rounded-2xl bg-white border border-stone-200 p-6 sm:p-8 shadow-sm">
+      <div className="w-full max-w-md rounded-2xl bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 p-6 sm:p-8 shadow-sm transition-colors">
         <div className="text-center">
           <Link to="/" className="inline-block">
             <img
               src="/alpacard-logo.jpg"
               alt="Alpacard"
-              className="mx-auto h-14 w-14 rounded-xl object-cover shadow-2xs border border-stone-200"
+              className="mx-auto h-14 w-14 rounded-xl object-cover shadow-2xs border border-stone-200 dark:border-stone-700"
             />
           </Link>
-          <h2 className="mt-4 text-xl sm:text-2xl font-bold text-stone-900">
+          <h2 className="mt-4 text-xl sm:text-2xl font-bold text-stone-900 dark:text-stone-100">
             {isRegister ? t.auth.registerTitle : t.auth.signInTitle}
           </h2>
-          <p className="mt-1 text-xs text-stone-500">{t.auth.tagline}</p>
+          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{t.auth.tagline}</p>
         </div>
 
         {error && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-center text-xs text-red-700 font-medium">
+          <div className="mt-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 p-3 text-center text-xs text-red-700 dark:text-red-300 font-medium">
             {error}
           </div>
         )}
@@ -87,7 +91,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {isRegister && (
             <div>
-              <label className="block text-xs font-semibold text-stone-700">
+              <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300">
                 {t.auth.fullNameLabel}
               </label>
               <input
@@ -95,14 +99,14 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 block w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:border-[#4A3525] focus:outline-none focus:ring-1 focus:ring-[#4A3525]"
+                className="mt-1 block w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:border-[#4A3525] dark:focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-[#4A3525] dark:focus:ring-amber-400"
                 placeholder="Jane Doe"
               />
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-stone-700">
+            <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300">
               {t.auth.emailLabel}
             </label>
             <input
@@ -110,13 +114,13 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:border-[#4A3525] focus:outline-none focus:ring-1 focus:ring-[#4A3525]"
+              className="mt-1 block w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:border-[#4A3525] dark:focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-[#4A3525] dark:focus:ring-amber-400"
               placeholder="owner@cafe.com"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-stone-700">
+            <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300">
               {t.auth.passwordLabel}
             </label>
             <input
@@ -125,7 +129,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-xl border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-stone-900 placeholder-stone-400 focus:border-[#4A3525] focus:outline-none focus:ring-1 focus:ring-[#4A3525]"
+              className="mt-1 block w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-2.5 text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 dark:placeholder-stone-500 focus:border-[#4A3525] dark:focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-[#4A3525] dark:focus:ring-amber-400"
               placeholder="••••••••"
             />
           </div>
@@ -133,20 +137,20 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[#3D2B1F] py-3 text-sm font-semibold text-white shadow-xs hover:bg-[#2C1F16] transition active:scale-[0.99] disabled:opacity-50"
+            className="w-full rounded-xl bg-[#3D2B1F] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-stone-950 py-3 text-sm font-semibold text-white shadow-xs hover:bg-[#2C1F16] transition active:scale-[0.99] disabled:opacity-50"
           >
             {loading ? t.auth.processing : isRegister ? t.auth.registerBtn : t.auth.signInBtn}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-xs text-stone-500">
+        <div className="mt-6 text-center text-xs text-stone-500 dark:text-stone-400">
           {isRegister ? t.auth.alreadyHaveAccount : t.auth.noAccountYet}{' '}
           <button
             onClick={() => {
               setIsRegister(!isRegister);
               setError(null);
             }}
-            className="font-semibold text-[#5C4028] hover:text-[#3D2B1F] transition hover:underline"
+            className="font-semibold text-[#5C4028] dark:text-amber-400 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition hover:underline"
           >
             {isRegister ? t.auth.switchToSignIn : t.auth.switchToRegister}
           </button>

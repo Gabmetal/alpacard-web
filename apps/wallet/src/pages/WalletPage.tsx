@@ -4,6 +4,7 @@ import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, 
 import { walletApi, getStoredUser, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { getWalletCardStyle, getActiveStampColor } from '../components/CardTheme';
 import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
@@ -110,26 +111,27 @@ export function WalletPage() {
   const isGuest = !user || user.isAnonymous;
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] pb-20 text-stone-900">
+    <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 pb-20 text-stone-900 dark:text-stone-100 transition-colors">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-10 bg-white border-b border-stone-200 px-4 sm:px-6 py-3.5 text-stone-900 shadow-xs">
+      <header className="sticky top-0 z-10 bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 px-4 sm:px-6 py-3.5 text-stone-900 dark:text-stone-100 shadow-xs transition-colors">
         <div className="mx-auto max-w-lg flex items-center justify-between gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
             <img
               src="/alpacard-logo.jpg"
               alt="Alpacard"
-              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover border border-stone-200 shadow-xs shrink-0"
+              className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl object-cover border border-stone-200 dark:border-stone-700 shadow-xs shrink-0"
             />
             <div className="min-w-0">
-              <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-stone-900 truncate">
+              <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-stone-900 dark:text-stone-100 truncate">
                 {t.title}
               </h1>
-              <p className="text-[11px] text-stone-500 truncate">{t.subtitle}</p>
+              <p className="text-[11px] text-stone-500 dark:text-stone-400 truncate">{t.subtitle}</p>
             </div>
           </div>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <LanguageSwitcher />
+            <ThemeToggle />
+            <LanguageSwitcher className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
             {/* Auth / Profile Button */}
             {isGuest ? (
@@ -138,7 +140,7 @@ export function WalletPage() {
                   setAuthModalTab('login');
                   setIsAuthModalOpen(true);
                 }}
-                className="flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#2A1D15] active:scale-95 shadow-xs"
+                className="flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-stone-950 px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#2A1D15] active:scale-95 shadow-xs"
               >
                 <LogIn className="h-3.5 w-3.5" />
                 <span className="hidden xs:inline">{t.authTabSignIn}</span>
@@ -146,15 +148,15 @@ export function WalletPage() {
             ) : (
               <div className="flex items-center gap-1.5">
                 <div
-                  className="flex items-center gap-1.5 rounded-xl bg-stone-100 border border-stone-200 px-2.5 py-1 text-xs font-semibold text-stone-800 max-w-[110px] truncate"
+                  className="flex items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-2.5 py-1 text-xs font-semibold text-stone-800 dark:text-stone-200 max-w-[110px] truncate"
                   title={`${user?.name || user?.email}`}
                 >
-                  <User className="h-3.5 w-3.5 shrink-0 text-[#5C4028]" />
+                  <User className="h-3.5 w-3.5 shrink-0 text-[#5C4028] dark:text-amber-400" />
                   <span className="truncate">{user?.name || user?.email?.split('@')[0]}</span>
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="rounded-xl bg-stone-100 border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 hover:text-stone-900"
+                  className="rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-1.5 text-stone-600 dark:text-stone-300 transition hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100"
                   title={t.logoutBtn}
                 >
                   <LogOut className="h-3.5 w-3.5" />
@@ -164,7 +166,7 @@ export function WalletPage() {
 
             <button
               onClick={loadCards}
-              className="rounded-xl bg-stone-100 border border-stone-200 p-1.5 text-stone-600 transition hover:bg-stone-200 hover:text-stone-900 active:rotate-180"
+              className="rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-1.5 text-stone-600 dark:text-stone-300 transition hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100 active:rotate-180"
               title="Refresh"
             >
               <RefreshCw className="h-4 w-4" />
@@ -400,13 +402,13 @@ export function WalletPage() {
 
         {/* Viral Merchant Discovery Footer */}
         <div className="pt-6 pb-2 text-center">
-          <div className="rounded-2xl border border-stone-200/80 bg-white/80 p-4 shadow-2xs backdrop-blur-xs">
-            <p className="text-xs font-bold text-stone-800">
+          <div className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 p-4 shadow-2xs backdrop-blur-xs transition-colors">
+            <p className="text-xs font-bold text-stone-800 dark:text-stone-200">
               {isEs
                 ? '¿Tienes una cafetería, pastelería o comercio?'
                 : 'Own a coffee shop, bakery, or local business?'}
             </p>
-            <p className="text-[11px] text-stone-500 mt-0.5">
+            <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
               {isEs
                 ? 'Crea tu tarjeta de fidelidad digital 100% gratis con Alpacard.'
                 : 'Launch your 100% free digital punch card with Alpacard.'}
@@ -415,13 +417,13 @@ export function WalletPage() {
               href="https://alpacard.app"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#2A1D15] active:scale-95 shadow-xs"
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-stone-950 px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#2A1D15] active:scale-95 shadow-xs"
             >
               <span>{isEs ? 'Crear mi tarjeta gratis' : 'Create Free Store Card'}</span>
-              <span className="text-stone-300">→</span>
+              <span className="text-stone-300 dark:text-stone-900">→</span>
             </a>
           </div>
-          <p className="mt-3 text-[10px] text-stone-400">
+          <p className="mt-3 text-[10px] text-stone-400 dark:text-stone-500">
             Alpacard • Open-Source Digital Loyalty Platform
           </p>
         </div>

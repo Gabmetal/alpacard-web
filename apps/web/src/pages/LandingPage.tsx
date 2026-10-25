@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
 import {
   ShieldCheck,
@@ -45,60 +46,61 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 selection:bg-[#4A3525] selection:text-white">
+    <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-[#4A3525] selection:text-white transition-colors">
       {/* Navigation Header */}
-      <nav className="sticky top-0 z-50 border-b border-stone-200/90 bg-white/95 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md transition-colors">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img
               src="/alpacard-logo.jpg"
               alt="Alpacard"
-              className="h-9 w-9 rounded-lg object-cover border border-stone-200 shadow-2xs"
+              className="h-9 w-9 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
             />
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900">
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
               Alpacard
             </span>
-            <span className="hidden lg:inline-flex rounded-md bg-stone-100 px-2 py-0.5 text-[11px] font-medium text-stone-600 border border-stone-200">
+            <span className="hidden lg:inline-flex rounded-md bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
               {t.landing.badge}
             </span>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-600">
-            <a href="#features" className="hover:text-stone-900 transition">
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-600 dark:text-stone-300">
+            <a href="#features" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
               {t.nav.features}
             </a>
-            <a href="#visual-tour" className="hover:text-stone-900 transition">
+            <a href="#visual-tour" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
               {t.nav.visualTour}
             </a>
-            <a href="#how-it-works" className="hover:text-stone-900 transition">
+            <a href="#how-it-works" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
               {t.nav.howItWorks}
             </a>
             <Link
               to="/demo"
-              className="text-[#5C4028] hover:text-[#3D2B1F] transition flex items-center gap-1.5 font-semibold"
+              className="text-[#5C4028] dark:text-amber-400 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition flex items-center gap-1.5 font-semibold"
             >
               <Play className="h-3.5 w-3.5 fill-current" />
               {t.nav.liveDemo}
             </Link>
-            <Link to="/docs" className="hover:text-stone-900 transition">
+            <Link to="/docs" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
               {t.nav.docs}
             </Link>
           </div>
 
           {/* Right Actions */}
           <div className="hidden sm:flex items-center gap-2.5">
-            <LanguageSwitcher variant="light" />
+            <ThemeToggle />
+            <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
             <Link
               to="/login"
-              className="text-xs sm:text-sm font-semibold text-stone-700 hover:text-stone-900 px-3 py-2 rounded-lg hover:bg-stone-100 transition"
+              className="text-xs sm:text-sm font-semibold text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition"
             >
               {t.nav.signIn}
             </Link>
             <Link
               to="/login?mode=register"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#3D2B1F] px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition active:scale-[0.99]"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-stone-950 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition active:scale-[0.99]"
             >
               <span>{t.nav.getStarted}</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -107,11 +109,12 @@ export function LandingPage() {
 
           {/* Mobile Controls */}
           <div className="flex sm:hidden items-center gap-2">
-            <LanguageSwitcher variant="light" />
+            <ThemeToggle />
+            <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="inline-flex items-center justify-center rounded-lg border border-stone-200 p-2 text-stone-700 hover:bg-stone-100 transition"
+              className="inline-flex items-center justify-center rounded-lg border border-stone-200 dark:border-stone-700 p-2 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -121,33 +124,33 @@ export function LandingPage() {
 
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-stone-200 bg-white px-4 pt-3 pb-5 space-y-3 shadow-lg">
-            <div className="flex flex-col space-y-1 text-sm font-medium text-stone-700">
+          <div className="md:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-3 shadow-lg transition-colors">
+            <div className="flex flex-col space-y-1 text-sm font-medium text-stone-700 dark:text-stone-300">
               <a
                 href="#features"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2 hover:bg-stone-100"
+                className="rounded-lg px-3 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               >
                 {t.nav.features}
               </a>
               <a
                 href="#visual-tour"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2 hover:bg-stone-100"
+                className="rounded-lg px-3 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               >
                 {t.nav.visualTour}
               </a>
               <a
                 href="#how-it-works"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2 hover:bg-stone-100"
+                className="rounded-lg px-3 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               >
                 {t.nav.howItWorks}
               </a>
               <Link
                 to="/demo"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2 font-semibold text-[#5C4028] hover:bg-stone-100 flex items-center gap-2"
+                className="rounded-lg px-3 py-2 font-semibold text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 transition"
               >
                 <Play className="h-3.5 w-3.5 fill-current" />
                 {t.nav.liveDemo}
@@ -155,13 +158,13 @@ export function LandingPage() {
               <Link
                 to="/docs"
                 onClick={() => setMobileMenuOpen(false)}
-                className="rounded-lg px-3 py-2 hover:bg-stone-100"
+                className="rounded-lg px-3 py-2 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               >
                 {t.nav.docs}
               </Link>
             </div>
 
-            <div className="pt-2 border-t border-stone-100 flex flex-col gap-2">
+            <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-2">
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
