@@ -1,4 +1,10 @@
+import { getCookie, setCookie, removeCookie } from '../utils/cookies';
+
 const API_BASE = '/api/v1';
+
+const TOKEN_KEY = 'alpacard_wallet_token';
+const USER_KEY = 'alpacard_wallet_user';
+const CARDS_CACHE_KEY = 'alpacard_wallet_cards_cache';
 
 export interface WalletUser {
   id: string;
@@ -9,33 +15,135 @@ export interface WalletUser {
 }
 
 export function getToken(): string | null {
-  return localStorage.getItem('alpacard_wallet_token');
+  // Check cookie first (or localStorage fallback)
+  const cookieToken = getCookie(TOKEN_KEY);
+  if (cookieToken) {
+    // Keep localStorage in sync
+    try {
+      if (localStorage.getItem(TOKEN_KEY) !== cookieToken) {
+        localStorage.setItem(TOKEN_KEY, cookieToken);
+      }
+    } catch {
+      // Ignore localStorage access errors
+    }
+    return cookieToken;
+  }
+
+  try {
+    const localToken = localStorage.getItem(TOKEN_KEY);
+    if (localToken) {
+      // Sync back to cookie so future requests & reloads persist
+      setCookie(TOKEN_KEY, localToken);
+      return localToken;
+    }
+  } catch {
+    // Ignore localStorage access errors
+  }
+
+  return null;
 }
 
 export function setToken(token: string) {
-  localStorage.setItem('alpacard_wallet_token', token);
+  setCookie(TOKEN_KEY, token);
+  try {
+    localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // Ignore
+  }
 }
 
 export function getStoredUser(): WalletUser | null {
-  try {
-    const raw = localStorage.getItem('alpacard_wallet_user');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+  let raw = getCookie(USER_KEY);
+  if (!raw) {
+    try {
+      raw = localStorage.getItem(USER_KEY);
+      if (raw) {
+        setCookie(USER_KEY, raw);
+      }
+    } catch {
+      // Ignore
+    }
   }
+
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 export function setStoredUser(user: WalletUser | null) {
   if (user) {
-    localStorage.setItem('alpacard_wallet_user', JSON.stringify(user));
+    const str = JSON.stringify(user);
+    setCookie(USER_KEY, str);
+    try {
+      localStorage.setItem(USER_KEY, str);
+    } catch {
+      // Ignore
+    }
   } else {
-    localStorage.removeItem('alpacard_wallet_user');
+    removeCookie(USER_KEY);
+    try {
+      localStorage.removeItem(USER_KEY);
+    } catch {
+      // Ignore
+    }
   }
 }
 
 export function clearToken() {
-  localStorage.removeItem('alpacard_wallet_token');
-  localStorage.removeItem('alpacard_wallet_user');
+  removeCookie(TOKEN_KEY);
+  removeCookie(USER_KEY);
+  removeCookie(CARDS_CACHE_KEY);
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+    localStorage.removeItem(CARDS_CACHE_KEY);
+  } catch {
+    // Ignore
+  }
+}
+
+// Stores cards in cookies & localStorage to preserve cards across page reloads
+export function getCachedCards<T>(): T[] | null {
+  let raw = getCookie(CARDS_CACHE_KEY);
+  if (!raw) {
+    try {
+      raw = localStorage.getItem(CARDS_CACHE_KEY);
+      if (raw) {
+        setCookie(CARDS_CACHE_KEY, raw);
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  if (raw) {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+export function setCachedCards<T>(cards: T[]) {
+  try {
+    const str = JSON.stringify(cards);
+    setCookie(CARDS_CACHE_KEY, str);
+    localStorage.setItem(CARDS_CACHE_KEY, str);
+  } catch {
+    // If cards payload is large for cookie limit, at least localStorage stores it
+    try {
+      localStorage.setItem(CARDS_CACHE_KEY, JSON.stringify(cards));
+    } catch {
+      // Ignore
+    }
+  }
 }
 
 // Ensures an anonymous guest token exists for 1-tap card claiming

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, Globe, Instagram } from 'lucide-react';
-import { walletApi, getStoredUser, WalletUser } from '../services/api';
+import { walletApi, getStoredUser, WalletUser, getCachedCards, setCachedCards } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
@@ -40,8 +40,9 @@ interface Card {
 export function WalletPage() {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
-  const [cards, setCards] = useState<Card[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cachedInitial = getCachedCards<Card>();
+  const [cards, setCards] = useState<Card[]>(cachedInitial || []);
+  const [loading, setLoading] = useState(cachedInitial ? false : true);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<WalletUser | null>(getStoredUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -51,10 +52,11 @@ export function WalletPage() {
 
   const loadCards = async () => {
     try {
-      setLoading(true);
+      if (!cards.length) setLoading(true);
       setError(null);
       const data = await walletApi.getMyCards();
       setCards(data);
+      setCachedCards(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
