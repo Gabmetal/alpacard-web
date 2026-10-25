@@ -12,7 +12,10 @@ metadata:
 spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
-  - host: {{ .Values.global.domain }}
+  {{- $fullName := include "alpacard.fullname" . }}
+  {{- $domains := .Values.global.domains | default (list .Values.global.domain) }}
+  {{- range $d := $domains }}
+  - host: {{ $d }}
     http:
       paths:
       # API Endpoints
@@ -20,7 +23,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-api-service
+            name: {{ $fullName }}-api-service
             port:
               number: 4000
 
@@ -29,42 +32,42 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-wallet-service
+            name: {{ $fullName }}-wallet-service
             port:
               number: 80
       - path: /card
         pathType: Prefix
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-wallet-service
+            name: {{ $fullName }}-wallet-service
             port:
               number: 80
       - path: /wallet
         pathType: Prefix
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-wallet-service
+            name: {{ $fullName }}-wallet-service
             port:
               number: 80
       - path: /wallet-assets
         pathType: Prefix
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-wallet-service
+            name: {{ $fullName }}-wallet-service
             port:
               number: 80
       - path: /manifest.json
         pathType: Exact
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-wallet-service
+            name: {{ $fullName }}-wallet-service
             port:
               number: 80
       - path: /sw.js
         pathType: Exact
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-wallet-service
+            name: {{ $fullName }}-wallet-service
             port:
               number: 80
 
@@ -73,11 +76,14 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ include "alpacard.fullname" . }}-web-service
+            name: {{ $fullName }}-web-service
             port:
               number: 80
+  {{- end }}
   tls:
   - hosts:
-    - {{ .Values.global.domain }}
+    {{- range $d := $domains }}
+    - {{ $d }}
+    {{- end }}
     secretName: {{ .Values.ingress.tlsSecretName }}
 {{- end }}

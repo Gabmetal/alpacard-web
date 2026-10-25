@@ -12,10 +12,9 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: alpacard.gabo.lat
+  - host: alpacard.app
     http:
       paths:
-      # API Endpoints
       - path: /api
         pathType: Prefix
         backend:
@@ -23,8 +22,6 @@ spec:
             name: alpacard-api-service
             port:
               number: 4000
-
-      # Customer Loyalty Wallet Routes (1-click Claim & Punch Card Presentation)
       - path: /claim
         pathType: Prefix
         backend:
@@ -46,8 +43,82 @@ spec:
             name: alpacard-wallet-service
             port:
               number: 80
-
-      # Merchant Backoffice & QR Scanner (Default /)
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-web-service
+            port:
+              number: 80
+  - host: www.alpacard.app
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-api-service
+            port:
+              number: 4000
+      - path: /claim
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /card
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /wallet
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-web-service
+            port:
+              number: 80
+  - host: alpacard.gabo.lat
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-api-service
+            port:
+              number: 4000
+      - path: /claim
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /card
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /wallet
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
       - path: /
         pathType: Prefix
         backend:
@@ -57,5 +128,7 @@ spec:
               number: 80
   tls:
   - hosts:
+    - alpacard.app
+    - www.alpacard.app
     - alpacard.gabo.lat
     secretName: alpacard-tls

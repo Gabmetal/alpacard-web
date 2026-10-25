@@ -21,9 +21,9 @@ func Load() *Config {
 	databaseURL := getEnv("DATABASE_URL", "./alpacard.db")
 	jwtSecret := getEnv("JWT_SECRET", "alpacard_default_jwt_secret_signing_key_2026")
 	rabbitMQURL := getEnv("RABBITMQ_URL", "") // optional, e.g. "amqp://guest:guest@localhost:5672/"
-	appURL := getEnv("APP_URL", "https://alpacard.gabo.lat")
+	appURL := getEnv("APP_URL", "https://alpacard.app")
 
-	corsStr := getEnv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:5174,https://alpacard.gabo.lat")
+	corsStr := getEnv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:5174,https://alpacard.app,https://www.alpacard.app,https://alpacard.gabo.lat")
 	corsOrigins := strings.Split(corsStr, ",")
 	for i := range corsOrigins {
 		corsOrigins[i] = strings.TrimSpace(corsOrigins[i])

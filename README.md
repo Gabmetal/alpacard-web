@@ -14,9 +14,9 @@
 
 ## 🚀 Live Demo
 
-- **Merchant Portal & Scanner**: [https://alpacard.gabo.lat](https://alpacard.gabo.lat)
-- **Interactive Live Demo**: [https://alpacard.gabo.lat/demo](https://alpacard.gabo.lat/demo)
-- **Customer Mobile Wallet**: [https://alpacard.gabo.lat/wallet](https://alpacard.gabo.lat/wallet)
+- **Merchant Portal & Scanner**: [https://alpacard.app](https://alpacard.app)
+- **Interactive Live Demo**: [https://alpacard.app/demo](https://alpacard.app/demo)
+- **Customer Mobile Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)
 
 ---
 
@@ -77,7 +77,7 @@ flowchart TD
     end
 
     subgraph Ingress["Edge & Routing"]
-        Traefik["Traefik Ingress (alpacard.gabo.lat)<br/>Automatic Let's Encrypt TLS"]
+        Traefik["Traefik Ingress (alpacard.app)<br/>Automatic Let's Encrypt TLS"]
     end
 
     subgraph Services["Services (alpacard namespace)"]

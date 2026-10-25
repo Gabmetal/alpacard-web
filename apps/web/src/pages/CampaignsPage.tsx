@@ -898,7 +898,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                 Powered by <strong className="text-stone-600 font-semibold">Alpacard</strong> • {isEs ? 'Tarjetas digitales gratis para tu negocio' : 'Free digital loyalty cards for your store'}
               </p>
               <p className="text-[9px] text-stone-400 font-mono mt-0.5">
-                alpacard.gabo.lat
+                alpacard.app
               </p>
             </div>
 

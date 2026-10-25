@@ -7,7 +7,7 @@
 - **Name**: Alpacard
 - **Tagline**: Open-source digital punch cards & menus for local stores
 - **Primary Category**: Open Source, Developer Tools, Productivity, Retail
-- **Website URL**: `https://alpacard.gabo.lat`
+- **Website URL**: `https://alpacard.app`
 - **GitHub URL**: `https://github.com/Gabmetal/alpacard-web`
 
 ### Short Description (250 chars):
@@ -32,7 +32,7 @@
 ## 2. AlternativeTo.net Listing
 
 - **Software Name**: Alpacard
-- **Website**: `https://alpacard.gabo.lat`
+- **Website**: `https://alpacard.app`
 - **License**: Open Source (AGPL-3.0)
 - **Platforms**: Self-Hosted, Web, Linux, Docker
 - **Alternative to**:

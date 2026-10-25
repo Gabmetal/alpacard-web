@@ -45,8 +45,8 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 ### Tweet 5 (CTA & Live Link)
 > Experience it live right now:
 > 
-> 💳 Customer Wallet: https://alpacard.gabo.lat/wallet
-> 💼 Merchant Portal: https://alpacard.gabo.lat
+> 💳 Customer Wallet: https://alpacard.app/wallet
+> 💼 Merchant Portal: https://alpacard.app
 > 
 > We're onboarding our next 20 coffee shops & bakeries completely free. 
 > 
@@ -65,7 +65,7 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
   *Voiceover*: "Rotating dynamic QR codes protect you from fraud. And every punch updates in real-time."
 - **[0:21 - 0:30] The Climax (The Celebration)**: Customer reaches full card. Screen explodes in multi-color confetti, golden trophy pops up with triumphant fanfare.
   *Voiceover*: "When they earn a free coffee, the reward celebration is pure dopamine. Customers keep coming back."
-  *Ending screen*: "Launch your program today 👉 alpacard.gabo.lat"
+  *Ending screen*: "Launch your program today 👉 alpacard.app"
 
 ### Instagram Caption
 > Stop losing repeat customers to paper punch cards that end up in the laundry. ☕🥐
@@ -78,7 +78,7 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 > ✅ Anti-fraud single-use QR codes
 > ✅ Addictive reward celebration when customers unlock prizes 🎉
 > 
-> 📍 Try it out right now or create your business card at the link in bio (`alpacard.gabo.lat`).
+> 📍 Try it out right now or create your business card at the link in bio (`alpacard.app`).
 > 
 > #coffeeshoplife #cafebusiness #baristalife #smallbusinessowner #hospitalitytech #loyaltyprogram #restaurantmarketing #digitalpunchcard #alpacard
 
@@ -102,7 +102,7 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 > 
 > Small businesses shouldn't have to choose between primitive paper and predatory SaaS pricing.
 > 
-> Check out the live platform: https://alpacard.gabo.lat
+> Check out the live platform: https://alpacard.app
 > 
 > Would you use a digital loyalty card at your local cafe if it required zero downloads? I'd love your perspective in the comments.
 
@@ -120,7 +120,7 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 > 
 > When I talked to local shop owners, they told me they hated paper cards (no customer data, rampant fraud, people losing them), but they couldn't justify paying \$99/month for bloated loyalty apps that force customers to download something from the App Store.
 > 
-> So I spent the last few weeks building **Alpacard** (https://alpacard.gabo.lat):
+> So I spent the last few weeks building **Alpacard** (https://alpacard.app):
 > 
 > **How it works:**
 > 1. Store signs up, picks brand colors, uploads a logo and reward (e.g. "Buy 8 Coffees, 9th is Free").
@@ -134,7 +134,7 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 > - Frontend: React 18 + Vite + Tailwind CSS micro-frontends.
 > - Infra: Containerized with automatic nightly backups to Cloudflare R2 and Prometheus/VictoriaMetrics alerting.
 > 
-> It's completely free to try at https://alpacard.gabo.lat. I would love feedback from cafe owners, baristas, or frequent coffee drinkers on what features would make your daily routine smoother!
+> It's completely free to try at https://alpacard.app. I would love feedback from cafe owners, baristas, or frequent coffee drinkers on what features would make your daily routine smoother!
 
 ---
 
@@ -154,7 +154,7 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 > 
 > Estamos ofreciendo **onboarding y configuración 100% gratuita** para los primeros 20 locales de la zona.
 > 
-> 👉 Pruébalo gratis ahora mismo en: **https://alpacard.gabo.lat** o escríbenos por privado y te ayudamos a crear la tarjeta de tu local en 5 minutos.
+> 👉 Pruébalo gratis ahora mismo en: **https://alpacard.app** o escríbenos por privado y te ayudamos a crear la tarjeta de tu local en 5 minutos.
 
 ---
 

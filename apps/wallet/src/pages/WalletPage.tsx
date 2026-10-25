@@ -412,7 +412,7 @@ export function WalletPage() {
                 : 'Launch your 100% free digital punch card with Alpacard.'}
             </p>
             <a
-              href="https://alpacard.gabo.lat"
+              href="https://alpacard.app"
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-3.5 py-1.5 text-xs font-bold text-white transition hover:bg-[#2A1D15] active:scale-95 shadow-xs"

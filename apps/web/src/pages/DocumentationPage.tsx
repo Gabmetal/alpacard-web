@@ -203,7 +203,7 @@ export function DocumentationPage() {
                 <p>
                   When a customer points their phone camera at your stand, they are routed to{' '}
                   <code className="rounded bg-stone-100 px-1.5 py-0.5 text-stone-800">
-                    https://alpacard.gabo.lat/claim/[campaignId]
+                    https://alpacard.app/claim/[campaignId]
                   </code>
                   . The app automatically provisions an anonymous customer wallet with zero
                   registration forms, adding the card to their device in under 1 second.
