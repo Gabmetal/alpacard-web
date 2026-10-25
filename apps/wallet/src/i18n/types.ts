@@ -63,4 +63,12 @@ export interface WalletTranslations {
   redeemCelebrationTapPrompt: string;
   redeemCelebrationActionBtn: string;
   redeemPreviewBtn: string;
+  // PWA Install
+  installAppBtn: string;
+  installAppTitle: string;
+  installAppDesc: string;
+  installAppIosStep1: string;
+  installAppIosStep2: string;
+  installAppDismiss: string;
+  installAppSuccess: string;
 }

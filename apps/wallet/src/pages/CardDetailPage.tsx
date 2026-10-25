@@ -23,6 +23,7 @@ import { getWalletCardStyle, getActiveStampColor, WalletStampIcon } from '../com
 import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
 import { RedeemCelebrationModal } from '../components/RedeemCelebrationModal';
+import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { playStampCelebrationSound } from '../utils/audio';
 
 interface QRData {
@@ -377,6 +378,11 @@ export function CardDetailPage() {
       </header>
 
       <main className="mx-auto max-w-sm px-4 pt-5">
+        {/* PWA Mobile App Install Promotion */}
+        <div className="mb-3.5">
+          <PWAInstallPrompt />
+        </div>
+
         {/* Real-time stamp received celebration banner */}
         {stampAlert && (
           <div className="mb-3.5 flex items-center justify-between rounded-2xl bg-emerald-800 px-4 py-3 text-white shadow-md animate-bounce">
