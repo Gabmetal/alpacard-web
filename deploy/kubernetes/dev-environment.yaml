@@ -1,0 +1,424 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: alpacard-dev
+  labels:
+    app.kubernetes.io/name: alpacard-dev
+    environment: dev
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alpacard-db-secret
+  namespace: alpacard-dev
+type: Opaque
+stringData:
+  POSTGRES_DB: alpacard_dev
+  POSTGRES_USER: alpacard_dev
+  POSTGRES_PASSWORD: alpacard_dev_secret_2026
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: alpacard-postgres
+  namespace: alpacard-dev
+  labels:
+    app: alpacard-postgres
+spec:
+  serviceName: "alpacard-postgres-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-postgres
+  template:
+    metadata:
+      labels:
+        app: alpacard-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - secretRef:
+            name: alpacard-db-secret
+        ports:
+        - containerPort: 5432
+          name: postgres
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "300m"
+            memory: "256Mi"
+  volumeClaimTemplates:
+  - metadata:
+      name: pgdata
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "local-path"
+      resources:
+        requests:
+          storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-postgres-service
+  namespace: alpacard-dev
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: alpacard-postgres
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alpacard-rabbitmq-config
+  namespace: alpacard-dev
+data:
+  rabbitmq.conf: |
+    default_user = guest
+    default_pass = guest
+    management.tcp.port = 15672
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-rabbitmq
+  namespace: alpacard-dev
+  labels:
+    app: alpacard-rabbitmq
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: alpacard-rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3.13-management-alpine
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5672
+          name: amqp
+        - containerPort: 15672
+          name: management
+        volumeMounts:
+        - name: config
+          mountPath: /etc/rabbitmq/rabbitmq.conf
+          subPath: rabbitmq.conf
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "100Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+      volumes:
+      - name: config
+        configMap:
+          name: alpacard-rabbitmq-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-rabbitmq-service
+  namespace: alpacard-dev
+spec:
+  ports:
+  - port: 5672
+    targetPort: 5672
+    name: amqp
+  - port: 15672
+    targetPort: 15672
+    name: management
+  selector:
+    app: alpacard-rabbitmq
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alpacard-api-config
+  namespace: alpacard-dev
+data:
+  PORT: "4000"
+  DB_DRIVER: "postgres"
+  DATABASE_URL: "postgres://alpacard_dev:alpacard_dev_secret_2026@alpacard-postgres-service:5432/alpacard_dev?sslmode=disable"
+  RABBITMQ_URL: "amqp://guest:guest@alpacard-rabbitmq-service:5672/"
+  APP_URL: "http://dev.alpacard.local"
+  CORS_ORIGINS: "http://dev.alpacard.local,http://dev-wallet.alpacard.local,http://localhost:5173,http://localhost:5174"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: alpacard-api-secrets
+  namespace: alpacard-dev
+type: Opaque
+stringData:
+  JWT_SECRET: "alpacard_dev_jwt_secret_testing_key_2026"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-api
+  namespace: alpacard-dev
+  labels:
+    app: alpacard-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-api
+  template:
+    metadata:
+      labels:
+        app: alpacard-api
+    spec:
+      containers:
+      - name: api
+        image: localhost/alpacard-api:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/app/server"]
+        ports:
+        - containerPort: 4000
+          name: http
+        envFrom:
+        - configMapRef:
+            name: alpacard-api-config
+        - secretRef:
+            name: alpacard-api-secrets
+        resources:
+          requests:
+            cpu: "25m"
+            memory: "32Mi"
+          limits:
+            cpu: "200m"
+            memory: "128Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 3
+          periodSeconds: 10
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-worker
+  namespace: alpacard-dev
+  labels:
+    app: alpacard-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-worker
+  template:
+    metadata:
+      labels:
+        app: alpacard-worker
+    spec:
+      containers:
+      - name: worker
+        image: localhost/alpacard-api:latest
+        imagePullPolicy: IfNotPresent
+        command: ["/app/worker"]
+        ports:
+        - containerPort: 9090
+          name: metrics
+        envFrom:
+        - configMapRef:
+            name: alpacard-api-config
+        - secretRef:
+            name: alpacard-api-secrets
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "20Mi"
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 9090
+          initialDelaySeconds: 3
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-api-service
+  namespace: alpacard-dev
+spec:
+  ports:
+  - port: 4000
+    targetPort: 4000
+    name: http
+  selector:
+    app: alpacard-api
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-web
+  namespace: alpacard-dev
+  labels:
+    app: alpacard-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-web
+  template:
+    metadata:
+      labels:
+        app: alpacard-web
+    spec:
+      containers:
+      - name: web
+        image: localhost/alpacard-web:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "16Mi"
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-web-service
+  namespace: alpacard-dev
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: alpacard-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpacard-wallet
+  namespace: alpacard-dev
+  labels:
+    app: alpacard-wallet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alpacard-wallet
+  template:
+    metadata:
+      labels:
+        app: alpacard-wallet
+    spec:
+      containers:
+      - name: wallet
+        image: localhost/alpacard-wallet:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "16Mi"
+          limits:
+            cpu: "100m"
+            memory: "64Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 3
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alpacard-wallet-service
+  namespace: alpacard-dev
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+    name: http
+  selector:
+    app: alpacard-wallet
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: alpacard-dev-ingress
+  namespace: alpacard-dev
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+  labels:
+    app.kubernetes.io/name: alpacard-dev
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: dev.alpacard.local
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-api-service
+            port:
+              number: 4000
+      - path: /claim
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /card
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /wallet
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-web-service
+            port:
+              number: 80
