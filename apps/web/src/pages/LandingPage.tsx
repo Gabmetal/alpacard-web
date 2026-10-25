@@ -12,7 +12,6 @@ import {
   Gift,
   QrCode,
   Smartphone,
-  BookOpen,
   Play,
   RotateCcw,
   Check,
@@ -22,6 +21,7 @@ import {
   X,
   Coffee,
   Sparkles,
+  Wallet,
 } from 'lucide-react';
 
 export function LandingPage() {
@@ -92,23 +92,34 @@ export function LandingPage() {
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
+            {/* Direct Wallet Access (Primary client-facing button) */}
+            <a
+              href="/wallet"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3.5 py-2 text-xs sm:text-sm font-bold shadow-xs transition active:scale-[0.98]"
+            >
+              <Wallet className="h-4 w-4" />
+              <span>{t.nav.openWallet}</span>
+            </a>
+
             <Link
               to="/login"
-              className="text-xs sm:text-sm font-semibold text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+              className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 px-2.5 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+              title={t.nav.merchantLogin}
             >
               {t.nav.signIn}
-            </Link>
-            <Link
-              to="/login?mode=register"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-stone-950 px-4 py-2 text-xs sm:text-sm font-semibold text-white shadow-2xs hover:bg-[#2C1F16] transition active:scale-[0.99]"
-            >
-              <span>{t.nav.getStarted}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           {/* Mobile Controls */}
-          <div className="flex sm:hidden items-center gap-2">
+          <div className="flex sm:hidden items-center gap-1.5">
+            {/* Quick 1-tap mobile wallet button */}
+            <a
+              href="/wallet"
+              className="inline-flex items-center gap-1 rounded-lg bg-amber-500 text-stone-950 px-2.5 py-1.5 text-xs font-bold shadow-xs active:scale-95"
+            >
+              <Wallet className="h-3.5 w-3.5" />
+              <span>{isEs ? 'Billetera' : 'Wallet'}</span>
+            </a>
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
             <button
@@ -125,6 +136,16 @@ export function LandingPage() {
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-3 shadow-lg transition-colors">
+            {/* Prominent customer wallet link inside mobile drawer */}
+            <a
+              href="/wallet"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-3 text-center text-sm font-bold text-stone-950 shadow-xs"
+            >
+              <Wallet className="h-4 w-4" />
+              <span>{t.nav.openWallet}</span>
+            </a>
+
             <div className="flex flex-col space-y-1 text-sm font-medium text-stone-700 dark:text-stone-300">
               <a
                 href="#features"
@@ -165,17 +186,20 @@ export function LandingPage() {
             </div>
 
             <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-2">
+              <div className="text-[11px] font-semibold text-stone-400 px-1 uppercase tracking-wider">
+                {t.nav.merchantLogin}
+              </div>
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full rounded-lg border border-stone-300 bg-white py-2.5 text-center text-xs font-semibold text-stone-800 hover:bg-stone-50"
+                className="w-full rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 text-center text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-50"
               >
                 {t.nav.signIn}
               </Link>
               <Link
                 to="/login?mode=register"
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#3D2B1F] py-2.5 text-center text-xs font-semibold text-white hover:bg-[#2C1F16]"
+                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#3D2B1F] dark:bg-stone-700 py-2.5 text-center text-xs font-semibold text-white hover:bg-[#2C1F16]"
               >
                 <span>{t.nav.getStarted}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -208,34 +232,39 @@ export function LandingPage() {
               </p>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 pt-2">
+                {/* Primary Button: Open Customer Wallet directly */}
+                <a
+                  href="/wallet"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-6 py-3.5 text-sm font-black shadow-md transition active:scale-[0.99]"
+                >
+                  <Wallet className="h-4 w-4" />
+                  <span>{t.landing.openWalletHeroBtn}</span>
+                </a>
+
+                {/* Secondary Button: Merchant Backoffice Account */}
                 <Link
                   to="/login?mode=register"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#3D2B1F] px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#3D2B1F] dark:bg-stone-800 dark:hover:bg-stone-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
                 >
-                  <Coffee className="h-4 w-4" />
-                  {t.landing.launchMerchantBtn}
+                  <Coffee className="h-4 w-4 text-amber-300" />
+                  <span>{t.landing.launchMerchantBtn}</span>
                 </Link>
+
                 <button
                   type="button"
                   onClick={() => setShowVideoModal(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-5 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-4 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
                 >
                   <Play className="h-4 w-4 text-[#4A3525] fill-current" />
-                  <span>{isEs ? 'Ver Video Tutorial' : 'Video Tutorial'}</span>
+                  <span>{isEs ? 'Video Tutorial' : 'Video Tutorial'}</span>
                 </button>
+
                 <Link
                   to="/demo"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
                 >
                   <Sparkles className="h-4 w-4 text-[#5C4028]" />
                   {t.landing.tryDemoBtn}
-                </Link>
-                <Link
-                  to="/docs"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-3.5 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-200/50 transition"
-                >
-                  <BookOpen className="h-4 w-4" />
-                  {t.landing.docsBtn}
                 </Link>
               </div>
 
