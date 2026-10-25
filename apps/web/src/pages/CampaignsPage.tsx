@@ -881,10 +881,12 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
             <p className="mt-1 text-xs text-stone-500">{qrModalCampaign.reward}</p>
 
             <div className="mt-6 flex flex-col items-center justify-center rounded-2xl bg-stone-50 p-6 border border-stone-200">
-              <QRCode
-                value={`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
-                size={200}
-              />
+              <div className="keep-light rounded-xl bg-white p-3 shadow-2xs">
+                <QRCode
+                  value={`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
+                  size={200}
+                />
+              </div>
               <p className="mt-3 text-[11px] font-semibold text-stone-600">
                 {isEs
                   ? '📷 Escanea con la cámara de tu celular para abrir tu tarjeta'

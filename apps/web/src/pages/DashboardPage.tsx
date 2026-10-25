@@ -215,7 +215,7 @@ export function DashboardPage({ businessId, onCreateBusiness }: DashboardPagePro
           </button>
           <Link
             to="/scanner"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 sm:px-5 py-2.5 text-xs font-semibold text-stone-900 shadow-2xs hover:bg-stone-100 transition active:scale-[0.99]"
+            className="keep-light inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 sm:px-5 py-2.5 text-xs font-semibold text-stone-900 shadow-2xs hover:bg-stone-100 transition active:scale-[0.99]"
           >
             <ScanLine className="h-4 w-4 text-[#5C4028]" />
             {isEs ? 'Abrir Escáner QR' : 'Open QR Scanner'}

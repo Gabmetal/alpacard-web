@@ -343,11 +343,11 @@ export function DemoPage() {
                       {t.demo.showQrInstructions}
                     </div>
 
-                    <div className="mx-auto w-36 h-36 rounded-xl bg-white p-2 border border-stone-200 flex items-center justify-center relative">
+                    <div className="keep-light mx-auto w-36 h-36 rounded-xl bg-white p-2 border border-stone-200 flex items-center justify-center relative">
                       {scanState === 'scanning' && (
                         <div className="absolute inset-x-2 top-0 h-1 bg-[#5C4028] animate-bounce"></div>
                       )}
-                      <QrCode className="h-full w-full text-stone-900" />
+                      <QrCode className="keep-light h-full w-full text-stone-900" />
                     </div>
 
                     <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] text-stone-500 font-mono">

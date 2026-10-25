@@ -18,6 +18,7 @@ import {
 import { walletApi, getStoredUser, ensureAuthToken, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { getWalletCardStyle, getActiveStampColor, WalletStampIcon } from '../components/CardTheme';
 import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
@@ -369,7 +370,10 @@ export function CardDetailPage() {
             {isEs ? 'Tarjeta de Fidelidad' : 'Punch Card'}
           </h1>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle />
+          <LanguageSwitcher />
+        </div>
       </header>
 
       <main className="mx-auto max-w-sm px-4 pt-5">
@@ -575,7 +579,7 @@ export function CardDetailPage() {
 
             {/* Dynamic QR Presentation - Contains full scanner URL for native cellphone camera scanning */}
             <div className="flex flex-col items-center rounded-2xl border border-stone-200/80 bg-[#FAF8F5] p-5 sm:p-6">
-              <div className="rounded-2xl bg-white p-3 shadow-xs border border-stone-200/60">
+              <div className="keep-light rounded-2xl bg-white p-3 shadow-xs border border-stone-200/60">
                 <QRCode
                   value={
                     data.scanUrl ||
