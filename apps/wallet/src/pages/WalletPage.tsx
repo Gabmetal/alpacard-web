@@ -331,21 +331,6 @@ export function WalletPage() {
                             <Globe className="h-3 w-3" />
                           </span>
                         )}
-                        {hasMenu && (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              setMenuBusiness(card.campaign.business);
-                            }}
-                            className="inline-flex items-center gap-1 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xs px-2.5 py-0.5 text-[11px] font-bold text-white transition active:scale-95 shadow-xs"
-                            title={t.viewMenuBtn}
-                          >
-                            <BookOpen className="h-3 w-3" />
-                            <span>{t.viewMenuBtn}</span>
-                          </button>
-                        )}
                         {isReady && (
                           <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 px-2.5 py-0.5 text-[10px] font-black text-stone-900 shadow-xs animate-pulse">
                             <Sparkles className="h-3 w-3 fill-stone-900" /> {t.rewardReadyBadge}
