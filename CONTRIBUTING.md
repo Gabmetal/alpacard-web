@@ -82,7 +82,7 @@ alpacard/
 │   └── shared/          # Shared TypeScript models, themes, icons
 ├── deploy/
 │   ├── docker-compose.yml
-│   └── helm/alpacard/   # Helm chart for Kubernetes / k3s
+│   └── helm/alpacard/   # Production Helm chart for Kubernetes & Cloud Native
 └── docs/
     └── marketing/       # Community guides, pitch decks, and launch toolkits
 ```

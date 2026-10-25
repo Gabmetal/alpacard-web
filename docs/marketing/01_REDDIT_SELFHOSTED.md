@@ -46,7 +46,7 @@ I decided to build an open-source, self-hosted alternative: **Alpacard**.
    - Supports external menu links (Drive, website), 10MB PDF/image upload with an in-wallet viewer, or a built-in digital item builder. Customers can tap `[ View Menu ]` right on the punch card.
 
 5. **Ultra-Low Memory Footprint**:
-   - Backend is written in **Go 1.22+** (Chi router + GORM + standard library JWTs). The static binary consumes only **~20MB of RAM**, making it extremely lightweight to run on homelab Raspberry Pis, k3s clusters, or small VPS instances.
+   - Backend is written in **Go 1.22+** (Chi router + GORM + standard library JWTs). The static binary consumes only **~20MB of RAM**, making it extremely lightweight and cloud-efficient to run on standard VPS, micro-VMs, or private cloud infrastructure.
    - Frontend is built with React 18, Vite, and Tailwind with a refined, sober artisan aesthetic (alabaster, roasted espresso brown, warm stone).
 
 ---
@@ -58,7 +58,7 @@ git clone https://github.com/Gabmetal/alpacard-web.git
 cd alpacard-web
 docker compose -f deploy/docker-compose.yml up -d
 ```
-That’s it! It spins up PostgreSQL, RabbitMQ, the Go REST API, and both frontends. We also include pre-configured **Kubernetes / Helm / k3s** manifests in `deploy/`.
+That’s it! It spins up PostgreSQL, RabbitMQ, the Go REST API, and both frontends. We also include pre-configured **Kubernetes / Helm** charts in `deploy/`.
 
 ---
 

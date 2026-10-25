@@ -510,7 +510,7 @@ export function DemoPage() {
         </div>
       </main>
 
-      {/* Video Tutorial Modal (External Cloud / Google Drive Embed - Zero k3s storage) */}
+      {/* Video Tutorial Modal (External Cloud / CDN Embed) */}
       <VideoTutorialModal
         open={showVideoModal}
         onClose={() => setShowVideoModal(false)}

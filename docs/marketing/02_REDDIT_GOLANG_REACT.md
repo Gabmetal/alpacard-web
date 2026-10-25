@@ -20,7 +20,7 @@ I wanted to share an open-source project I’ve been working on called **Alpacar
 
 ### Highlights from the Go Backend:
 1. **Lightweight Concurrency & Low Memory**:
-   - The compiled static binary runs comfortably with **~18–25MB of RAM**, making it trivial to run on resource-constrained homelab nodes alongside other workloads.
+   - The compiled static binary runs comfortably with **~18–25MB of RAM**, making it trivial to run on modern cloud infrastructure, micro-instances, and edge environments.
 2. **Preventing Replay Attacks**:
    - Customer punch cards generate dynamic 5-minute cryptographic tokens with a unique `jti`.
    - On the cashier scan endpoint (`/api/v1/stamps/scan`), we use atomic database transactions with row-level locks to check if the `jti` has already been recorded in a dedicated redemption ledger before incrementing stamps. A second scan attempt yields an immediate `409 Conflict`.

@@ -47,7 +47,7 @@ services:
       PORT: 4000
       DB_DRIVER: postgres
       DATABASE_URL: postgres://alpacard:alpacard_secret_password_2026@postgres:5432/alpacard?sslmode=disable
-      JWT_SECRET: super_secret_alpacard_jwt_signing_key_homelab_2026
+      JWT_SECRET: alpacard_development_jwt_secret_key_2026
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
       APP_URL: http://localhost:5174
       CORS_ORIGINS: http://localhost:5173,http://localhost:5174,https://alpacard.gabo.lat

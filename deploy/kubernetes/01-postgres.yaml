@@ -7,7 +7,7 @@ type: Opaque
 stringData:
   POSTGRES_DB: alpacard
   POSTGRES_USER: alpacard
-  POSTGRES_PASSWORD: alpacard_pg_homelab_secret_2026
+  POSTGRES_PASSWORD: alpacard_pg_prod_secret_2026
 ---
 apiVersion: apps/v1
 kind: StatefulSet
