@@ -11,6 +11,7 @@ import {
   Check,
   Plus,
   Palette,
+  BookOpen,
 } from 'lucide-react';
 import { clearMerchantToken } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -62,31 +63,32 @@ export function Layout({
       {/* Top Bar */}
       <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 sticky top-0 z-20 transition-colors">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between items-center gap-2">
-            <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
+          <div className="flex h-16 justify-between items-center gap-3">
+            {/* Left: Logo + Business Switcher */}
+            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
               <Link to="/" className="flex items-center gap-2 shrink-0">
                 <img
                   src="/alpacard-logo.jpg"
                   alt="Alpacard"
                   className="h-8 w-8 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
                 />
-                <span className="hidden xs:inline text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+                <span className="hidden xl:inline text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">
                   Alpacard
                 </span>
               </Link>
 
               {/* Business Switcher Dropdown */}
-              <div className="relative min-w-0" ref={dropdownRef}>
+              <div className="relative shrink-0" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-750 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-800 dark:text-stone-200 transition active:scale-[0.99]"
+                  className="flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-800 dark:text-stone-200 transition active:scale-[0.99] whitespace-nowrap"
                 >
                   <span
                     className="h-2.5 w-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: activeBusiness?.brandColor || '#4A3525' }}
                   />
-                  <span className="max-w-[110px] sm:max-w-[170px] truncate">
+                  <span className="max-w-[110px] sm:max-w-[150px] truncate">
                     {activeBusiness?.name || (isEs ? 'Comercio' : 'Store')}
                   </span>
                   <ChevronDown className="h-3.5 w-3.5 text-stone-400 shrink-0" />
@@ -109,8 +111,8 @@ export function Layout({
                           }}
                           className={`w-full flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium text-left transition ${
                             b.id === activeBusiness?.id
-                              ? 'bg-[#F5EFE6] text-[#3D2B1F] font-semibold'
-                              : 'text-stone-700 hover:bg-stone-50'
+                              ? 'bg-[#F5EFE6] dark:bg-stone-800 text-[#3D2B1F] dark:text-amber-400 font-semibold'
+                              : 'text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/60'
                           }`}
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
@@ -118,7 +120,7 @@ export function Layout({
                               <img
                                 src={b.logoUrl}
                                 alt={b.name}
-                                className="h-5 w-5 rounded-md object-contain shrink-0 border border-stone-200"
+                                className="h-5 w-5 rounded-md object-contain shrink-0 border border-stone-200 dark:border-stone-700"
                               />
                             ) : (
                               <span
@@ -129,19 +131,19 @@ export function Layout({
                             <span className="truncate">{b.name}</span>
                           </div>
                           {b.id === activeBusiness?.id && (
-                            <Check className="h-3.5 w-3.5 text-[#5C4028] shrink-0" />
+                            <Check className="h-3.5 w-3.5 text-[#5C4028] dark:text-amber-400 shrink-0" />
                           )}
                         </button>
                       ))}
                     </div>
 
-                    <div className="mt-2 border-t border-stone-100 pt-1.5 space-y-1">
+                    <div className="mt-2 border-t border-stone-100 dark:border-stone-800 pt-1.5 space-y-1">
                       <Link
                         to="/businesses"
                         onClick={() => setDropdownOpen(false)}
-                        className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
+                        className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800/60 transition"
                       >
-                        <Palette className="h-3.5 w-3.5 text-[#5C4028]" />
+                        <Palette className="h-3.5 w-3.5 text-[#5C4028] dark:text-amber-400" />
                         <span>
                           {isEs ? 'Personalizar Marca y Colores' : 'Manage Branding & Colors'}
                         </span>
@@ -152,19 +154,27 @@ export function Layout({
                           setDropdownOpen(false);
                           onCreateBusiness();
                         }}
-                        className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-xs font-semibold text-[#5C4028] hover:bg-[#F5EFE6]/60 transition"
+                        className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-xs font-semibold text-[#5C4028] dark:text-amber-400 hover:bg-[#F5EFE6]/60 dark:hover:bg-stone-800 transition"
                       >
                         <Plus className="h-3.5 w-3.5" />
                         <span>{t.businesses.createBusiness}</span>
                       </button>
+                      <Link
+                        to="/docs"
+                        onClick={() => setDropdownOpen(false)}
+                        className="flex items-center gap-2 w-full rounded-xl px-3 py-2 text-xs font-medium text-stone-500 dark:text-stone-400 hover:bg-stone-50 dark:hover:bg-stone-800/60 transition"
+                      >
+                        <BookOpen className="h-3.5 w-3.5" />
+                        <span>{t.nav.docs}</span>
+                      </Link>
                     </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-1">
+            {/* Center: Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1 shrink-0">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -172,52 +182,48 @@ export function Layout({
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl transition ${
+                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-xl transition whitespace-nowrap shrink-0 ${
                       isActive
-                        ? 'bg-[#F5EFE6] text-[#3D2B1F]'
-                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+                        ? 'bg-[#F5EFE6] dark:bg-stone-800 text-[#3D2B1F] dark:text-amber-400'
+                        : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/70 hover:text-stone-900 dark:hover:text-stone-100'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
+                    <Icon className="h-4 w-4 shrink-0" />
+                    <span>{item.label}</span>
                   </Link>
                 );
               })}
             </nav>
 
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Right: Controls & Sign Out */}
+            <div className="flex items-center gap-2 shrink-0">
               <ThemeToggle />
-              <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
+              <LanguageSwitcher variant="light" />
 
               <Link
                 to="/docs"
-                className="hidden lg:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition"
+                className="hidden 2xl:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition whitespace-nowrap px-1"
               >
                 {t.nav.docs}
               </Link>
-              <Link
-                to="/demo"
-                className="hidden lg:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition"
-              >
-                {t.nav.liveDemo}
-              </Link>
+
               <button
                 onClick={() => {
                   clearMerchantToken();
                   onLogout();
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap shrink-0"
                 title={t.nav.signOut}
               >
-                <LogOut className="h-3.5 w-3.5" />
+                <LogOut className="h-3.5 w-3.5 shrink-0" />
                 <span className="hidden sm:inline">{t.nav.signOut}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Nav */}
-        <div className="flex md:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
+        {/* Tablet & Mobile Nav Bar */}
+        <div className="flex lg:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -225,14 +231,14 @@ export function Layout({
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex-1 min-w-[68px] py-2.5 px-1 text-center text-[11px] font-semibold flex flex-col items-center gap-1 transition ${
+                className={`flex-1 min-w-[72px] py-2.5 px-2 text-center text-[11px] font-semibold flex flex-col items-center gap-1 transition whitespace-nowrap ${
                   isActive
                     ? 'text-[#3D2B1F] dark:text-amber-400 bg-[#F5EFE6]/70 dark:bg-stone-800 border-b-2 border-[#3D2B1F] dark:border-amber-400'
                     : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />
-                <span className="truncate max-w-[72px]">{item.label}</span>
+                <span className="truncate max-w-[90px]">{item.label}</span>
               </Link>
             );
           })}

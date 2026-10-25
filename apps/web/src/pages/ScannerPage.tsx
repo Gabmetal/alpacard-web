@@ -174,7 +174,7 @@ export function ScannerPage() {
 
             <button
               onClick={resetScanner}
-              className="mt-8 rounded-xl bg-white px-6 py-3 text-xs sm:text-sm font-bold text-stone-900 shadow-md hover:bg-stone-100 transition active:scale-95"
+              className="keep-light mt-8 rounded-xl bg-white px-6 py-3 text-xs sm:text-sm font-bold text-stone-900 shadow-md hover:bg-stone-100 transition active:scale-95"
             >
               {isEs ? 'Escanear Próximo Cliente' : 'Scan Next Customer'}
             </button>
@@ -190,7 +190,7 @@ export function ScannerPage() {
 
             <button
               onClick={resetScanner}
-              className="mt-8 rounded-xl bg-white px-6 py-3 text-xs sm:text-sm font-bold text-red-900 shadow-md hover:bg-stone-100 transition active:scale-95"
+              className="keep-light mt-8 rounded-xl bg-white px-6 py-3 text-xs sm:text-sm font-bold text-red-900 shadow-md hover:bg-stone-100 transition active:scale-95"
             >
               {isEs ? 'Intentar Nuevamente' : 'Try Again'}
             </button>

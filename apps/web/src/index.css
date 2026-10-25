@@ -8,3 +8,180 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ==========================================================================
+   Comprehensive Dark Mode Surface, Typography & Component Mapping
+   ========================================================================== */
+
+/* Primary Page Backgrounds */
+.dark body,
+.dark .bg-\[\#FAF8F5\] {
+  background-color: #0c0a09 !important;
+  color: #f5f5f4 !important;
+}
+
+/* Cards, Headers, Modals, Panels & Tables */
+.dark .bg-white:not(.keep-light),
+.dark .bg-white\/95:not(.keep-light),
+.dark .bg-white\/90:not(.keep-light),
+.dark .bg-white\/80:not(.keep-light) {
+  background-color: #181512 !important;
+}
+
+/* Preserve white background on QR code containers for camera scannability */
+.dark .keep-light {
+  background-color: #ffffff !important;
+  color: #1c1917 !important;
+}
+.dark .keep-light svg {
+  color: #1c1917 !important;
+}
+
+/* Secondary Surfaces & Table Headers */
+.dark .bg-stone-50,
+.dark .bg-stone-50\/80,
+.dark .bg-stone-50\/70,
+.dark .bg-stone-50\/60,
+.dark .bg-stone-50\/50,
+.dark .bg-gray-50 {
+  background-color: #211d19 !important;
+}
+
+/* Tertiary Surfaces, Pills & Inputs */
+.dark .bg-stone-100,
+.dark .bg-stone-100\/80,
+.dark .bg-stone-100\/70,
+.dark .bg-gray-100 {
+  background-color: #292524 !important;
+}
+
+/* Warm Cream Accent Surfaces -> Warm Dark Espresso/Amber Tint */
+.dark .bg-\[\#F5EFE6\],
+.dark .bg-\[\#F5EFE6\]\/70,
+.dark .bg-\[\#F5EFE6\]\/60,
+.dark .bg-\[\#F5EFE6\]\/50,
+.dark .bg-\[\#F5EFE6\]\/40 {
+  background-color: #2b221a !important;
+}
+
+/* Borders & Dividers */
+.dark .border-stone-100,
+.dark .border-stone-200,
+.dark .border-stone-200\/90,
+.dark .border-stone-200\/80,
+.dark .border-stone-200\/70,
+.dark .border-stone-200\/60,
+.dark .border-stone-300,
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-\[\#E6D9C6\] {
+  border-color: #2e2925 !important;
+}
+
+.dark .divide-stone-100 > :not(:last-child),
+.dark .divide-stone-200 > :not(:last-child),
+.dark .divide-stone-200\/70 > :not(:last-child),
+.dark .divide-gray-100 > :not(:last-child),
+.dark .divide-gray-200 > :not(:last-child) {
+  border-color: #2e2925 !important;
+}
+
+/* Typography Hierarchy */
+.dark .text-stone-900:not(.keep-light),
+.dark .text-gray-900:not(.keep-light) {
+  color: #f5f5f4 !important;
+}
+
+.dark .text-stone-800:not(.keep-light),
+.dark .text-gray-800:not(.keep-light) {
+  color: #e7e5e4 !important;
+}
+
+.dark .text-stone-700:not(.keep-light),
+.dark .text-gray-700:not(.keep-light) {
+  color: #d6d3d1 !important;
+}
+
+.dark .text-stone-600:not(.keep-light),
+.dark .text-gray-600:not(.keep-light) {
+  color: #a8a29e !important;
+}
+
+.dark .text-stone-500:not(.keep-light),
+.dark .text-gray-500:not(.keep-light) {
+  color: #8c857e !important;
+}
+
+/* Brand Espresso Text Accents -> Warm Amber in Dark Mode */
+.dark .text-\[\#3D2B1F\],
+.dark .text-\[\#4A3525\],
+.dark .text-\[\#5C4028\] {
+  color: #fbbf24 !important;
+}
+
+/* Status & Metric Badges */
+.dark .bg-amber-50,
+.dark .bg-amber-50\/80 {
+  background-color: rgba(245, 158, 11, 0.16) !important;
+}
+.dark .text-amber-800,
+.dark .text-amber-900,
+.dark .text-amber-700 {
+  color: #fcd34d !important;
+}
+.dark .border-amber-200,
+.dark .border-amber-100 {
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-50\/80 {
+  background-color: rgba(16, 185, 129, 0.16) !important;
+}
+.dark .text-emerald-800,
+.dark .text-emerald-700,
+.dark .text-emerald-900 {
+  color: #6ee7b7 !important;
+}
+.dark .border-emerald-200,
+.dark .border-emerald-100 {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.dark .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.16) !important;
+}
+.dark .text-red-700,
+.dark .text-red-800 {
+  color: #fca5a5 !important;
+}
+.dark .border-red-200 {
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Form Inputs, Textareas & Selects */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+.dark select,
+.dark textarea {
+  background-color: #211d19 !important;
+  border-color: #38322c !important;
+  color: #f5f5f4 !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #78716c !important;
+}
+
+/* Hover States */
+.dark .hover\:bg-stone-50:hover,
+.dark .hover\:bg-stone-50\/70:hover,
+.dark .hover\:bg-stone-100:hover,
+.dark .hover\:bg-gray-50:hover {
+  background-color: #292524 !important;
+}
+
+.dark .hover\:border-stone-300:hover {
+  border-color: #443d37 !important;
+}
