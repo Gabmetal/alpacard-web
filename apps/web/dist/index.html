@@ -2,13 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Alpacard Merchant Backoffice</title>
-    <script type="module" crossorigin src="/assets/index-CKGyPxhk.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-wcU0etCo.css">
+    <title>Alpacard • Digital Loyalty Platform</title>
+    <script>
+      (function() {
+        try {
+          var mode = localStorage.getItem('alpacard_theme') || 'system';
+          var isDark = mode === 'dark' || (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('dark');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <script type="module" crossorigin src="/assets/index-BHPy09Ot.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-NheVT12d.css">
   </head>
-  <body class="bg-gray-100 text-gray-900 antialiased">
+  <body class="bg-[#FAF8F5] text-stone-900 antialiased dark:bg-stone-950 dark:text-stone-100 transition-colors">
     <div id="root"></div>
   </body>
 </html>

@@ -15,6 +15,7 @@ import {
 import { clearMerchantToken } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { BusinessItem } from './BusinessesPage';
 
 interface LayoutProps {
@@ -57,9 +58,9 @@ export function Layout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col">
+    <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col transition-colors">
       {/* Top Bar */}
-      <header className="bg-white border-b border-stone-200 sticky top-0 z-20">
+      <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 sticky top-0 z-20 transition-colors">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
           <div className="flex h-16 justify-between items-center gap-2">
             <div className="flex items-center gap-2.5 sm:gap-4 min-w-0">
@@ -67,9 +68,9 @@ export function Layout({
                 <img
                   src="/alpacard-logo.jpg"
                   alt="Alpacard"
-                  className="h-8 w-8 rounded-lg object-cover border border-stone-200 shadow-2xs"
+                  className="h-8 w-8 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
                 />
-                <span className="hidden xs:inline text-lg sm:text-xl font-bold text-stone-900 tracking-tight">
+                <span className="hidden xs:inline text-lg sm:text-xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">
                   Alpacard
                 </span>
               </Link>
@@ -79,7 +80,7 @@ export function Layout({
                 <button
                   type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-800 transition active:scale-[0.99]"
+                  className="flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-750 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-800 dark:text-stone-200 transition active:scale-[0.99]"
                 >
                   <span
                     className="h-2.5 w-2.5 rounded-full shrink-0"
@@ -92,7 +93,7 @@ export function Layout({
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute left-0 mt-2 w-64 sm:w-72 rounded-2xl bg-white p-2 shadow-xl border border-stone-200 z-50">
+                  <div className="absolute left-0 mt-2 w-64 sm:w-72 rounded-2xl bg-white dark:bg-stone-900 p-2 shadow-xl border border-stone-200 dark:border-stone-800 z-50">
                     <div className="px-3 py-1 text-[10px] font-bold uppercase text-stone-400 tracking-wider">
                       {t.businesses.allStores}
                     </div>
@@ -185,17 +186,18 @@ export function Layout({
             </nav>
 
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <LanguageSwitcher variant="light" />
+              <ThemeToggle />
+              <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
               <Link
                 to="/docs"
-                className="hidden lg:inline-flex items-center text-xs font-medium text-stone-500 hover:text-stone-900 transition"
+                className="hidden lg:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition"
               >
                 {t.nav.docs}
               </Link>
               <Link
                 to="/demo"
-                className="hidden lg:inline-flex items-center text-xs font-medium text-stone-500 hover:text-stone-900 transition"
+                className="hidden lg:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition"
               >
                 {t.nav.liveDemo}
               </Link>
@@ -204,7 +206,7 @@ export function Layout({
                   clearMerchantToken();
                   onLogout();
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition"
                 title={t.nav.signOut}
               >
                 <LogOut className="h-3.5 w-3.5" />
@@ -215,7 +217,7 @@ export function Layout({
         </div>
 
         {/* Mobile Nav */}
-        <div className="flex md:hidden border-t border-stone-200 divide-x divide-stone-200/70 bg-white overflow-x-auto scrollbar-none">
+        <div className="flex md:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -225,8 +227,8 @@ export function Layout({
                 to={item.path}
                 className={`flex-1 min-w-[68px] py-2.5 px-1 text-center text-[11px] font-semibold flex flex-col items-center gap-1 transition ${
                   isActive
-                    ? 'text-[#3D2B1F] bg-[#F5EFE6]/70 border-b-2 border-[#3D2B1F]'
-                    : 'text-stone-500 hover:text-stone-800'
+                    ? 'text-[#3D2B1F] dark:text-amber-400 bg-[#F5EFE6]/70 dark:bg-stone-800 border-b-2 border-[#3D2B1F] dark:border-amber-400'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-100'
                 }`}
               >
                 <Icon className="h-4 w-4 shrink-0" />

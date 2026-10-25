@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
 import {
   ArrowLeft,
@@ -187,38 +188,39 @@ export function DemoPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 selection:bg-[#4A3525] selection:text-white flex flex-col">
+    <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-[#4A3525] selection:text-white flex flex-col transition-colors">
       {/* Top Header */}
-      <header className="border-b border-stone-200 bg-white/95 backdrop-blur-md sticky top-0 z-30">
+      <header className="border-b border-stone-200 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md sticky top-0 z-30 transition-colors">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 gap-2">
           <div className="flex items-center gap-3 sm:gap-4 min-w-0">
             <Link
               to="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 hover:text-stone-900 transition shrink-0"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition shrink-0"
             >
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden xs:inline">{t.common.back}</span>
             </Link>
-            <span className="text-stone-300">|</span>
+            <span className="text-stone-300 dark:text-stone-700">|</span>
             <div className="flex items-center gap-2 min-w-0">
               <div className="h-2 w-2 rounded-full bg-emerald-600 shrink-0"></div>
-              <span className="text-sm sm:text-base font-bold text-stone-900 truncate">
+              <span className="text-sm sm:text-base font-bold text-stone-900 dark:text-stone-100 truncate">
                 {t.nav.liveDemo}
               </span>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <LanguageSwitcher variant="light" />
+            <ThemeToggle />
+            <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
             <Link
               to="/docs"
-              className="hidden sm:inline-flex rounded-lg border border-stone-200 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition"
+              className="hidden sm:inline-flex rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 transition"
             >
               {t.nav.docs}
             </Link>
             <Link
               to="/login"
-              className="rounded-lg bg-[#3D2B1F] px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2C1F16] transition shadow-2xs"
+              className="rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:text-stone-950 dark:hover:bg-amber-400 px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2C1F16] transition shadow-2xs"
             >
               {t.nav.console}
             </Link>
