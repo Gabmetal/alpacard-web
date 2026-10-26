@@ -14,11 +14,16 @@ import {
   Smartphone,
   RefreshCw,
   Gift,
-  Check,
   Terminal,
   Activity,
   Coffee,
   Play,
+  Camera,
+  CheckCircle2,
+  ScanLine,
+  AlertCircle,
+  Volume2,
+  Zap,
 } from 'lucide-react';
 
 export function DemoPage() {
@@ -34,6 +39,11 @@ export function DemoPage() {
   const isRewardReady = stamps >= maxStamps;
   const [scanState, setScanState] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [lastScannedResult, setLastScannedResult] = useState<{
+    action: 'EARN' | 'REDEEM';
+    message: string;
+    newCount: number;
+  } | null>(null);
   const [eventLogs, setEventLogs] = useState<
     Array<{ id: string; time: string; text: string; type: 'info' | 'success' | 'danger' }>
   >([
@@ -134,6 +144,11 @@ export function DemoPage() {
       const nextStamps = stamps + 1;
       setStamps(nextStamps);
       setScanState('success');
+      setLastScannedResult({
+        action: 'EARN',
+        message: isEs ? '¡Sello acreditado exitosamente!' : 'Stamp added successfully!',
+        newCount: nextStamps,
+      });
       playStampCelebrationSound(true);
       const jti = `jti_${Math.random().toString(36).substring(2, 10)}`;
       addLog(`POST /api/v1/stamps/scan [JTI: ${jti}] -> 200 OK (EARN +1)`, 'success');
@@ -151,8 +166,8 @@ export function DemoPage() {
       });
       setTimeout(() => setStampAlert(null), 4500);
 
-      setTimeout(() => setScanState('idle'), 2200);
-    }, 600);
+      setTimeout(() => setScanState('idle'), 2400);
+    }, 850);
   };
 
   const handleRedeemReward = () => {
@@ -162,6 +177,11 @@ export function DemoPage() {
     setTimeout(() => {
       setStamps(0);
       setScanState('success');
+      setLastScannedResult({
+        action: 'REDEEM',
+        message: isEs ? '¡Premio Canjeado con Éxito!' : 'Reward Redeemed Successfully!',
+        newCount: 0,
+      });
       playStampCelebrationSound(false);
       setShowCelebrationModal(true);
       const jti = `jti_${Math.random().toString(36).substring(2, 10)}`;
@@ -176,8 +196,8 @@ export function DemoPage() {
       });
       setTimeout(() => setStampAlert(null), 5000);
 
-      setTimeout(() => setScanState('idle'), 2500);
-    }, 600);
+      setTimeout(() => setScanState('idle'), 2800);
+    }, 950);
   };
 
   const handleSimulateReplayAttack = () => {
@@ -403,16 +423,55 @@ export function DemoPage() {
                   </div>
 
                   {/* Customer QR Code Presentation */}
-                  <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-2xs">
+                  <div className="mt-4 rounded-2xl border border-stone-200 bg-white p-4 text-center shadow-2xs relative">
                     <div className="text-[11px] font-semibold text-stone-600 mb-2">
                       {t.demo.showQrInstructions}
                     </div>
 
-                    <div className="keep-light mx-auto w-36 h-36 rounded-2xl bg-white p-2.5 border border-stone-200 shadow-xs flex items-center justify-center relative overflow-hidden">
-                      {scanState === 'scanning' && (
-                        <div className="absolute inset-x-2 top-0 h-1 bg-amber-500 animate-bounce shadow-md"></div>
-                      )}
+                    <div className="keep-light mx-auto w-40 h-40 rounded-2xl bg-white p-2.5 border border-stone-200 shadow-xs flex items-center justify-center relative overflow-hidden">
                       <QrCode className="keep-light h-full w-full text-stone-900" />
+
+                      {/* Merchant Cellphone Scanning Overlay Animation */}
+                      {scanState === 'scanning' && (
+                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-stone-950/80 backdrop-blur-2xs rounded-xl p-2 animate-in fade-in zoom-in-95 duration-200">
+                          {/* Merchant Smartphone Mockup */}
+                          <div className="relative w-28 h-34 rounded-2xl border-2 border-stone-400 bg-stone-900 shadow-2xl flex flex-col items-center justify-between p-1.5 ring-2 ring-amber-400/80">
+                            {/* Dynamic Island / Speaker */}
+                            <div className="h-1.5 w-7 rounded-full bg-stone-700 mx-auto"></div>
+
+                            {/* Viewfinder Target */}
+                            <div className="relative flex-1 w-full rounded-lg bg-stone-950 flex items-center justify-center overflow-hidden my-1 border border-stone-800">
+                              {/* Corner Brackets */}
+                              <div className="absolute top-1 left-1 h-2 w-2 border-t-2 border-l-2 border-amber-400"></div>
+                              <div className="absolute top-1 right-1 h-2 w-2 border-t-2 border-r-2 border-amber-400"></div>
+                              <div className="absolute bottom-1 left-1 h-2 w-2 border-b-2 border-l-2 border-amber-400"></div>
+                              <div className="absolute bottom-1 right-1 h-2 w-2 border-b-2 border-r-2 border-amber-400"></div>
+                              {/* Sweeping Laser Beam */}
+                              <div className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent shadow-[0_0_8px_#f59e0b] animate-bounce"></div>
+                              <Camera className="h-4 w-4 text-amber-300 animate-pulse" />
+                            </div>
+
+                            {/* Home Bar */}
+                            <div className="h-0.5 w-8 rounded-full bg-stone-600 mx-auto"></div>
+                          </div>
+
+                          <span className="mt-1 text-[9px] font-bold text-amber-300 tracking-wider">
+                            {isEs ? '📱 Celular escaneando...' : '📱 Scanning phone...'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Verified Flash on Customer QR Code */}
+                      {scanState === 'success' && (
+                        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-emerald-950/85 backdrop-blur-2xs rounded-xl p-2 animate-in fade-in zoom-in-95 duration-200">
+                          <div className="w-12 h-12 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center animate-bounce">
+                            <CheckCircle2 className="h-7 w-7 text-emerald-400" />
+                          </div>
+                          <span className="mt-1.5 text-[10px] font-extrabold text-emerald-200 tracking-wider">
+                            {isEs ? '¡QR Validado!' : 'QR Verified!'}
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] text-stone-500 font-mono">
@@ -439,19 +498,131 @@ export function DemoPage() {
 
             <div className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 shadow-xs space-y-6">
               {/* Cashier Status Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 pb-3">
                 <div>
-                  <h3 className="text-base font-bold text-stone-900">{t.demo.stationName}</h3>
-                  <p className="text-xs text-stone-500">{t.demo.operatorLabel}</p>
+                  <h3 className="text-base font-bold text-stone-900">{isEs ? 'Escáner de Fidelidad' : 'Loyalty Scanner'}</h3>
+                  <p className="text-xs text-stone-500">
+                    {isEs
+                      ? 'Apunta la cámara al código QR dinámico del cliente para sumar sellos o canjear premios'
+                      : "Point camera at the customer's dynamic QR card to add a stamp or redeem rewards"}
+                  </p>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200 shrink-0">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                   {t.demo.scannerReady}
                 </span>
               </div>
 
+              {/* Scanner Screen Visual Feedback (Matches real ScannerPage.tsx camera viewfinder) */}
+              <div className="relative aspect-square max-h-[380px] w-full mx-auto overflow-hidden rounded-2xl bg-stone-900 shadow-md border border-stone-800 flex flex-col items-center justify-center p-6 text-white text-center">
+                {/* Viewfinder Camera Controls Mock (Torch & Zoom) */}
+                <div className="absolute top-3 inset-x-3 flex items-center justify-between z-10 pointer-events-none">
+                  <div className="flex items-center gap-1.5 rounded-full bg-black/40 backdrop-blur-md px-2.5 py-1 text-[11px] text-stone-300 border border-white/10">
+                    <Zap className="h-3 w-3 text-amber-400" />
+                    <span>Auto</span>
+                  </div>
+                  <div className="rounded-full bg-black/40 backdrop-blur-md px-2.5 py-1 text-[11px] font-mono text-stone-300 border border-white/10">
+                    1.0x
+                  </div>
+                </div>
+
+                {/* Simulated Camera Viewfinder Grid & Target Reticle */}
+                {scanState === 'idle' && (
+                  <div className="flex flex-col items-center justify-center space-y-3 z-10">
+                    <div className="relative flex items-center justify-center h-32 w-32 rounded-2xl border-2 border-dashed border-stone-600 bg-stone-950/40 p-4">
+                      {/* Corner Target Markers */}
+                      <div className="absolute top-1 left-1 h-4 w-4 border-t-2 border-l-2 border-amber-400"></div>
+                      <div className="absolute top-1 right-1 h-4 w-4 border-t-2 border-r-2 border-amber-400"></div>
+                      <div className="absolute bottom-1 left-1 h-4 w-4 border-b-2 border-l-2 border-amber-400"></div>
+                      <div className="absolute bottom-1 right-1 h-4 w-4 border-b-2 border-r-2 border-amber-400"></div>
+                      <ScanLine className="h-12 w-12 text-stone-500 animate-pulse" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="text-xs font-bold text-stone-200">
+                        {isEs ? 'Alinea el código QR dentro del marco' : 'Align QR code inside frame'}
+                      </div>
+                      <p className="text-[11px] text-stone-400 max-w-xs">
+                        {isEs
+                          ? 'Haz clic en las acciones debajo para simular el escaneo con la cámara del cajero'
+                          : 'Click action buttons below to simulate cashier camera scan'}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Processing State (Matches ScannerPage.tsx) */}
+                {scanState === 'scanning' && (
+                  <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-stone-950/85 text-white p-6 text-center animate-in fade-in duration-150">
+                    <RefreshCw className="h-9 w-9 animate-spin text-stone-300 mb-3" />
+                    <p className="text-sm font-medium">
+                      {isEs
+                        ? 'Validando firma criptográfica del sello...'
+                        : 'Validating stamp cryptographic signature...'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Success Result Overlay (Matches ScannerPage.tsx) */}
+                {scanState === 'success' && lastScannedResult && (
+                  <div
+                    className={`absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center text-white animate-in zoom-in-95 duration-200 ${
+                      lastScannedResult.action === 'REDEEM' ? 'bg-emerald-900' : 'bg-[#2C221E]'
+                    }`}
+                  >
+                    {lastScannedResult.action === 'REDEEM' ? (
+                      <Sparkles className="h-14 w-14 mb-2 text-amber-300 animate-bounce" />
+                    ) : (
+                      <CheckCircle2 className="h-14 w-14 mb-2 text-stone-200 animate-bounce" />
+                    )}
+                    <h3 className="text-xl sm:text-2xl font-bold">{lastScannedResult.message}</h3>
+
+                    <div className="mt-4 rounded-xl bg-white/10 border border-white/15 px-6 py-3">
+                      <span className="text-xs uppercase font-semibold text-stone-300">
+                        {isEs ? 'Nuevo Balance' : 'New Balance'}
+                      </span>
+                      <p className="text-3xl sm:text-4xl font-bold mt-0.5">
+                        {lastScannedResult.newCount} {isEs ? 'Sellos' : 'Stamps'}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setScanState('idle')}
+                      className="keep-light mt-6 rounded-xl bg-white px-6 py-2.5 text-xs sm:text-sm font-bold text-stone-900 shadow-md hover:bg-stone-100 transition active:scale-95"
+                    >
+                      {isEs ? 'Escanear Próximo Cliente' : 'Scan Next Customer'}
+                    </button>
+                  </div>
+                )}
+
+                {/* Error Result Overlay (Matches ScannerPage.tsx) */}
+                {scanState === 'error' && (
+                  <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-red-900 p-6 text-center text-white animate-in zoom-in-95 duration-200">
+                    <AlertCircle className="h-14 w-14 mb-2 text-red-200 animate-pulse" />
+                    <h3 className="text-xl font-bold">{isEs ? 'Escaneo Rechazado' : 'Scan Rejected'}</h3>
+                    <p className="mt-2 text-xs text-red-100 max-w-xs">{errorMessage}</p>
+
+                    <button
+                      onClick={() => setScanState('idle')}
+                      className="keep-light mt-6 rounded-xl bg-white px-6 py-2.5 text-xs sm:text-sm font-bold text-red-900 shadow-md hover:bg-stone-100 transition active:scale-95"
+                    >
+                      {isEs ? 'Intentar Nuevamente' : 'Try Again'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Viewfinder Audio & Haptic indicator (Matches ScannerPage.tsx footer) */}
+              <div className="flex items-center justify-center gap-1.5 text-xs text-stone-400">
+                <Volume2 className="h-3.5 w-3.5" />
+                <span>
+                  {isEs
+                    ? 'Sonido y vibración háptica activados'
+                    : 'Audio and vibration feedback are active'}
+                </span>
+              </div>
+
               {/* Interactive Action Triggers */}
-              <div className="space-y-3">
+              <div className="space-y-3 pt-2 border-t border-stone-100">
                 <div className="text-xs font-bold text-stone-700">{t.demo.actionsHeading}</div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -494,54 +665,6 @@ export function DemoPage() {
                     {t.demo.resetBtn}
                   </button>
                 </div>
-              </div>
-
-              {/* Scanner Screen Visual Feedback */}
-              <div
-                className={`rounded-xl border p-5 text-center transition-all duration-200 ${
-                  scanState === 'scanning'
-                    ? 'border-[#E6D9C6] bg-[#F5EFE6]/60'
-                    : scanState === 'success'
-                    ? 'border-emerald-200 bg-emerald-50/70'
-                    : scanState === 'error'
-                    ? 'border-red-200 bg-red-50'
-                    : 'border-stone-200 bg-stone-50/60'
-                }`}
-              >
-                {scanState === 'scanning' && (
-                  <div className="space-y-2">
-                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#4A3525] border-t-transparent mx-auto"></div>
-                    <div className="text-xs font-semibold text-[#4A3525]">{t.demo.readingQr}</div>
-                  </div>
-                )}
-
-                {scanState === 'success' && (
-                  <div className="space-y-1">
-                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-700 text-white font-bold">
-                      <Check className="h-5 w-5 stroke-[2.5]" />
-                    </div>
-                    <div className="text-sm font-bold text-emerald-900">
-                      {stamps === 0 ? t.demo.rewardSuccessTitle : t.demo.stampSuccessTitle}
-                    </div>
-                    <p className="text-xs text-stone-600">{t.demo.dbUpdatedNotice}</p>
-                  </div>
-                )}
-
-                {scanState === 'error' && (
-                  <div className="space-y-1">
-                    <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-red-700 text-white font-bold">
-                      <ShieldAlert className="h-5 w-5" />
-                    </div>
-                    <div className="text-sm font-bold text-red-900">
-                      {t.demo.scanRejectedTitle}
-                    </div>
-                    <p className="text-xs text-red-700 font-mono">{errorMessage}</p>
-                  </div>
-                )}
-
-                {scanState === 'idle' && (
-                  <div className="text-xs text-stone-500">{t.demo.awaitingScan}</div>
-                )}
               </div>
 
               {/* Real-time Architecture & RabbitMQ Console */}
