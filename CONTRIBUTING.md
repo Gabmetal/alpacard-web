@@ -91,25 +91,34 @@ alpacard/
 
 ## 🤝 How to Submit a Pull Request
 
-1. **Fork the repository** on GitHub.
+We follow a structured branching strategy where `dev` is the active staging integration branch and `main` is production:
+
+1. **Fork the repository** on GitHub (or clone with developer access).
 2. **Clone your fork**:
    ```bash
    git clone https://github.com/<your-username>/alpacard-web.git
    cd alpacard-web
    ```
-3. **Create a topic branch**:
+3. **Branch from `dev`** for new features, fixes, or improvements:
    ```bash
+   git checkout dev
+   git pull origin dev
    git checkout -b feat/my-new-feature
    ```
-4. **Make your changes** and verify the build passes:
+   *(For critical production bugs, branch from `main` as `hotfix/my-hotfix`)*.
+4. **Make your changes** and verify the build and tests pass locally:
    ```bash
    pnpm build
+   cd apps/api && go test ./...
    ```
 5. **Commit with conventional commit messages**:
    ```bash
    git commit -m "feat(wallet): add vibration haptic on stamp collection"
    ```
-6. **Push to your fork and submit a PR** against `main`.
+6. **Push and create a Pull Request against `dev`**:
+   - Automated CI runs Go backend compilation and Vite/Tailwind frontend bundle verification.
+   - Once reviewed and merged into `dev`, QA can test it on `https://dev.alpacard.app` via the VPN.
+   - Stable releases are merged from `dev` into `main` for production rollout to `https://alpacard.app`.
 
 ---
 
