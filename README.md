@@ -28,14 +28,15 @@ We follow a structured **Gitflow / GitHub Flow hybrid with Automated Pipeline Ga
 ```mermaid
 gitGraph
    commit id: "Initial"
+   branch dev
+   commit id: "dev-setup"
    branch integration
-   checkout integration
+   commit id: "integration-setup"
    branch feat/stamp-haptic
    checkout feat/stamp-haptic
    commit id: "feat: add haptic"
    checkout integration
    merge feat/stamp-haptic id: "PR (All Tests CI)"
-   branch dev
    checkout dev
    merge integration id: "PR -> Auto Deploy Dev"
    checkout main
@@ -45,10 +46,44 @@ gitGraph
    commit id: "fix: token patch"
    checkout main
    merge hotfix/token-leak id: "Hotfix PR -> Deploy Prod"
-   checkout dev
-   merge main id: "Sync dev"
-   checkout integration
-   merge dev id: "Sync integration"
+```
+
+```mermaid
+flowchart LR
+    subgraph FeatureWork ["1. Topic Branches"]
+        FEAT["feat/*, fix/*, chore/*"]
+    end
+
+    subgraph IntegrationStage ["2. Test Integration"]
+        INT["integration branch"]
+        CI["CI Test Suite (ci-integration.yml)<br/>• Go Unit & Race Tests<br/>• Static Binaries Build<br/>• Frontend Vite & Typecheck"]
+    end
+
+    subgraph QAStage ["3. QA & Staging (alpacard-dev)"]
+        DEV["dev branch"]
+        DEV_DEPLOY["CD Pipeline (deploy-dev.yml)<br/>• Podman Container Build<br/>• k3s containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Smoke Test dev.alpacard.app"]
+    end
+
+    subgraph ProdStage ["4. Live Production (alpacard)"]
+        MAIN["main branch"]
+        PROD_DEPLOY["CD Pipeline (deploy-prod.yml)<br/>• Rolling Restart alpacard<br/>• Zero Downtime alpacard.app"]
+    end
+
+    subgraph Emergency ["Hotfix Channel"]
+        HOTFIX["hotfix/*"]
+    end
+
+    FEAT -->|"Pull Request"| INT
+    INT --> CI
+    INT -->|"PR (Enforced: from integration)"| DEV
+    DEV --> DEV_DEPLOY
+    DEV -->|"PR (Enforced: from dev)"| MAIN
+    MAIN --> PROD_DEPLOY
+
+    MAIN -.->|"Branch off"| HOTFIX
+    HOTFIX -.->|"Emergency PR"| MAIN
+    HOTFIX -.->|"Backport"| DEV
+    DEV -.->|"Sync"| INT
 ```
 
 ### 1. Permanent Branches & Environments
