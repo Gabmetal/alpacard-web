@@ -33,7 +33,7 @@ Alpacard includes an exhaustive engineering and operational wiki in the [`wiki/`
 * **[🌿 Branching Strategy & CI/CD](wiki/Branching-Strategy-and-CICD.md)**: Gitflow promotion lifecycle, gatekeeper rules, self-hosted runner, and automated k8s rollouts.
 * **[💼 Merchant & Cashier Guide](wiki/Merchant-and-Cashier-Guide.md)**: Backoffice loyalty program customization and cashier point-of-sale camera scanner runbook.
 * **[💳 Customer Wallet PWA](wiki/Customer-Wallet-PWA.md)**: Zero app-store onboarding, offline caching, PWA installation guide, and Web Audio synthesizer.
-* **[☸️ Kubernetes & Networking](wiki/Infrastructure-Kubernetes-and-Networking.md)**: K3s bare-metal topology, MetalLB virtual IP, Traefik routing, Let's Encrypt TLS, and Tailscale VPN.
+* **[☸️ Kubernetes & Networking](wiki/Infrastructure-Kubernetes-and-Networking.md)**: Enterprise Kubernetes topology, MetalLB virtual IP, Traefik routing, Let's Encrypt TLS, and Tailscale VPN.
 * **[📈 Operations, Backups & Monitoring](wiki/Operations-Backups-and-Monitoring.md)**: Automated daily pg_dump backups, disaster recovery restore guide, and VictoriaMetrics/Grafana metrics.
 
 ---
@@ -78,7 +78,7 @@ flowchart LR
 
     subgraph QAStage ["3. QA & Staging (alpacard-dev)"]
         DEV["dev branch"]
-        DEV_DEPLOY["CD Pipeline (deploy-dev.yml)<br/>• Podman Container Build<br/>• k3s containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Smoke Test dev.alpacard.app"]
+        DEV_DEPLOY["CD Pipeline (deploy-dev.yml)<br/>• Podman Container Build<br/>• Kubernetes containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Smoke Test dev.alpacard.app"]
     end
 
     subgraph ProdStage ["4. Live Production (alpacard)"]
