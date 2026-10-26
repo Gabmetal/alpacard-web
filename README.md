@@ -21,62 +21,68 @@
 
 ---
 
-## 🌿 Branching Strategy & Workflow
+## 🌿 Branching Strategy & CI/CD Architecture
 
-We follow a clean, structured **Gitflow / GitHub Flow hybrid** optimized for rapid feature development and zero-downtime production releases:
+We follow a structured **Gitflow / GitHub Flow hybrid with Automated Pipeline Gatekeepers** designed for continuous integration, isolated QA validation, and zero-downtime production releases:
 
 ```mermaid
 gitGraph
    commit id: "Initial"
-   branch dev
-   checkout dev
-   commit id: "v2.0-dev"
+   branch integration
+   checkout integration
    branch feat/stamp-haptic
    checkout feat/stamp-haptic
    commit id: "feat: add haptic"
+   checkout integration
+   merge feat/stamp-haptic id: "PR (All Tests CI)"
+   branch dev
    checkout dev
-   merge feat/stamp-haptic id: "PR #40"
+   merge integration id: "PR -> Auto Deploy Dev"
    checkout main
-   merge dev id: "PR (Release to Prod)"
-   branch hotfix/fix-token-expiry
-   checkout hotfix/fix-token-expiry
-   commit id: "fix: token edge case"
+   merge dev id: "PR -> Auto Deploy Prod"
+   branch hotfix/token-leak
+   checkout hotfix/token-leak
+   commit id: "fix: token patch"
    checkout main
-   merge hotfix/fix-token-expiry id: "PR #41 (Hotfix)"
+   merge hotfix/token-leak id: "Hotfix PR -> Deploy Prod"
    checkout dev
-   merge main id: "Sync dev with hotfix"
+   merge main id: "Sync dev"
+   checkout integration
+   merge dev id: "Sync integration"
 ```
 
-### 1. Permanent Branches
-- **`main` (Production)**:
-  - Reflects the live production state running on `https://alpacard.app`.
-  - **Protected branch**: Direct pushes and force pushes are blocked.
-  - Deployments trigger automatically to the production Kubernetes namespace (`alpacard`).
-- **`dev` (Development / Staging Integration)**:
-  - Serves as the primary integration branch for new features and non-breaking improvements.
-  - Deployed to the isolated `alpacard-dev` environment (`https://dev.alpacard.app`) for QA and pre-release validation.
-  - **Protected branch**: Direct pushes and force pushes are blocked.
+### 1. Permanent Branches & Environments
+
+| Branch | Role | Deployment Target | Enforced Pull Request Source | Pipelines & Checks |
+| :--- | :--- | :--- | :--- | :--- |
+| **`integration`** | Primary test integration branch | *Automated test harness* | Topic branches (`feat/*`, `fix/*`, `chore/*`) | **`ci-integration.yml`**: Runs Go unit & handler tests (`go test -v -race ./...`), Go binary builds, TypeScript typechecking, and frontend builds. |
+| **`dev`** | Pre-release QA staging environment | **`alpacard-dev`** k8s namespace ([https://dev.alpacard.app](https://dev.alpacard.app)) | **Strictly `integration`** | **`branch-rules.yml`**: Rejects any PR not originating from `integration`.<br/>**`deploy-dev.yml`**: Triggers automated CD rolling deployment to Kubernetes `alpacard-dev`. |
+| **`main`** | Live production environment | **`alpacard`** k8s namespace ([https://alpacard.app](https://alpacard.app)) | **`dev`** *(or `hotfix/*`)* | **`branch-rules.yml`**: Rejects any PR not originating from `dev` or `hotfix/*`.<br/>**`deploy-prod.yml`**: Triggers automated CD rolling deployment to Kubernetes `alpacard`. |
 
 ### 2. Supporting Topic Branches
-All work must happen on dedicated short-lived branches created from `dev` (or `main` in case of critical hotfixes):
 
-| Branch Prefix | Convention | Source Branch | Target Branch | Description |
+All daily development work occurs on short-lived topic branches branched from `integration` (or `main` in emergency hotfixes):
+
+| Branch Prefix | Convention | Branch Off From | Target PR Destination | Description |
 | :--- | :--- | :--- | :--- | :--- |
-| `feat/` | `feat/<short-description>` | `dev` | `dev` | New capabilities, UI flows, and non-breaking enhancements. |
-| `fix/` | `fix/<short-description>` | `dev` | `dev` | Bug fixes and UX corrections verified in QA before prod. |
-| `hotfix/` | `hotfix/<short-description>` | `main` | `main` & `dev` | Critical production issues requiring immediate patch release. |
-| `chore/` | `chore/<short-description>` | `dev` | `dev` | Tooling, dependencies, refactors, and documentation updates. |
+| `feat/` | `feat/<short-description>` | `integration` | `integration` | New user-facing capabilities, UI flows, and feature work. |
+| `fix/` | `fix/<short-description>` | `integration` | `integration` | Bug fixes and UX corrections. |
+| `chore/` | `chore/<short-description>` | `integration` | `integration` | Dependencies, refactoring, and tooling maintenance. |
+| `hotfix/` | `hotfix/<short-description>` | `main` | `main` *(then backported)* | Critical production incidents requiring immediate hotfix release. |
 
-### 3. Contribution Rules & Pull Request Guidelines
+### 3. Contribution Rules & Automated Pipeline Gatekeepers
+
 1. **Branch Protection**:
-   - Both `main` and `dev` require all changes to arrive through GitHub Pull Requests (`gh pr create`).
-   - Direct pushes and force-pushes (`git push --force`) are strictly prohibited.
-2. **Conventional Commits**:
-   - Commit messages must follow conventional commits: `feat(...)`, `fix(...)`, `chore(...)`, `docs(...)`, `test(...)`.
-3. **Automated CI Validation**:
-   - Every Pull Request against `dev` or `main` automatically runs Go backend builds (`go build ./cmd/server ./cmd/worker`), Node dependency validation (`pnpm build`), and frontend builds.
-4. **Isolated Data Safety**:
-   - Test changes exclusively against `alpacard-dev` / `dev.alpacard.app`. Never run migrations, seed data, or experimental API calls against production without prior review.
+   - `main`, `dev`, and `integration` are protected branches. Direct pushes and force pushes (`git push --force`) are blocked.
+2. **Automated Source Enforcement (`branch-rules.yml`)**:
+   - Pull Requests targeting `dev` **must originate from `integration`**.
+   - Pull Requests targeting `main` **must originate from `dev`** (except emergency `hotfix/*` branches).
+   - Any non-compliant PR fails the automated GitHub Actions gatekeeper before review.
+3. **Continuous Deployment (`deploy-env.sh`)**:
+   - Merges into `dev` trigger `deploy-dev.yml`, building containers and rolling out updates to the isolated `alpacard-dev` Kubernetes cluster with automated health checks.
+   - Merges into `main` trigger `deploy-prod.yml`, deploying directly to the live `alpacard` production cluster with zero downtime.
+4. **Data Isolation**:
+   - Development and QA testing take place exclusively on `dev.alpacard.app` via the secure Tailscale VPN subnet router (`192.168.0.0/24`). Never run experimental migrations or test seed data on production.
 
 ---
 

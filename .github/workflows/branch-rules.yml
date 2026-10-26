@@ -1,0 +1,56 @@
+name: Branch Strategy Rules Enforcement
+
+on:
+  pull_request:
+    branches:
+      - dev
+      - main
+    types: [opened, synchronize, reopened, edited]
+
+jobs:
+  validate-branch-source:
+    name: Validate PR Source Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Branching Strategy Rules
+        run: |
+          TARGET_BRANCH="${{ github.base_ref }}"
+          SOURCE_BRANCH="${{ github.head_ref }}"
+
+          echo "🔍 Evaluating Pull Request flow:"
+          echo "   Target (Base): $TARGET_BRANCH"
+          echo "   Source (Head): $SOURCE_BRANCH"
+
+          # Rule 1: Pull Requests targeting 'dev' MUST come from 'integration'
+          if [ "$TARGET_BRANCH" = "dev" ]; then
+            if [ "$SOURCE_BRANCH" != "integration" ]; then
+              echo "::error title=Branch Strategy Violation::Pull Requests targeting 'dev' MUST originate from 'integration'. Current source branch is '$SOURCE_BRANCH'."
+              echo ""
+              echo "❌ ERROR: Strategy Rule Violation"
+              echo "According to the Alpacard Gitflow policy:"
+              echo "  1. Feature & fix branches must PR into 'integration'."
+              echo "  2. Once verified in 'integration', create a PR from 'integration' into 'dev'."
+              echo ""
+              echo "Please retarget your PR or merge your changes through 'integration'."
+              exit 1
+            fi
+            echo "✅ Validated: PR into 'dev' originated from 'integration'."
+          fi
+
+          # Rule 2: Pull Requests targeting 'main' (Production) MUST come from 'dev' or 'hotfix/*'
+          if [ "$TARGET_BRANCH" = "main" ]; then
+            if [ "$SOURCE_BRANCH" != "dev" ] && [[ ! "$SOURCE_BRANCH" =~ ^hotfix/ ]]; then
+              echo "::error title=Branch Strategy Violation::Pull Requests targeting 'main' (Production) MUST originate from 'dev' (or a 'hotfix/*' branch). Current source branch is '$SOURCE_BRANCH'."
+              echo ""
+              echo "❌ ERROR: Production Release Gatekeeper"
+              echo "Direct promotion to 'main' is only allowed from:"
+              echo "  • 'dev' (tested pre-release candidate)"
+              echo "  • 'hotfix/<description>' (critical production patches)"
+              echo ""
+              echo "Please promote through 'dev' first."
+              exit 1
+            fi
+            echo "✅ Validated: PR into 'main' originated from authorized source ($SOURCE_BRANCH)."
+          fi
+
+          echo "🎉 All branch strategy rules passed successfully!"

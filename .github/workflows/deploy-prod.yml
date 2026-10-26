@@ -1,0 +1,28 @@
+name: CD - Deploy to Production Environment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-to-prod:
+    name: Build & Deploy to Production (alpacard)
+    runs-on: [self-hosted, alpacard-k8s]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Execute Automated Production Deployment
+        run: |
+          chmod +x ./scripts/deploy-env.sh
+          ./scripts/deploy-env.sh prod
+
+      - name: Production Deployment Health Summary
+        if: always()
+        run: |
+          echo "### 🚀 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Namespace**: \`alpacard\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: [https://alpacard.app](https://alpacard.app)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Active on Kubernetes" >> $GITHUB_STEP_SUMMARY

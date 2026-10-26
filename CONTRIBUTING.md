@@ -91,7 +91,7 @@ alpacard/
 
 ## 🤝 How to Submit a Pull Request
 
-We follow a structured branching strategy where `dev` is the active staging integration branch and `main` is production:
+We follow a structured branching strategy where `integration` runs all test suites, `dev` is the active staging QA environment, and `main` is production:
 
 1. **Fork the repository** on GitHub (or clone with developer access).
 2. **Clone your fork**:
@@ -99,26 +99,28 @@ We follow a structured branching strategy where `dev` is the active staging inte
    git clone https://github.com/<your-username>/alpacard-web.git
    cd alpacard-web
    ```
-3. **Branch from `dev`** for new features, fixes, or improvements:
+3. **Branch from `integration`** for new features, fixes, or improvements:
    ```bash
-   git checkout dev
-   git pull origin dev
+   git checkout integration
+   git pull origin integration
    git checkout -b feat/my-new-feature
    ```
    *(For critical production bugs, branch from `main` as `hotfix/my-hotfix`)*.
 4. **Make your changes** and verify the build and tests pass locally:
    ```bash
    pnpm build
-   cd apps/api && go test ./...
+   cd apps/api && go test -v -race ./...
    ```
 5. **Commit with conventional commit messages**:
    ```bash
    git commit -m "feat(wallet): add vibration haptic on stamp collection"
    ```
-6. **Push and create a Pull Request against `dev`**:
-   - Automated CI runs Go backend compilation and Vite/Tailwind frontend bundle verification.
-   - Once reviewed and merged into `dev`, QA can test it on `https://dev.alpacard.app` via the VPN.
-   - Stable releases are merged from `dev` into `main` for production rollout to `https://alpacard.app`.
+6. **Push and create a Pull Request targeting `integration`**:
+   - Automated CI runs Go backend tests, binary compilation, and Vite/Tailwind frontend bundle verification.
+7. **Promotion Flow**:
+   - Once merged into `integration`, create a Pull Request from `integration` into `dev`.
+   - Merges into `dev` automatically deploy to `https://dev.alpacard.app` via Kubernetes continuous deployment.
+   - Stable releases are promoted via Pull Request from `dev` into `main`, which automatically deploys to live production at `https://alpacard.app`.
 
 ---
 
