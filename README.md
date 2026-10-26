@@ -12,11 +12,71 @@
 
 ---
 
-## 🚀 Live Demo
+## 🌐 Environments & Domains
 
-- **Merchant Portal & Scanner**: [https://alpacard.app](https://alpacard.app)
-- **Interactive Live Demo**: [https://alpacard.app/demo](https://alpacard.app/demo)
-- **Customer Mobile Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)
+| Environment | Purpose | Target Audience | URLs & Access | Security & Network |
+| :--- | :--- | :--- | :--- | :--- |
+| **Production** | Live Merchant & Customer traffic | Coffee shops, retail merchants & cardholders | • **Landing & Merchant**: [https://alpacard.app](https://alpacard.app)<br/>• **Customer Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)<br/>• **Interactive Demo**: [https://alpacard.app/demo](https://alpacard.app/demo)<br/>• **REST API**: `https://alpacard.app/api` | Public internet, Cloudflare proxy, automated Let's Encrypt TLS multi-SAN certificates |
+| **Development / Non-Prod** | Pre-release testing, staging & QA validation | Core team, QA testers, beta merchants | • **Merchant Console**: [https://dev.alpacard.app](https://dev.alpacard.app)<br/>• **Customer Wallet**: [https://dev.alpacard.app/wallet](https://dev.alpacard.app/wallet)<br/>• **Dev API**: `https://dev.alpacard.app/api`<br/>• *(Fallback local)*: `http://dev.alpacard.local` | **Zero public internet exposure**. Accessible strictly via secure **Tailscale VPN** subnet router (`192.168.0.0/24`) with valid Let's Encrypt TLS. Dedicated isolated database (`alpacard_dev`), RabbitMQ broker, and isolated k8s namespace (`alpacard-dev`). |
+
+---
+
+## 🌿 Branching Strategy & Workflow
+
+We follow a clean, structured **Gitflow / GitHub Flow hybrid** optimized for rapid feature development and zero-downtime production releases:
+
+```mermaid
+gitGraph
+   commit id: "Initial"
+   branch dev
+   checkout dev
+   commit id: "v2.0-dev"
+   branch feat/stamp-haptic
+   checkout feat/stamp-haptic
+   commit id: "feat: add haptic"
+   checkout dev
+   merge feat/stamp-haptic id: "PR #40"
+   checkout main
+   merge dev id: "PR (Release to Prod)"
+   branch hotfix/fix-token-expiry
+   checkout hotfix/fix-token-expiry
+   commit id: "fix: token edge case"
+   checkout main
+   merge hotfix/fix-token-expiry id: "PR #41 (Hotfix)"
+   checkout dev
+   merge main id: "Sync dev with hotfix"
+```
+
+### 1. Permanent Branches
+- **`main` (Production)**:
+  - Reflects the live production state running on `https://alpacard.app`.
+  - **Protected branch**: Direct pushes and force pushes are blocked.
+  - Deployments trigger automatically to the production Kubernetes namespace (`alpacard`).
+- **`dev` (Development / Staging Integration)**:
+  - Serves as the primary integration branch for new features and non-breaking improvements.
+  - Deployed to the isolated `alpacard-dev` environment (`https://dev.alpacard.app`) for QA and pre-release validation.
+  - **Protected branch**: Direct pushes and force pushes are blocked.
+
+### 2. Supporting Topic Branches
+All work must happen on dedicated short-lived branches created from `dev` (or `main` in case of critical hotfixes):
+
+| Branch Prefix | Convention | Source Branch | Target Branch | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `feat/` | `feat/<short-description>` | `dev` | `dev` | New capabilities, UI flows, and non-breaking enhancements. |
+| `fix/` | `fix/<short-description>` | `dev` | `dev` | Bug fixes and UX corrections verified in QA before prod. |
+| `hotfix/` | `hotfix/<short-description>` | `main` | `main` & `dev` | Critical production issues requiring immediate patch release. |
+| `chore/` | `chore/<short-description>` | `dev` | `dev` | Tooling, dependencies, refactors, and documentation updates. |
+
+### 3. Contribution Rules & Pull Request Guidelines
+1. **Branch Protection**:
+   - Both `main` and `dev` require all changes to arrive through GitHub Pull Requests (`gh pr create`).
+   - Direct pushes and force-pushes (`git push --force`) are strictly prohibited.
+2. **Conventional Commits**:
+   - Commit messages must follow conventional commits: `feat(...)`, `fix(...)`, `chore(...)`, `docs(...)`, `test(...)`.
+3. **Automated CI Validation**:
+   - Every Pull Request against `dev` or `main` automatically runs Go backend builds (`go build ./cmd/server ./cmd/worker`), Node dependency validation (`pnpm build`), and frontend builds.
+4. **Isolated Data Safety**:
+   - Test changes exclusively against `alpacard-dev` / `dev.alpacard.app`. Never run migrations, seed data, or experimental API calls against production without prior review.
 
 ---
 
