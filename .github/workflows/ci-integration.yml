@@ -1,0 +1,62 @@
+name: CI - Integration & Test Suite
+
+on:
+  push:
+    branches:
+      - integration
+  pull_request:
+    branches:
+      - integration
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-backend:
+    name: Go Unit & Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '>=1.23'
+          cache-dependency-path: apps/api/go.sum
+
+      - name: Run Go Tests
+        run: |
+          cd apps/api
+          go test -v -race ./...
+
+      - name: Verify Go API & Worker Binary Builds
+        run: |
+          cd apps/api
+          CGO_ENABLED=0 go build -v -o /dev/null ./cmd/server
+          CGO_ENABLED=0 go build -v -o /dev/null ./cmd/worker
+
+  test-frontend:
+    name: Frontend TypeScript Builds & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Shared, Web & Wallet Packages
+        run: |
+          pnpm --filter @alpacard/shared build
+          pnpm --filter @alpacard/web build
+          pnpm --filter @alpacard/wallet build
