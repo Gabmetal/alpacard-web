@@ -21,6 +21,23 @@
 
 ---
 
+## 📚 Project Documentation & Wiki
+
+Alpacard includes an exhaustive engineering and operational wiki in the [`wiki/`](wiki/Home.md) directory, also accessible on the GitHub repository:
+
+* **[📖 Wiki Home & Directory](wiki/Home.md)**: Central landing page and technology matrix.
+* **[🏗️ System Architecture](wiki/Architecture-Overview.md)**: Deep dive into decoupled Go microservices, React frontends, and RabbitMQ message flows.
+* **[🔐 Cryptographic Security & Anti-Fraud](wiki/Cryptographic-Security-and-Anti-Fraud.md)**: JTI single-use nonces, rotating dynamic QR HMAC signatures, and database row-level locking.
+* **[📊 API Reference & Data Models](wiki/API-Reference-and-Data-Models.md)**: Full REST endpoints, PostgreSQL table DDLs, and RabbitMQ event envelopes.
+* **[🛠️ Local Development Guide](wiki/Getting-Started-and-Local-Development.md)**: Monorepo workspace setup, Turborepo commands, Go toolchain, and Docker Compose stack.
+* **[🌿 Branching Strategy & CI/CD](wiki/Branching-Strategy-and-CICD.md)**: Gitflow promotion lifecycle, gatekeeper rules, self-hosted runner, and automated k8s rollouts.
+* **[💼 Merchant & Cashier Guide](wiki/Merchant-and-Cashier-Guide.md)**: Backoffice loyalty program customization and cashier point-of-sale camera scanner runbook.
+* **[💳 Customer Wallet PWA](wiki/Customer-Wallet-PWA.md)**: Zero app-store onboarding, offline caching, PWA installation guide, and Web Audio synthesizer.
+* **[☸️ Kubernetes & Networking](wiki/Infrastructure-Kubernetes-and-Networking.md)**: K3s bare-metal topology, MetalLB virtual IP, Traefik routing, Let's Encrypt TLS, and Tailscale VPN.
+* **[📈 Operations, Backups & Monitoring](wiki/Operations-Backups-and-Monitoring.md)**: Automated daily pg_dump backups, disaster recovery restore guide, and VictoriaMetrics/Grafana metrics.
+
+---
+
 ## 🌿 Branching Strategy & CI/CD Architecture
 
 We follow a structured **Gitflow / GitHub Flow hybrid with Automated Pipeline Gatekeepers** designed for continuous integration, isolated QA validation, and zero-downtime production releases:
