@@ -17,7 +17,7 @@ Explore the technical documentation by topic:
 | **[🌿 Branching Strategy & CI/CD](Branching-Strategy-and-CICD)** | Gitflow promotion stages (`integration` $\rightarrow$ `dev` $\rightarrow$ `main`), gatekeeper rules, and automated rollouts. | DevOps & Maintainers |
 | **[💼 Merchant & Cashier Scanner](Merchant-and-Cashier-Guide)** | Business portal features, stamp card campaigns, and cashier QR scanner interface. | Merchants & Store Staff |
 | **[💳 Customer Wallet PWA](Customer-Wallet-PWA)** | Zero app-store onboarding, offline caching, dynamic rotating QR, and Web Audio synthesizer. | Frontend & Mobile Engineers |
-| **[☸️ Kubernetes & Networking](Infrastructure-Kubernetes-and-Networking)** | K3s topology, MetalLB, Traefik ingress, Let's Encrypt TLS, and Tailscale VPN routing. | SREs & Cloud Infrastructure |
+| **[☸️ Kubernetes & Networking](Infrastructure-Kubernetes-and-Networking)** | High-Availability Kubernetes topology, MetalLB, Traefik ingress, Let's Encrypt TLS, and Tailscale VPN routing. | SREs & Cloud Infrastructure |
 | **[📈 Operations, Backups & Monitoring](Operations-Backups-and-Monitoring)** | Automated daily pg_dump CronJobs, VictoriaMetrics, Grafana, and disaster recovery runbooks. | System Administrators |
 
 ---
@@ -72,5 +72,5 @@ flowchart TD
 * **Frontend**: React 18, TypeScript 5, Vite 6, Tailwind CSS 4, Lucide Icons, Canvas Confetti.
 * **Database**: PostgreSQL 16 with indexed atomic ledger tables and transactional locks.
 * **Message Broker**: RabbitMQ 3.13 with dead-letter exchanges and persistent queues.
-* **Infrastructure**: Kubernetes (k3s), MetalLB, Traefik, cert-manager, Tailscale subnet routing.
+* **Infrastructure**: Dedicated Production Kubernetes Cluster, MetalLB Load Balancer, Traefik Ingress, cert-manager, Zero-Trust Tailscale VPN.
 * **Observability**: Prometheus metrics, VictoriaMetrics stack, Grafana dashboards.

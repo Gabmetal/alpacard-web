@@ -1,6 +1,6 @@
 # ☸️ Infrastructure, Kubernetes & Networking
 
-Alpacard runs on a production-grade, highly optimized **k3s Kubernetes cluster** hosted on bare-metal hardware with software-defined networking, automated TLS certificate provisioning, and isolated zero-trust VPN staging access.
+Alpacard runs on a production-grade, highly optimized **Dedicated Kubernetes Cluster** with software-defined networking, automated TLS certificate provisioning, and isolated zero-trust VPN staging access.
 
 ---
 
@@ -8,10 +8,10 @@ Alpacard runs on a production-grade, highly optimized **k3s Kubernetes cluster**
 
 ```
 +-----------------------------------------------------------------------------------+
-|  PHYSICAL HOST: xeon (Ubuntu 26.04 LTS, IP 192.168.0.103)                        |
+|  DEDICATED KUBERNETES INFRASTRUCTURE NODE (Ubuntu Linux Cluster Node)             |
 |                                                                                   |
 |  +-----------------------------------------------------------------------------+  |
-|  |  k3s Kubernetes Control Plane & Worker                                      |  |
+|  |  Kubernetes Control Plane & Worker Node Runtime                             |  |
 |  |                                                                             |  |
 |  |  +-----------------------------------------------------------------------+  |  |
 |  |  |  MetalLB Layer 2 Load Balancer -> Virtual IP: 192.168.0.50             |  |  |
@@ -84,15 +84,14 @@ spec:
 
 ## 🛡️ Zero-Trust Staging VPN via Tailscale
 
-To allow QA testers, developers, and stakeholders to test the non-production environment from anywhere in the world on mobile data (4G/5G) or remote WiFi without opening insecure router firewall ports:
+To allow QA testers, developers, and stakeholders to test the non-production environment securely from anywhere in the world on mobile data (4G/5G) or remote networks without exposing internal staging ports to the public internet:
 
-1. **Hardware Subnet Router**:
-   - An OpenWrt home router (`192.168.0.1`) runs Tailscale.
-   - Advertises the local LAN subnet:
+1. **Enterprise Subnet Gateway**:
+   - A dedicated secure subnet router node advertises the internal staging subnet:
      ```bash
      tailscale up --advertise-routes=192.168.0.0/24 --accept-routes
      ```
 2. **Accessing the Dev Environment**:
-   - Any authorized user installs the Tailscale app on their iPhone, Android, or laptop.
-   - When connected to the Tailscale mesh network, their device seamlessly routes traffic destined for `192.168.0.0/24` through the OpenWrt router.
-   - Opening `https://dev.alpacard.app` resolves directly to `192.168.0.50`, presenting the fully isolated staging environment with valid Let's Encrypt green padlock TLS.
+   - Authorized team members connect through the enterprise Tailscale VPN mesh.
+   - When connected, traffic to the internal staging subnet (`192.168.0.0/24`) routes securely through the private gateway.
+   - Opening `https://dev.alpacard.app` connects directly to the internal Kubernetes ingress load balancer (`192.168.0.50`), presenting the isolated staging environment with valid Let's Encrypt TLS.

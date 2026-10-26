@@ -19,7 +19,7 @@ flowchart LR
 
     subgraph QAStage ["3. QA Staging (alpacard-dev)"]
         DEV["dev branch"]
-        DEV_DEPLOY["deploy-dev.yml<br/>• Podman Container Build<br/>• k3s containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Health Check dev.alpacard.app"]
+        DEV_DEPLOY["deploy-dev.yml<br/>• Podman Container Build<br/>• Kubernetes containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Health Check dev.alpacard.app"]
     end
 
     subgraph ProdStage ["4. Live Production (alpacard)"]
@@ -77,13 +77,13 @@ Every Pull Request targeting `dev` or `main` is evaluated by an automated GitHub
 
 ## 🤖 Self-Hosted Deployment Runner Architecture
 
-Deployments run through a dedicated GitHub Actions self-hosted runner registered on the local Kubernetes host (`xeon-k3s-runner`):
+Deployments run through a dedicated GitHub Actions self-hosted runner registered on the dedicated Kubernetes cluster node (`alpacard-k8s-runner`):
 
-* **Service**: `actions.runner.Gabmetal-alpacard-web.xeon-k3s-runner.service` (managed via systemd).
+* **Service**: `actions.runner.Gabmetal-alpacard-web.alpacard-k8s-runner.service` (managed via systemd).
 * **Labels**: `self-hosted`, `alpacard-k8s`, `linux`, `x64`.
 * **Security Benefits**:
   * Kubernetes control-plane API is **never exposed** to the public internet.
-  * Container images are built locally with Podman and piped directly into `k3s containerd` (`podman save | sudo k3s ctr images import -`), requiring zero external registry pushes and zero external network bandwidth consumption.
+  * Container images are built locally with Podman and piped directly into the `Kubernetes containerd` runtime (`podman save | sudo ctr --namespace k8s.io images import -`), requiring zero external registry pushes, zero rate limiting, and maximum security isolation.
 
 ---
 
@@ -101,7 +101,7 @@ Deployments are executed uniformly via the version-controlled script [`scripts/d
 1. Installs frozen dependencies and compiles shared packages and frontend bundles (`pnpm build`).
 2. Statically compiles Go API and Worker binaries (`CGO_ENABLED=0 GOOS=linux`).
 3. Builds container images (`alpacard-web`, `alpacard-wallet`, `alpacard-api`).
-4. Imports images into local `k3s containerd`.
+4. Imports images directly into the Kubernetes containerd runtime.
 5. Triggers a rolling restart across the target Kubernetes deployments.
 6. Waits for rollout completion (`kubectl rollout status deployment/...`).
 7. Executes an automated HTTP 200 smoke test against the live domain.
