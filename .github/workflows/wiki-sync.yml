@@ -1,0 +1,55 @@
+name: Sync Repository Wiki to GitHub Wiki
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'wiki/**'
+  workflow_dispatch:
+
+jobs:
+  sync-wiki:
+    name: Sync Wiki to GitHub Wiki Tab
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Repository
+        uses: actions/checkout@v4
+
+      - name: Push to GitHub Wiki Git Repository
+        env:
+          WIKI_REPO: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git"
+        run: |
+          echo "🔍 Checking GitHub Wiki availability for ${{ github.repository }}..."
+          TEMP_DIR=$(mktemp -d)
+
+          # Attempt to clone the existing wiki repository
+          if git clone "$WIKI_REPO" "$TEMP_DIR"; then
+            echo "✅ GitHub Wiki repository found. Synchronizing markdown pages..."
+            
+            # Remove old pages except .git
+            find "$TEMP_DIR" -mindepth 1 -not -path "$TEMP_DIR/.git*" -delete
+
+            # Copy all pages from wiki/ to the wiki repository
+            cp -r wiki/* "$TEMP_DIR/"
+
+            cd "$TEMP_DIR"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add -A
+
+            if git diff-index --quiet HEAD --; then
+              echo "✨ No wiki changes to commit. Wiki is up to date."
+            else
+              git commit -m "docs(wiki): automated synchronization from repository wiki/ [skip ci]"
+              git push origin HEAD
+              echo "🎉 Successfully synchronized wiki pages to the GitHub Wiki tab!"
+            fi
+          else
+            echo "ℹ️ Note: The GitHub Wiki repository has not been initialized via the GitHub Web UI yet."
+            echo "👉 To activate automated syncing to the GitHub Wiki tab:"
+            echo "   1. Visit https://github.com/${{ github.repository }}/wiki"
+            echo "   2. Click 'Create the first page' and save a placeholder page."
+            echo "   3. Future pushes to wiki/ will automatically update the GitHub Wiki tab."
+            echo "The comprehensive wiki remains fully available inside the 'wiki/' folder of the repository."
+          fi
