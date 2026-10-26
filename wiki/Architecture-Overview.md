@@ -15,11 +15,11 @@ flowchart TB
 
     subgraph Edge ["Edge & Networking"]
         DNS["Cloudflare DNS & Edge SSL"]
-        ROUTER["OpenWrt Tailscale Router<br/>(Subnet 192.168.0.0/24)"]
+        ROUTER["Zero-Trust VPN Gateway<br/>(Tailscale Subnet 192.168.0.0/24)"]
         INGRESS["Traefik Ingress Controller<br/>(HTTPS 443 / Let's Encrypt TLS)"]
     end
 
-    subgraph K8s ["Kubernetes Cluster (k3s)"]
+    subgraph K8s ["Dedicated Production Kubernetes Cluster"]
         subgraph FrontendPods ["Frontend Services"]
             SVC_WEB["alpacard-web<br/>(Nginx + React 18 SPA)"]
             SVC_WALLET["alpacard-wallet<br/>(Nginx + Customer PWA)"]

@@ -19,7 +19,7 @@ postgres:
   auth:
     database: alpacard
     username: alpacard
-    password: alpacard_pg_homelab_secret_2026
+    password: alpacard_pg_cluster_secret_2026
   resources:
     requests:
       cpu: 100m
@@ -53,7 +53,7 @@ api:
     repository: localhost/alpacard-api
     tag: "latest"
     pullPolicy: IfNotPresent
-  jwtSecret: "alpacard_super_secret_jwt_key_k3s_gabo_2026"
+  jwtSecret: "alpacard_super_secret_jwt_key_cluster_prod_2026"
   persistence:
     enabled: true
     storageClass: local-path
