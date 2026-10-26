@@ -4,6 +4,8 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
+import { DemoRedeemCelebrationModal } from '../components/DemoRedeemCelebrationModal';
+import { playStampCelebrationSound } from '../utils/audio';
 import {
   ArrowLeft,
   Sparkles,
@@ -15,7 +17,6 @@ import {
   Check,
   Terminal,
   Activity,
-  Award,
   Coffee,
   Play,
 } from 'lucide-react';
@@ -24,8 +25,13 @@ export function DemoPage() {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
   const [showVideoModal, setShowVideoModal] = useState(false);
+  const [showCelebrationModal, setShowCelebrationModal] = useState(false);
+  const [stampAlert, setStampAlert] = useState<{ message: string; type: 'earn' | 'redeem' } | null>(
+    null
+  );
   const [stamps, setStamps] = useState(7);
   const maxStamps = 10;
+  const isRewardReady = stamps >= maxStamps;
   const [scanState, setScanState] = useState<'idle' | 'scanning' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [eventLogs, setEventLogs] = useState<
@@ -128,13 +134,22 @@ export function DemoPage() {
       const nextStamps = stamps + 1;
       setStamps(nextStamps);
       setScanState('success');
-      playAudio('success');
+      playStampCelebrationSound(true);
       const jti = `jti_${Math.random().toString(36).substring(2, 10)}`;
       addLog(`POST /api/v1/stamps/scan [JTI: ${jti}] -> 200 OK (EARN +1)`, 'success');
       addLog(
         `RabbitMQ published event "stamp.earned" -> card balance: ${nextStamps}/${maxStamps}`,
         'info'
       );
+
+      // Trigger live wallet alert banner like the real app
+      setStampAlert({
+        type: 'earn',
+        message: isEs
+          ? `¡Sello recibido! Ahora tienes ${nextStamps} de ${maxStamps} sellos.`
+          : `Stamp added! You now have ${nextStamps} of ${maxStamps} stamps.`,
+      });
+      setTimeout(() => setStampAlert(null), 4500);
 
       setTimeout(() => setScanState('idle'), 2200);
     }, 600);
@@ -147,10 +162,19 @@ export function DemoPage() {
     setTimeout(() => {
       setStamps(0);
       setScanState('success');
-      playAudio('success');
+      playStampCelebrationSound(false);
+      setShowCelebrationModal(true);
       const jti = `jti_${Math.random().toString(36).substring(2, 10)}`;
       addLog(`POST /api/v1/stamps/scan [JTI: ${jti}] -> 200 OK (REDEEM -10)`, 'success');
       addLog(`RabbitMQ published event "reward.redeemed" -> Free Coffee claimed!`, 'success');
+
+      setStampAlert({
+        type: 'redeem',
+        message: isEs
+          ? '¡Premio canjeado con éxito! Tu tarjeta ha sido reiniciada.'
+          : 'Reward redeemed successfully! Your card has been reset.',
+      });
+      setTimeout(() => setStampAlert(null), 5000);
 
       setTimeout(() => setScanState('idle'), 2500);
     }, 600);
@@ -261,7 +285,7 @@ export function DemoPage() {
             {/* Mobile Phone Mockup Frame */}
             <div className="w-full max-w-[340px] rounded-[36px] border-4 border-stone-800 bg-stone-900 p-2.5 shadow-xl relative">
               {/* Screen Area */}
-              <div className="rounded-[28px] bg-[#FAF8F5] p-4 pt-5 text-stone-900 min-h-[540px] flex flex-col justify-between border border-stone-200">
+              <div className="rounded-[28px] bg-[#FAF8F5] p-4 pt-5 text-stone-900 min-h-[560px] flex flex-col justify-between border border-stone-200">
                 <div>
                   <div className="flex items-center justify-between border-b border-stone-200 pb-3">
                     <div className="flex items-center gap-2">
@@ -274,26 +298,63 @@ export function DemoPage() {
                         Alpacard Wallet
                       </span>
                     </div>
-                    <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800 border border-emerald-200">
+                    <span className="rounded-md bg-emerald-50 px-2 py-0.5 text-[9px] font-semibold text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                       {t.demo.pwaActiveBadge}
                     </span>
                   </div>
 
-                  {/* Loyalty Card UI */}
-                  <div className="mt-4 rounded-2xl bg-[#3D2B1F] p-4 text-white shadow-sm relative overflow-hidden">
-                    <div className="absolute -right-6 -bottom-6 opacity-10">
-                      <Award className="h-28 w-28" />
+                  {/* Stamp Received / Redeemed Real-time Banner */}
+                  {stampAlert && (
+                    <div
+                      className={`mt-3 flex items-center justify-between rounded-xl px-3 py-2 text-white shadow-md text-[11px] font-bold animate-bounce ${
+                        stampAlert.type === 'redeem' ? 'bg-amber-600' : 'bg-emerald-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <Sparkles className="h-3.5 w-3.5 text-amber-200 shrink-0" />
+                        <span className="line-clamp-1">{stampAlert.message}</span>
+                      </div>
+                      <button
+                        onClick={() => setStampAlert(null)}
+                        className="text-white/80 hover:text-white text-xs ml-1 font-bold"
+                      >
+                        ✕
+                      </button>
                     </div>
+                  )}
+
+                  {/* Loyalty Card UI - With Glow & Shimmer when Reward Ready */}
+                  <div
+                    className={`mt-4 rounded-3xl bg-[#3D2B1F] p-4 text-white shadow-md relative overflow-hidden transition-all duration-500 ${
+                      isRewardReady
+                        ? 'animate-card-glow ring-2 ring-amber-400 scale-[1.01]'
+                        : 'border border-stone-800'
+                    }`}
+                  >
+                    {/* Shimmer slide across card when ready */}
+                    {isRewardReady && (
+                      <div className="absolute inset-0 z-10 pointer-events-none animate-shimmer-slide opacity-30 rounded-3xl" />
+                    )}
 
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <span className="text-[9px] font-semibold uppercase tracking-widest text-stone-300">
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-amber-300">
                           {t.demo.cardTier}
                         </span>
-                        <h3 className="text-base font-bold">{t.demo.cardName}</h3>
+                        <h3 className="text-base font-black leading-tight">{t.demo.cardName}</h3>
+                        <p className="text-[10px] text-stone-300 mt-0.5 line-clamp-1">
+                          🎁 {isEs ? '1 Bebida o Café Gratis' : '1 Free Coffee or Drink'}
+                        </p>
                       </div>
-                      <span className="rounded bg-white/15 px-2 py-0.5 text-[9px] font-semibold">
-                        {stamps >= maxStamps ? t.demo.rewardReady : t.demo.inProgress}
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider shrink-0 shadow-2xs ${
+                          isRewardReady
+                            ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-stone-950 animate-pulse'
+                            : 'bg-white/15 text-white/90'
+                        }`}
+                      >
+                        {isRewardReady ? t.demo.rewardReady : t.demo.inProgress}
                       </span>
                     </div>
 
@@ -305,18 +366,22 @@ export function DemoPage() {
                         return (
                           <div
                             key={i}
-                            className={`aspect-square rounded-xl border flex items-center justify-center transition-all duration-200 ${
+                            className={`aspect-square rounded-2xl border-2 flex items-center justify-center transition-all duration-300 ${
                               isStamped
-                                ? 'border-[#E6D9C6] bg-[#F5EFE6] text-[#3D2B1F] font-bold shadow-2xs'
+                                ? 'border-[#E6D9C6] bg-amber-400 text-stone-950 font-bold shadow-xs scale-100'
                                 : isReward
-                                ? 'border-dashed border-amber-300/70 bg-amber-400/15 text-amber-200'
-                                : 'border-white/20 bg-white/10 text-white/50'
+                                ? 'border-dashed border-amber-300/80 bg-amber-400/20 text-amber-200'
+                                : 'border-dashed border-white/20 bg-white/10 text-white/40'
                             }`}
                           >
                             {isStamped ? (
-                              <Check className="h-4 w-4 stroke-[3]" />
+                              <div className="flex items-center justify-center w-full h-full animate-in zoom-in-75 duration-300">
+                                <Coffee className="h-4 w-4 stroke-[2.5]" />
+                              </div>
                             ) : isReward ? (
-                              <Gift className="h-4 w-4" />
+                              <div className="flex items-center justify-center w-full h-full">
+                                <Gift className="h-4 w-4 animate-pulse text-amber-300" />
+                              </div>
                             ) : (
                               <span className="text-[10px] font-bold">{i + 1}</span>
                             )}
@@ -326,11 +391,11 @@ export function DemoPage() {
                     </div>
 
                     <div className="mt-4 flex items-center justify-between text-[11px] text-stone-200 font-medium border-t border-white/15 pt-2">
-                      <span>
+                      <span className="font-semibold">
                         {stamps} / {maxStamps} {t.demo.stampsCollected}
                       </span>
-                      <span>
-                        {stamps >= maxStamps
+                      <span className="font-bold text-amber-300">
+                        {isRewardReady
                           ? t.demo.freeRewardAvailable
                           : `${maxStamps - stamps} ${t.demo.remainingToReward}`}
                       </span>
@@ -343,9 +408,9 @@ export function DemoPage() {
                       {t.demo.showQrInstructions}
                     </div>
 
-                    <div className="keep-light mx-auto w-36 h-36 rounded-xl bg-white p-2 border border-stone-200 flex items-center justify-center relative">
+                    <div className="keep-light mx-auto w-36 h-36 rounded-2xl bg-white p-2.5 border border-stone-200 shadow-xs flex items-center justify-center relative overflow-hidden">
                       {scanState === 'scanning' && (
-                        <div className="absolute inset-x-2 top-0 h-1 bg-[#5C4028] animate-bounce"></div>
+                        <div className="absolute inset-x-2 top-0 h-1 bg-amber-500 animate-bounce shadow-md"></div>
                       )}
                       <QrCode className="keep-light h-full w-full text-stone-900" />
                     </div>
@@ -517,6 +582,15 @@ export function DemoPage() {
         open={showVideoModal}
         onClose={() => setShowVideoModal(false)}
         defaultLang={isEs ? 'es' : 'en'}
+      />
+
+      {/* Real App Celebratory Confetti & Fanfare Modal on Reward Redemption */}
+      <DemoRedeemCelebrationModal
+        isOpen={showCelebrationModal}
+        onClose={() => setShowCelebrationModal(false)}
+        reward={isEs ? '1 Bebida o Café Gratis' : '1 Free Coffee or Drink'}
+        businessName={isEs ? 'Café de Especialidad Alpaca' : 'Alpaca Artisan Roasters'}
+        isEs={isEs}
       />
     </div>
   );
