@@ -43,8 +43,8 @@ podman build -t localhost/alpacard-web:latest apps/web
 podman build -t localhost/alpacard-wallet:latest apps/wallet
 podman build -t localhost/alpacard-api:latest apps/api
 
-# 4. Import Container Images into k3s containerd
-echo "📥 [4/6] Importing container images into k3s containerd..."
+# 4. Import Container Images into Kubernetes containerd
+echo "📥 [4/6] Importing container images into Kubernetes containerd runtime..."
 podman save localhost/alpacard-web:latest | sudo k3s ctr --namespace k8s.io images import -
 podman save localhost/alpacard-wallet:latest | sudo k3s ctr --namespace k8s.io images import -
 podman save localhost/alpacard-api:latest | sudo k3s ctr --namespace k8s.io images import -
