@@ -185,3 +185,41 @@ body {
 .dark .hover\:border-stone-300:hover {
   border-color: #443d37 !important;
 }
+
+/* ==========================================================================
+   Card Animations & Micro-Interactions (Shared with Wallet)
+   ========================================================================== */
+
+@keyframes cardGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.25), 0 0 30px rgba(245, 158, 11, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.45), 0 0 50px rgba(245, 158, 11, 0.3);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-card-glow {
+  animation: cardGlow 2.5s ease-in-out infinite;
+}
+
+.animate-shimmer-slide {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmerSlide 3s infinite linear;
+}
+
