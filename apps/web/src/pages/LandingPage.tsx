@@ -49,7 +49,7 @@ export function LandingPage() {
     <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-[#4A3525] selection:text-white transition-colors">
       {/* Navigation Header */}
       <nav className="sticky top-0 z-50 border-b border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex h-16 lg:h-20 max-w-7xl items-center justify-between gap-4 lg:gap-6 px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 lg:h-20 max-w-7xl items-center justify-between gap-2 xl:gap-4 px-4 sm:px-6 lg:px-6">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img
               src="/alpacard-logo.jpg"
@@ -65,57 +65,57 @@ export function LandingPage() {
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-medium text-stone-600 dark:text-stone-300">
+          <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 text-xs xl:text-[13px] font-medium text-stone-600 dark:text-stone-300">
             <a
               href="#features"
-              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
             >
               {t.nav.features}
             </a>
             <a
               href="#visual-tour"
-              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
             >
               {t.nav.visualTour}
             </a>
             <a
               href="#how-it-works"
-              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
             >
               {t.nav.howItWorks}
             </a>
             <Link
               to="/demo"
-              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition inline-flex items-center gap-1.5 font-semibold"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition inline-flex items-center gap-1.5 font-semibold"
             >
               <Play className="h-3.5 w-3.5 fill-current shrink-0" />
               <span>{t.nav.liveDemo}</span>
             </Link>
             <Link
               to="/docs"
-              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
             >
               {t.nav.docs}
             </Link>
           </div>
 
           {/* Desktop Right Actions */}
-          <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 shrink-0">
+          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 shrink-0">
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
             {/* Direct Wallet Access (Primary client-facing button) */}
             <a
               href="/wallet"
-              className="inline-flex items-center gap-2 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-4 py-2.5 text-xs xl:text-sm font-bold shadow-xs transition active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3 xl:px-3.5 py-2 text-xs xl:text-[13px] font-bold shadow-xs transition active:scale-[0.98]"
             >
-              <Wallet className="h-4 w-4 shrink-0" />
+              <Wallet className="h-3.5 w-3.5 xl:h-4 xl:w-4 shrink-0" />
               <span>{t.nav.openWallet}</span>
             </a>
 
             <Link
               to="/login"
-              className="whitespace-nowrap shrink-0 text-xs xl:text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+              className="whitespace-nowrap shrink-0 text-xs xl:text-[13px] font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-2.5 xl:px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               title={t.nav.merchantLogin}
             >
               {t.nav.signIn}
