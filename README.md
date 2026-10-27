@@ -79,6 +79,7 @@ flowchart LR
     subgraph QAStage ["3. QA & Staging (alpacard-dev)"]
         DEV["dev branch"]
         DEV_DEPLOY["CD Pipeline (deploy-dev.yml)<br/>• Podman Container Build<br/>• Kubernetes containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Smoke Test dev.alpacard.app"]
+        QA_GATE{"🧪 QA Sign-off Gate<br/>Manual QA testing &<br/>explicit sign-off required"}
     end
 
     subgraph ProdStage ["4. Live Production (alpacard)"]
@@ -94,7 +95,8 @@ flowchart LR
     INT --> CI
     INT -->|"PR (Enforced: from integration)"| DEV
     DEV --> DEV_DEPLOY
-    DEV -->|"PR (Enforced: from dev)"| MAIN
+    DEV_DEPLOY --> QA_GATE
+    QA_GATE -->|"PR to main (ONLY after QA approval)"| MAIN
     MAIN --> PROD_DEPLOY
 
     MAIN -.->|"Branch off"| HOTFIX
