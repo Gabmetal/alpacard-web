@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { getMerchantToken, api } from './services/api';
+import { getMerchantToken, api, MerchantUser } from './services/api';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { ThemeProvider } from './theme/ThemeContext';
 import { LandingPage } from './pages/LandingPage';
@@ -42,9 +42,20 @@ function ProtectedFallback() {
 
 export function App() {
   const [token, setToken] = useState<string | null>(getMerchantToken());
+  const [currentUser, setCurrentUser] = useState<MerchantUser | null>(null);
   const [businesses, setBusinesses] = useState<BusinessItem[]>([]);
   const [activeBusiness, setActiveBusiness] = useState<BusinessItem | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (token) {
+      api.me()
+        .then((user) => setCurrentUser(user as MerchantUser))
+        .catch(() => setCurrentUser(null));
+    } else {
+      setCurrentUser(null);
+    }
+  }, [token]);
 
   // Create Business Modal
   const [showCreateBiz, setShowCreateBiz] = useState(false);
@@ -130,8 +141,10 @@ export function App() {
                 </div>
               ) : (
                 <Layout
+                  currentUser={currentUser}
                   onLogout={() => {
                     setToken(null);
+                    setCurrentUser(null);
                     setBusinesses([]);
                     setActiveBusiness(null);
                   }}

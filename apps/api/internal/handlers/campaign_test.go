@@ -141,6 +141,24 @@ func TestCreateAndCustomizeCampaign(t *testing.T) {
 	if updated.BgValue != "sunset" || updated.StampIcon != "star" {
 		t.Errorf("Campaign update did not apply correctly: %+v", updated)
 	}
+
+	// Test deleting the campaign
+	delReq := httptest.NewRequest("DELETE", "/api/v1/campaigns/"+created.ID.String(), nil)
+	delReq = delReq.WithContext(context.WithValue(delReq.Context(), chi.RouteCtxKey, rctx))
+	delReq = withAuth(delReq, owner)
+
+	delRr := httptest.NewRecorder()
+	env.DeleteCampaign(delRr, delReq)
+
+	if delRr.Code != http.StatusOK {
+		t.Fatalf("Expected status 200 OK on delete, got %d: %s", delRr.Code, delRr.Body.String())
+	}
+
+	// Verify it's no longer found
+	var check models.Campaign
+	if err := env.DB.First(&check, "id = ?", created.ID).Error; err == nil {
+		t.Errorf("Expected campaign to be soft-deleted, but still found in DB")
+	}
 }
 
 func TestGetCardQRPreloadsBusiness(t *testing.T) {
