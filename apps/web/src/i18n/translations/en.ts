@@ -23,7 +23,7 @@ export const en: Translations = {
     docs: 'Documentation',
     signIn: 'Sign In',
     getStarted: 'Get Started',
-    openWallet: 'My Loyalty Wallet',
+    openWallet: 'My Wallet',
     merchantLogin: 'Merchant Login',
     dashboard: 'Dashboard',
     campaigns: 'Campaigns',
