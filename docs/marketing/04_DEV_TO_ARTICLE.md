@@ -16,7 +16,7 @@ Nobody standing in line wants to download a 120MB app, create an account, verify
 
 On the flip side, small business owners are being charged **$60 to $150 every month** by proprietary SaaS loyalty providers. For an indie coffee shop, that’s hundreds of cups of coffee just to cover the cost of digital punch cards.
 
-We decided to build an open-source, self-hosted alternative: **[Alpacard](https://github.com/Gabmetal/alpacard-web)**.
+We decided to build an open-source, self-hosted alternative: **[Alpacard](https://github.com/alpacard/alpacard-web)**.
 
 ---
 
@@ -113,7 +113,7 @@ Merchants can also upload a PDF/image of their menu or use the built-in digital 
 
 Alpacard is 100% open-source under the GNU AGPLv3 license. We welcome contributions, bug reports, and feedback from developers and small business owners alike!
 
-- **GitHub Repository**: [https://github.com/Gabmetal/alpacard-web](https://github.com/Gabmetal/alpacard-web)
+- **GitHub Repository**: [https://github.com/alpacard/alpacard-web](https://github.com/alpacard/alpacard-web)
 - **Live Demo**: [https://alpacard.app](https://alpacard.app)
 - **Customer Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)
 
