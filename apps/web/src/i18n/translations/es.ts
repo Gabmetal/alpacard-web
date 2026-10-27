@@ -23,7 +23,7 @@ export const es: Translations = {
     docs: 'Documentación',
     signIn: 'Iniciar Sesión',
     getStarted: 'Empezar Gratis',
-    openWallet: 'Mi Billetera / Tarjetas',
+    openWallet: 'Mi Billetera',
     merchantLogin: 'Acceso Comercios',
     dashboard: 'Panel de Control',
     campaigns: 'Campañas',
