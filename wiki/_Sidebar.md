@@ -8,6 +8,8 @@
 * **[🏗️ System Architecture](Architecture-Overview)**
 * **[🔐 Cryptography & Anti-Fraud](Cryptographic-Security-and-Anti-Fraud)**
 * **[📊 API & Data Models](API-Reference-and-Data-Models)**
+* **[📮 Postman API Testing Guide](Postman-API-Testing-Guide)
+* **[📋 QA Master Test Plan](QA-Master-Test-Plan)**
 
 ---
 
