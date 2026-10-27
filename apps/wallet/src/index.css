@@ -34,8 +34,15 @@ body {
 .dark .bg-stone-50,
 .dark .bg-stone-50\/80,
 .dark .bg-stone-50\/70,
-.dark .bg-gray-50 {
+.dark .bg-gray-50,
+.dark .bg-\[\#FAF8F5\]\/80,
+.dark .bg-\[\#FAF8F5\]\/70,
+.dark .bg-\[\#FAF8F5\]\/60 {
   background-color: #211d19 !important;
+}
+
+.dark .bg-\[\#F3EFEA\] {
+  background-color: #141210 !important;
 }
 
 .dark .bg-stone-100,
@@ -80,16 +87,17 @@ body {
 }
 
 .dark .text-stone-600:not(.keep-light) {
-  color: #a8a29e !important;
+  color: #d6d3d1 !important;
 }
 
 .dark .text-stone-500:not(.keep-light) {
-  color: #8c857e !important;
+  color: #a8a29e !important;
 }
 
 .dark .text-\[\#3D2B1F\],
 .dark .text-\[\#4A3525\],
-.dark .text-\[\#5C4028\] {
+.dark .text-\[\#5C4028\],
+.dark .text-\[\#785233\] {
   color: #fbbf24 !important;
 }
 
