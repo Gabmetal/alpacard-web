@@ -12,14 +12,16 @@ import {
   Plus,
   Palette,
   BookOpen,
+  CreditCard,
 } from 'lucide-react';
-import { clearMerchantToken } from '../services/api';
+import { clearMerchantToken, MerchantUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { BusinessItem } from './BusinessesPage';
 
 interface LayoutProps {
+  currentUser?: MerchantUser | null;
   onLogout: () => void;
   businesses: BusinessItem[];
   activeBusiness: BusinessItem | null;
@@ -28,6 +30,7 @@ interface LayoutProps {
 }
 
 export function Layout({
+  currentUser,
   onLogout,
   businesses,
   activeBusiness,
@@ -197,6 +200,29 @@ export function Layout({
 
             {/* Right: Controls & Sign Out */}
             <div className="flex items-center gap-2 shrink-0">
+              {currentUser && (
+                <div className="hidden sm:flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 px-2.5 py-1 text-xs">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-md bg-[#3D2B1F] dark:bg-amber-500 text-white dark:text-stone-950 font-bold text-[10px]">
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'M'}
+                  </div>
+                  <span className="font-semibold text-stone-800 dark:text-stone-200 leading-tight truncate max-w-[100px] sm:max-w-[130px]">
+                    {currentUser.name || currentUser.email.split('@')[0]}
+                  </span>
+                  <span className="rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-extrabold text-[9px] px-1.5 py-0.5 uppercase tracking-wider">
+                    {currentUser.role === 'OWNER' ? (isEs ? '👑 DUEÑO' : '👑 OWNER') : (isEs ? '💼 PERSONAL' : '💼 STAFF')}
+                  </span>
+                </div>
+              )}
+
+              <a
+                href="/wallet"
+                className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap"
+                title={isEs ? 'Ver billetera de clientes' : 'View customer wallet'}
+              >
+                <CreditCard className="h-3.5 w-3.5 text-stone-500" />
+                <span>{isEs ? 'Ver Billetera' : 'View Wallet'}</span>
+              </a>
+
               <ThemeToggle />
               <LanguageSwitcher variant="light" />
 

@@ -18,6 +18,9 @@ import {
   Cake,
   Crown,
   Tag,
+  Trash2,
+  Pause,
+  Play,
 } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { CARD_THEME_PRESETS, CardThemePreset, CardStampIcon } from '@alpacard/shared';
@@ -39,6 +42,7 @@ interface Campaign {
   stampIcon?: string;
   isActive: boolean;
   cardsCount?: number;
+  totalStamps?: number;
 }
 
 interface CampaignsPageProps {
@@ -168,6 +172,32 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
     setStampIcon((camp.stampIcon as CardStampIcon) || 'coffee');
     setActiveTab('design');
     setShowModal(true);
+  };
+
+  const handleToggleActive = async (camp: Campaign) => {
+    try {
+      const nextActive = !camp.isActive;
+      await api.updateCampaign(camp.id, { isActive: nextActive });
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === camp.id ? { ...c, isActive: nextActive } : c))
+      );
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to update campaign status');
+    }
+  };
+
+  const handleDeleteCampaign = async (camp: Campaign) => {
+    const confirmMsg = isEs
+      ? `¿Estás seguro de que deseas eliminar la campaña "${camp.name}"? Esta acción archivará la campaña y sus tarjetas.`
+      : `Are you sure you want to delete campaign "${camp.name}"? This will archive the campaign and its cards.`;
+    if (!window.confirm(confirmMsg)) return;
+
+    try {
+      await api.deleteCampaign(camp.id);
+      setCampaigns((prev) => prev.filter((c) => c.id !== camp.id));
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to delete campaign');
+    }
   };
 
   const handleSelectPreset = (preset: CardThemePreset) => {
@@ -331,9 +361,16 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                       </span>
                     </div>
 
-                    <span className="rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold backdrop-blur-xs shrink-0">
-                      {camp.stampsRequired} {t.campaigns.stampsRequired.split(' ')[0]}
-                    </span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className={`rounded-md px-2 py-0.5 text-[10px] font-bold backdrop-blur-xs ${
+                        camp.isActive ? 'bg-emerald-500/30 text-white' : 'bg-amber-500/40 text-amber-100'
+                      }`}>
+                        {camp.isActive ? (isEs ? '🟢 Activa' : '🟢 Active') : (isEs ? '⏸️ Pausada' : '⏸️ Paused')}
+                      </span>
+                      <span className="rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold backdrop-blur-xs">
+                        {camp.stampsRequired} {t.campaigns.stampsRequired.split(' ')[0]}
+                      </span>
+                    </div>
                   </div>
 
                   <h3 className="mt-3 text-lg font-bold leading-tight line-clamp-1">{camp.name}</h3>
@@ -348,29 +385,70 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
                     <p className="text-xs text-stone-500 line-clamp-2">
                       {camp.description || 'No description'}
                     </p>
-                    <div className="mt-3 flex items-center justify-between rounded-xl bg-stone-50 border border-stone-200/60 px-3 py-2 text-xs font-medium text-stone-700">
-                      <span>{t.campaigns.cardsActive}</span>
-                      <strong className="text-[#4A3525] font-bold">{camp.cardsCount || 0}</strong>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <div className="flex flex-col rounded-xl bg-stone-50 border border-stone-200/60 p-2.5 text-center">
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                          {isEs ? 'Clientes' : 'Customers'}
+                        </span>
+                        <strong className="text-sm font-extrabold text-[#4A3525] mt-0.5">
+                          {camp.cardsCount || 0}
+                        </strong>
+                      </div>
+                      <div className="flex flex-col rounded-xl bg-stone-50 border border-stone-200/60 p-2.5 text-center">
+                        <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                          {isEs ? 'Sellos Emitidos' : 'Stamps Awarded'}
+                        </span>
+                        <strong className="text-sm font-extrabold text-[#4A3525] mt-0.5">
+                          {camp.totalStamps || 0}
+                        </strong>
+                      </div>
                     </div>
                   </div>
 
                   {/* Actions Bar */}
-                  <div className="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => openEditModal(camp)}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-stone-700 hover:text-stone-900 transition"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      {t.campaigns.editDesign}
-                    </button>
+                  <div className="mt-4 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-1.5">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openEditModal(camp)}
+                        className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-stone-700 hover:text-stone-900 hover:bg-stone-100 transition"
+                        title={t.campaigns.editDesign}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">{t.campaigns.editDesign}</span>
+                      </button>
 
-                    <button
-                      onClick={() => setQrModalCampaign(camp)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-[#F5EFE6] border border-[#E6D9C6] px-2.5 py-1 text-xs font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition"
-                    >
-                      <QrCode className="h-3.5 w-3.5" />
-                      {t.campaigns.printQrPoster}
-                    </button>
+                      <button
+                        onClick={() => handleToggleActive(camp)}
+                        className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition ${
+                          camp.isActive
+                            ? 'text-amber-700 hover:bg-amber-50'
+                            : 'text-emerald-700 hover:bg-emerald-50'
+                        }`}
+                        title={camp.isActive ? (isEs ? 'Pausar campaña' : 'Pause campaign') : (isEs ? 'Reanudar campaña' : 'Resume campaign')}
+                      >
+                        {camp.isActive ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
+                        <span>{camp.isActive ? (isEs ? 'Pausar' : 'Pause') : (isEs ? 'Activar' : 'Activate')}</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setQrModalCampaign(camp)}
+                        className="inline-flex items-center gap-1 rounded-lg bg-[#F5EFE6] border border-[#E6D9C6] px-2.5 py-1 text-xs font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition"
+                        title={t.campaigns.printQrPoster}
+                      >
+                        <QrCode className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">{t.campaigns.printQrPoster}</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteCampaign(camp)}
+                        className="inline-flex items-center gap-1 rounded-lg p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 transition"
+                        title={isEs ? 'Eliminar campaña' : 'Delete campaign'}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
