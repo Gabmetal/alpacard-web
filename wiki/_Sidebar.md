@@ -32,4 +32,4 @@
 #### 🔗 Quick Links
 * [Live Production](https://alpacard.app)
 * [QA Staging (VPN)](https://dev.alpacard.app)
-* [GitHub Repository](https://github.com/Gabmetal/alpacard-web)
+* [GitHub Repository](https://github.com/alpacard/alpacard-web)

@@ -8,7 +8,7 @@ Whether you are fixing a typo, submitting a bug report, creating a new stamp ico
 
 ## 🗺️ What We're Working On (Roadmap & Good First Issues)
 
-Check our [GitHub Issues](https://github.com/Gabmetal/alpacard-web/issues) for issues labeled `good first issue` or `help wanted`. Some high-priority areas include:
+Check our [GitHub Issues](https://github.com/alpacard/alpacard-web/issues) for issues labeled `good first issue` or `help wanted`. Some high-priority areas include:
 
 1. **Apple Wallet & Google Wallet Pass Integration**:
    - Generating `.pkpass` files and Google Wallet passes so customers can add cards directly to native phone wallets.
@@ -140,7 +140,7 @@ We follow a structured branching strategy where `integration` runs all test suit
 
 ## 💬 Community & Questions
 
-- Open a [GitHub Discussion](https://github.com/Gabmetal/alpacard-web/discussions) or create an issue.
+- Open a [GitHub Discussion](https://github.com/alpacard/alpacard-web/discussions) or create an issue.
 - Connect with maintainers directly through pull requests or issues.
 
 Thank you for helping local coffee shops and independent retailers thrive with free, open software! 🦙

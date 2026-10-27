@@ -585,7 +585,7 @@ export function LandingPage() {
               {t.nav.liveDemo}
             </Link>
             <a
-              href="https://github.com/Gabmetal/alpacard-web"
+              href="https://github.com/alpacard/alpacard-web"
               target="_blank"
               rel="noreferrer"
               className="hover:text-stone-900 transition"
