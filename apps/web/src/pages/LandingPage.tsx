@@ -456,13 +456,13 @@ export function LandingPage() {
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-stone-200 bg-[#FAF8F5]/60 p-6 transition hover:border-stone-300 hover:bg-white hover:shadow-xs"
+                  className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-900 p-6 transition hover:border-stone-300 dark:hover:border-stone-700 hover:bg-white dark:hover:bg-stone-800/90 hover:shadow-xs"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#5C4028] border border-[#E6D9C6] mb-4">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h4 className="text-base font-bold text-stone-900">{feat.title}</h4>
-                  <p className="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  <h4 className="text-base font-bold text-stone-900 dark:text-stone-100">{feat.title}</h4>
+                  <p className="mt-2 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
                     {feat.desc}
                   </p>
                 </div>
@@ -585,7 +585,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 bg-[#F3EFEA] py-10 text-stone-600 text-xs">
+      <footer className="border-t border-stone-200 dark:border-stone-800 bg-[#F3EFEA] dark:bg-stone-950 py-10 text-stone-600 dark:text-stone-400 text-xs">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
             <img

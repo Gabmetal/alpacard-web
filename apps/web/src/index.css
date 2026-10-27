@@ -43,8 +43,15 @@ body {
 .dark .bg-stone-50\/70,
 .dark .bg-stone-50\/60,
 .dark .bg-stone-50\/50,
-.dark .bg-gray-50 {
+.dark .bg-gray-50,
+.dark .bg-\[\#FAF8F5\]\/80,
+.dark .bg-\[\#FAF8F5\]\/70,
+.dark .bg-\[\#FAF8F5\]\/60 {
   background-color: #211d19 !important;
+}
+
+.dark .bg-\[\#F3EFEA\] {
+  background-color: #141210 !important;
 }
 
 /* Tertiary Surfaces, Pills & Inputs */
@@ -75,7 +82,8 @@ body {
 .dark .border-gray-100,
 .dark .border-gray-200,
 .dark .border-gray-300,
-.dark .border-\[\#E6D9C6\] {
+.dark .border-\[\#E6D9C6\],
+.dark .border-\[\#DFD3C3\] {
   border-color: #2e2925 !important;
 }
 
@@ -105,18 +113,19 @@ body {
 
 .dark .text-stone-600:not(.keep-light),
 .dark .text-gray-600:not(.keep-light) {
-  color: #a8a29e !important;
+  color: #d6d3d1 !important;
 }
 
 .dark .text-stone-500:not(.keep-light),
 .dark .text-gray-500:not(.keep-light) {
-  color: #8c857e !important;
+  color: #a8a29e !important;
 }
 
 /* Brand Espresso Text Accents -> Warm Amber in Dark Mode */
 .dark .text-\[\#3D2B1F\],
 .dark .text-\[\#4A3525\],
-.dark .text-\[\#5C4028\] {
+.dark .text-\[\#5C4028\],
+.dark .text-\[\#785233\] {
   color: #fbbf24 !important;
 }
 
@@ -175,11 +184,17 @@ body {
 }
 
 /* Hover States */
+.dark .hover\:bg-white:hover,
 .dark .hover\:bg-stone-50:hover,
 .dark .hover\:bg-stone-50\/70:hover,
 .dark .hover\:bg-stone-100:hover,
 .dark .hover\:bg-gray-50:hover {
   background-color: #292524 !important;
+}
+
+.dark .hover\:bg-\[\#EBE1D2\]:hover,
+.dark .hover\:bg-\[\#F5EFE6\]\/60:hover {
+  background-color: #382c21 !important;
 }
 
 .dark .hover\:border-stone-300:hover {
