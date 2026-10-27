@@ -14,7 +14,7 @@ Hey gophers!
 
 I wanted to share an open-source project I’ve been working on called **Alpacard**—a self-hosted loyalty punch card platform designed as an alternative to expensive SaaS solutions for coffee shops and local businesses.
 
-- **Repo**: https://github.com/Gabmetal/alpacard-web
+- **Repo**: https://github.com/alpacard/alpacard-web
 - **API code**: `apps/api/` (Chi, GORM, native JWTs, RabbitMQ)
 - **Live Demo**: https://alpacard.app
 
@@ -46,7 +46,7 @@ Hey everyone!
 Most loyalty programs fail at local coffee shops because no customer wants to download a 100MB native app or fill out a 5-step registration form while holding a hot latte in line.
 
 We built **Alpacard**, an open-source, mobile-first PWA:
-- **Repo**: https://github.com/Gabmetal/alpacard-web
+- **Repo**: https://github.com/alpacard/alpacard-web
 - **Live Wallet**: https://alpacard.app/wallet
 - **Interactive Sandbox**: https://alpacard.app/demo
 

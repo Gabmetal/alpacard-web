@@ -26,7 +26,7 @@ go version # go1.23.x or go1.24.x
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/Gabmetal/alpacard-web.git
+git clone https://github.com/alpacard/alpacard-web.git
 cd alpacard-web
 
 # 2. Checkout integration branch (where feature PRs originate)

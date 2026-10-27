@@ -22,7 +22,7 @@ Instead of paper punch cards that get lost, customers scan a QR code with their 
 
 - **Interactive Live Demo**: https://alpacard.app/demo
 - **Live Wallet**: https://alpacard.app/wallet
-- **GitHub**: https://github.com/Gabmetal/alpacard-web
+- **GitHub**: https://github.com/alpacard/alpacard-web
 
 ### What we need help testing:
 
