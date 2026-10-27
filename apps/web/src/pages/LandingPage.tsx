@@ -49,61 +49,73 @@ export function LandingPage() {
     <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-[#4A3525] selection:text-white transition-colors">
       {/* Navigation Header */}
       <nav className="sticky top-0 z-50 border-b border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 lg:h-20 max-w-7xl items-center justify-between gap-4 lg:gap-6 px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img
               src="/alpacard-logo.jpg"
               alt="Alpacard"
-              className="h-9 w-9 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
+              className="h-9 w-9 lg:h-10 lg:w-10 rounded-xl object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
             />
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100 whitespace-nowrap">
               Alpacard
             </span>
-            <span className="hidden lg:inline-flex rounded-md bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
+            <span className="hidden 2xl:inline-flex whitespace-nowrap rounded-md bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
               {t.landing.badge}
             </span>
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-stone-600 dark:text-stone-300">
-            <a href="#features" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-medium text-stone-600 dark:text-stone-300">
+            <a
+              href="#features"
+              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.features}
             </a>
-            <a href="#visual-tour" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+            <a
+              href="#visual-tour"
+              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.visualTour}
             </a>
-            <a href="#how-it-works" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+            <a
+              href="#how-it-works"
+              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.howItWorks}
             </a>
             <Link
               to="/demo"
-              className="text-[#5C4028] dark:text-amber-400 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition flex items-center gap-1.5 font-semibold"
+              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition inline-flex items-center gap-1.5 font-semibold"
             >
-              <Play className="h-3.5 w-3.5 fill-current" />
-              {t.nav.liveDemo}
+              <Play className="h-3.5 w-3.5 fill-current shrink-0" />
+              <span>{t.nav.liveDemo}</span>
             </Link>
-            <Link to="/docs" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+            <Link
+              to="/docs"
+              className="whitespace-nowrap rounded-lg px-2.5 xl:px-3.5 py-2 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.docs}
             </Link>
           </div>
 
           {/* Desktop Right Actions */}
-          <div className="hidden lg:flex items-center gap-2.5">
+          <div className="hidden lg:flex items-center gap-2.5 xl:gap-3 shrink-0">
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
             {/* Direct Wallet Access (Primary client-facing button) */}
             <a
               href="/wallet"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3.5 py-2 text-xs sm:text-sm font-bold shadow-xs transition active:scale-[0.98]"
+              className="inline-flex items-center gap-2 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-4 py-2.5 text-xs xl:text-sm font-bold shadow-xs transition active:scale-[0.98]"
             >
-              <Wallet className="h-4 w-4" />
+              <Wallet className="h-4 w-4 shrink-0" />
               <span>{t.nav.openWallet}</span>
             </a>
 
             <Link
               to="/login"
-              className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 px-2.5 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+              className="whitespace-nowrap shrink-0 text-xs xl:text-sm font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-2 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               title={t.nav.merchantLogin}
             >
               {t.nav.signIn}
@@ -240,62 +252,62 @@ export function LandingPage() {
                 {t.landing.heroSubtitle}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 max-w-xl mx-auto lg:mx-0">
                 {/* Primary Button: Open Customer Wallet directly */}
                 <a
                   href="/wallet"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-6 py-3.5 text-sm font-black shadow-md transition active:scale-[0.99]"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-5 py-3.5 text-sm font-black shadow-md transition active:scale-[0.99]"
                 >
-                  <Wallet className="h-4 w-4" />
+                  <Wallet className="h-4 w-4 shrink-0" />
                   <span>{t.landing.openWalletHeroBtn}</span>
                 </a>
 
                 {/* Secondary Button: Merchant Backoffice Account */}
                 <Link
                   to="/login?mode=register"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#3D2B1F] dark:bg-stone-800 dark:hover:bg-stone-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#3D2B1F] dark:bg-stone-800 dark:hover:bg-stone-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
                 >
-                  <Coffee className="h-4 w-4 text-amber-300" />
+                  <Coffee className="h-4 w-4 text-amber-300 shrink-0" />
                   <span>{t.landing.launchMerchantBtn}</span>
                 </Link>
 
                 <button
                   type="button"
                   onClick={() => setShowVideoModal(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-4 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-5 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
                 >
-                  <Play className="h-4 w-4 text-[#4A3525] fill-current" />
+                  <Play className="h-4 w-4 text-[#4A3525] fill-current shrink-0" />
                   <span>{isEs ? 'Video Tutorial' : 'Video Tutorial'}</span>
                 </button>
 
                 <Link
                   to="/demo"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
                 >
-                  <Sparkles className="h-4 w-4 text-[#5C4028]" />
-                  {t.landing.tryDemoBtn}
+                  <Sparkles className="h-4 w-4 text-[#5C4028] shrink-0" />
+                  <span>{t.landing.tryDemoBtn}</span>
                 </Link>
               </div>
 
               {/* Quick Metrics */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-stone-200 text-center sm:text-left">
-                <div className="rounded-xl bg-white p-3.5 border border-stone-200/70 sm:bg-transparent sm:p-0 sm:border-0">
-                  <h4 className="text-lg sm:text-xl font-bold text-stone-900">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 pt-6 border-t border-stone-200 dark:border-stone-800 text-center sm:text-left">
+                <div className="rounded-2xl bg-white dark:bg-stone-900/90 px-5 py-4 border border-stone-200/80 dark:border-stone-800 shadow-2xs">
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                     {t.landing.metricOpenSource}
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">{t.landing.metricOpenSourceSub}</p>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">{t.landing.metricOpenSourceSub}</p>
                 </div>
-                <div className="rounded-xl bg-white p-3.5 border border-stone-200/70 sm:bg-transparent sm:p-0 sm:border-0">
-                  <h4 className="text-lg sm:text-xl font-bold text-stone-900">
+                <div className="rounded-2xl bg-white dark:bg-stone-900/90 px-5 py-4 border border-stone-200/80 dark:border-stone-800 shadow-2xs">
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                     {t.landing.metricRam}
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">{t.landing.metricRamSub}</p>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">{t.landing.metricRamSub}</p>
                 </div>
-                <div className="rounded-xl bg-white p-3.5 border border-stone-200/70 sm:bg-transparent sm:p-0 sm:border-0">
-                  <h4 className="text-lg sm:text-xl font-bold text-stone-900">
+                <div className="rounded-2xl bg-white dark:bg-stone-900/90 px-5 py-4 border border-stone-200/80 dark:border-stone-800 shadow-2xs">
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                     {t.landing.metricAppStore}
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">{t.landing.metricAppStoreSub}</p>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">{t.landing.metricAppStoreSub}</p>
                 </div>
               </div>
             </div>
