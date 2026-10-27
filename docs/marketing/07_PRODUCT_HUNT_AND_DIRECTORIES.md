@@ -8,7 +8,7 @@
 - **Tagline**: Open-source digital punch cards & menus for local stores
 - **Primary Category**: Open Source, Developer Tools, Productivity, Retail
 - **Website URL**: `https://alpacard.app`
-- **GitHub URL**: `https://github.com/Gabmetal/alpacard-web`
+- **GitHub URL**: `https://github.com/alpacard/alpacard-web`
 
 ### Short Description (250 chars):
 > Self-hosted, lightweight digital loyalty punch card platform. Replace lost paper stamp cards and expensive $100/mo SaaS subscriptions with a fast Go backend, zero-friction customer PWA, and tamper-proof camera QR scanning.

@@ -15,7 +15,7 @@ Hi HN! I’m Gabo, and I built **Alpacard**: an open-source, self-hosted digital
 
 - **Demo**: https://alpacard.app
 - **Wallet PWA**: https://alpacard.app/wallet
-- **Code**: https://github.com/Gabmetal/alpacard-web
+- **Code**: https://github.com/alpacard/alpacard-web
 
 ### Why build this?
 Independent coffee shops, bakeries, and food trucks have two bad options for loyalty programs:

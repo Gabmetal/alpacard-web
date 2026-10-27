@@ -21,7 +21,7 @@ Like many of you, I have friends and family who run small independent businesses
 
 I decided to build an open-source, self-hosted alternative: **Alpacard**.
 
-- **GitHub**: https://github.com/Gabmetal/alpacard-web
+- **GitHub**: https://github.com/alpacard/alpacard-web
 - **Live Demo (Merchant Backoffice)**: https://alpacard.app
 - **Live Demo (Customer Wallet PWA)**: https://alpacard.app/wallet
 - **Interactive Sandbox**: https://alpacard.app/demo
@@ -54,7 +54,7 @@ I decided to build an open-source, self-hosted alternative: **Alpacard**.
 ### 🐳 Quickstart (Docker Compose):
 
 ```bash
-git clone https://github.com/Gabmetal/alpacard-web.git
+git clone https://github.com/alpacard/alpacard-web.git
 cd alpacard-web
 docker compose -f deploy/docker-compose.yml up -d
 ```

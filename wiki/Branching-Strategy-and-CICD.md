@@ -79,7 +79,7 @@ Every Pull Request targeting `dev` or `main` is evaluated by an automated GitHub
 
 Deployments run through a dedicated GitHub Actions self-hosted runner registered on the dedicated Kubernetes cluster node (`alpacard-k8s-runner`):
 
-* **Service**: `actions.runner.Gabmetal-alpacard-web.alpacard-k8s-runner.service` (managed via systemd).
+* **Service**: `actions.runner.alpacard-alpacard-web.alpacard-k8s-runner.service` (managed via systemd).
 * **Labels**: `self-hosted`, `alpacard-k8s`, `linux`, `x64`.
 * **Security Benefits**:
   * Kubernetes control-plane API is **never exposed** to the public internet.
