@@ -1,5 +1,12 @@
 const API_BASE = '/api/v1';
 
+export interface MerchantUser {
+  id: string;
+  email: string;
+  name: string;
+  role: 'OWNER' | 'STAFF' | 'CONSUMER';
+}
+
 export function getMerchantToken(): string | null {
   return localStorage.getItem('alpacard_merchant_token');
 }
@@ -118,6 +125,7 @@ export const api = {
   }>) => request(`/campaigns/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   listCampaigns: (businessId: string) => request(`/campaigns?businessId=${businessId}`),
   getCampaign: (id: string) => request(`/campaigns/${id}`),
+  deleteCampaign: (id: string) => request(`/campaigns/${id}`, { method: 'DELETE' }),
 
   // Scanner
   scanStamp: (token: string) =>

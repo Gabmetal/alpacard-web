@@ -106,6 +106,7 @@ func main() {
 			c.Get("/{id}", env.GetCampaign)
 			c.With(auth.RequireAuth(cfg.JWTSecret)).Post("/", env.CreateCampaign)
 			c.With(auth.RequireAuth(cfg.JWTSecret)).Put("/{id}", env.UpdateCampaign)
+			c.With(auth.RequireAuth(cfg.JWTSecret)).Delete("/{id}", env.DeleteCampaign)
 		})
 
 		// Protected Merchant Routes

@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Globe,
   Instagram,
+  WifiOff,
 } from 'lucide-react';
 import { walletApi, getStoredUser, ensureAuthToken, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -111,6 +112,7 @@ export function CardDetailPage() {
   const [data, setData] = useState<QRData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [secondsLeft, setSecondsLeft] = useState<number>(300);
 
   // User auth state & modal for guest banner
@@ -185,9 +187,28 @@ export function CardDetailPage() {
         notifyStampChange(res.card.stamps, res.card.campaign.stampsRequired || 10);
         setData(res);
         setSecondsLeft(res.expiresIn && res.expiresIn > 0 ? res.expiresIn : 300);
+        setIsOffline(false);
+        try {
+          localStorage.setItem(`alpacard_card_cache_${id}`, JSON.stringify(res));
+        } catch {}
       } catch (err: unknown) {
-        if (!silent) {
-          if (err instanceof Error) {
+        const cached = id ? localStorage.getItem(`alpacard_card_cache_${id}`) : null;
+        if (cached) {
+          try {
+            const cachedRes: QRData = JSON.parse(cached);
+            setData(cachedRes);
+            setIsOffline(true);
+            setError(null);
+          } catch {
+            if (!silent) {
+              setError(isEsRef.current ? 'Error al cargar la tarjeta' : 'Failed to load card');
+            }
+          }
+        } else if (!silent) {
+          if (!navigator.onLine) {
+            setIsOffline(true);
+            setError(null);
+          } else if (err instanceof Error) {
             setError(err.message);
           } else {
             setError(isEsRef.current ? 'Error al cargar la tarjeta' : 'Failed to load card');
@@ -202,6 +223,20 @@ export function CardDetailPage() {
     },
     [id, notifyStampChange]
   );
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      fetchQR(true);
+    };
+    const handleOffline = () => setIsOffline(true);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [fetchQR]);
 
   // 1. Initial QR token load: runs ONLY ONCE per card ID
   useEffect(() => {
@@ -382,6 +417,18 @@ export function CardDetailPage() {
         <div className="mb-3.5">
           <PWAInstallPrompt />
         </div>
+
+        {/* Offline Mode Banner */}
+        {isOffline && (
+          <div className="mb-3.5 flex items-center gap-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/70 border border-amber-200 dark:border-amber-800/80 p-3 text-xs text-amber-800 dark:text-amber-200 shadow-2xs">
+            <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>
+              {isEs
+                ? 'Modo sin conexión: mostrando tus sellos guardados. La rotación de código QR se reanudará al conectarte.'
+                : 'Offline mode: displaying cached stamps. QR rotation will resume once connected.'}
+            </span>
+          </div>
+        )}
 
         {/* Real-time stamp received celebration banner */}
         {stampAlert && (

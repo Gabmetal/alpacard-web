@@ -205,11 +205,15 @@ func (env *Env) ListCampaigns(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Attach card counts
+	// Attach card counts and total stamps
 	for i := range campaigns {
 		var count int64
 		env.DB.Model(&models.Card{}).Where("campaign_id = ?", campaigns[i].ID).Count(&count)
 		campaigns[i].CardsCount = count
+
+		var totalStamps int64
+		env.DB.Model(&models.Card{}).Select("COALESCE(SUM(stamps), 0)").Where("campaign_id = ?", campaigns[i].ID).Scan(&totalStamps)
+		campaigns[i].TotalStamps = totalStamps
 	}
 
 	respondJSON(w, http.StatusOK, campaigns)
@@ -233,10 +237,48 @@ func (env *Env) GetCampaign(w http.ResponseWriter, r *http.Request) {
 	env.DB.Model(&models.Card{}).Where("campaign_id = ?", campaign.ID).Count(&count)
 	campaign.CardsCount = count
 
+	var totalStamps int64
+	env.DB.Model(&models.Card{}).Select("COALESCE(SUM(stamps), 0)").Where("campaign_id = ?", campaign.ID).Scan(&totalStamps)
+	campaign.TotalStamps = totalStamps
+
 	claimURL := fmt.Sprintf("%s/claim/%s", env.Config.AppURL, campaign.ID)
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"campaign": campaign,
 		"claimUrl": claimURL,
 	})
+}
+
+func (env *Env) DeleteCampaign(w http.ResponseWriter, r *http.Request) {
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		respondError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	campaignIDStr := chi.URLParam(r, "id")
+	campaignID, err := uuid.Parse(campaignIDStr)
+	if err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid campaign ID")
+		return
+	}
+
+	var campaign models.Campaign
+	if err := env.DB.Preload("Business").First(&campaign, "id = ?", campaignID).Error; err != nil {
+		respondError(w, http.StatusNotFound, "Campaign not found")
+		return
+	}
+
+	// Verify owner owns the business
+	if campaign.Business == nil || campaign.Business.OwnerID != claims.UserID {
+		respondError(w, http.StatusForbidden, "You do not have permission to delete this campaign")
+		return
+	}
+
+	if err := env.DB.Delete(&campaign).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to delete campaign")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{"message": "Campaign deleted successfully"})
 }

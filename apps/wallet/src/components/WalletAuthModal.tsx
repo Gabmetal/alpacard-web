@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Sparkles, LogIn, UserPlus, AlertCircle, RefreshCw } from 'lucide-react';
+import { X, Sparkles, LogIn, UserPlus, AlertCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { walletApi, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -21,6 +21,7 @@ export function WalletAuthModal({
   const [tab, setTab] = useState<'login' | 'register'>(defaultTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +36,11 @@ export function WalletAuthModal({
     try {
       if (tab === 'login') {
         const res = await walletApi.login({ email, password });
+        if (res.user && (res.user.role === 'OWNER' || res.user.role === 'STAFF')) {
+          localStorage.setItem('alpacard_merchant_token', res.token);
+          window.location.href = '/dashboard';
+          return;
+        }
         onSuccess(res.user);
       } else {
         const res = await walletApi.register({ email, password, name });
@@ -153,15 +159,25 @@ export function WalletAuthModal({
             <label className="block text-xs font-semibold text-stone-700 mb-1">
               {t.passwordLabel}
             </label>
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-xs font-medium text-stone-900 focus:border-[#4A3525] focus:outline-none focus:ring-1 focus:ring-[#4A3525] transition"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 pr-10 text-xs font-medium text-stone-900 focus:border-[#4A3525] focus:outline-none focus:ring-1 focus:ring-[#4A3525] transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600 transition"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           <button
