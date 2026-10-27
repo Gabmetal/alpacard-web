@@ -46,7 +46,7 @@ export function DocumentationPage() {
             <span className="text-stone-300 dark:text-stone-700">|</span>
             <div className="flex items-center gap-2 min-w-0">
               <span className="text-sm sm:text-lg font-bold text-stone-900 dark:text-stone-100 truncate">
-                {isEs ? 'Documentación Alpacard' : 'Alpacard Docs'}
+                {isEs ? 'Documentación' : 'Docs'}<span className="hidden sm:inline"> Alpacard</span>
               </span>
               <span className="rounded bg-[#F5EFE6] dark:bg-stone-800 px-2 py-0.5 text-[10px] font-semibold text-[#5C4028] dark:text-amber-400 border border-[#E6D9C6] dark:border-stone-700 shrink-0">
                 v2.0
