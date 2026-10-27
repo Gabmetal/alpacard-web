@@ -87,6 +87,7 @@ type Campaign struct {
 	StampIcon      string    `gorm:"type:varchar(50);default:'coffee'" json:"stampIcon"`
 	IsActive       bool      `gorm:"default:true" json:"isActive"`
 	CardsCount     int64     `gorm:"-" json:"cardsCount,omitempty"`
+	TotalStamps    int64     `gorm:"-" json:"totalStamps,omitempty"`
 }
 
 type Card struct {

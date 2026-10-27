@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, Globe, Instagram } from 'lucide-react';
+import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, Globe, Instagram, WifiOff } from 'lucide-react';
 import { walletApi, getStoredUser, WalletUser, getCachedCards, setCachedCards } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -45,11 +45,27 @@ export function WalletPage() {
   const [cards, setCards] = useState<Card[]>(cachedInitial || []);
   const [loading, setLoading] = useState(cachedInitial ? false : true);
   const [error, setError] = useState<string | null>(null);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [user, setUser] = useState<WalletUser | null>(getStoredUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const [selectedMerchant, setSelectedMerchant] = useState<string>('ALL');
   const [menuBusiness, setMenuBusiness] = useState<Card['campaign']['business'] | null>(null);
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOffline(false);
+      loadCards();
+    };
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   const loadCards = async () => {
     try {
@@ -58,11 +74,22 @@ export function WalletPage() {
       const data = await walletApi.getMyCards();
       setCards(data);
       setCachedCards(data);
+      setIsOffline(false);
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
+      const cached = getCachedCards<Card>();
+      if (cached && cached.length > 0) {
+        setCards(cached);
+        setIsOffline(true);
+        setError(null);
+      } else if (!navigator.onLine) {
+        setIsOffline(true);
+        setError(null);
       } else {
-        setError(isEs ? 'Error al cargar la billetera' : 'Failed to load wallet');
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError(isEs ? 'Error al cargar la billetera' : 'Failed to load wallet');
+        }
       }
     } finally {
       setLoading(false);
@@ -151,11 +178,16 @@ export function WalletPage() {
             ) : (
               <div className="flex items-center gap-1.5">
                 <div
-                  className="flex items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-2.5 py-1 text-xs font-semibold text-stone-800 dark:text-stone-200 max-w-[110px] truncate"
-                  title={`${user?.name || user?.email}`}
+                  className="flex items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-2.5 py-1 text-xs font-semibold text-stone-800 dark:text-stone-200 max-w-[140px] truncate"
+                  title={`${user?.name || user?.email} (${user?.role || 'USER'})`}
                 >
                   <User className="h-3.5 w-3.5 shrink-0 text-[#5C4028] dark:text-amber-400" />
                   <span className="truncate">{user?.name || user?.email?.split('@')[0]}</span>
+                  {user?.role && user.role !== 'CONSUMER' && (
+                    <span className="rounded bg-amber-500 text-stone-950 font-black text-[9px] px-1 py-0.2 shrink-0">
+                      {user.role}
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={handleLogout}
@@ -177,6 +209,50 @@ export function WalletPage() {
           </div>
         </div>
       </header>
+
+      {/* Merchant / OWNER Quick Action Banner */}
+      {user && (user.role === 'OWNER' || user.role === 'STAFF') && (
+        <div className="bg-amber-500 text-stone-950 px-4 py-2.5 shadow-xs transition-colors">
+          <div className="mx-auto max-w-lg flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="rounded bg-stone-950 text-white px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider">
+                {user.role === 'OWNER' ? (isEs ? '👑 DUEÑO' : '👑 OWNER') : (isEs ? '💼 PERSONAL' : '💼 STAFF')}
+              </span>
+              <span className="text-xs font-bold truncate max-w-[170px] sm:max-w-xs">
+                {isEs ? 'Cuenta de Comercio' : 'Merchant Account'}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <a
+                href="/dashboard"
+                className="rounded-lg bg-stone-950 text-white px-2.5 py-1 text-xs font-bold hover:bg-stone-800 transition shadow-xs"
+              >
+                {isEs ? 'Ir al Panel' : 'Dashboard'}
+              </a>
+              <a
+                href="/scanner"
+                className="rounded-lg bg-white/40 text-stone-950 px-2.5 py-1 text-xs font-bold hover:bg-white/60 transition"
+              >
+                {isEs ? 'Escáner' : 'Scanner'}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Offline Mode Banner */}
+      {isOffline && (
+        <div className="mx-auto max-w-lg mt-3 px-4">
+          <div className="flex items-center gap-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/70 border border-amber-200 dark:border-amber-800/80 p-3 text-xs text-amber-800 dark:text-amber-200 shadow-2xs">
+            <WifiOff className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span>
+              {isEs
+                ? 'Modo sin conexión: mostrando tus tarjetas y sellos guardados en este dispositivo.'
+                : 'Offline mode: displaying punch cards and stamps cached on this device.'}
+            </span>
+          </div>
+        </div>
+      )}
 
       <main className="mx-auto max-w-lg px-4 pt-5 space-y-4">
         {/* PWA Mobile App Install Promotion */}
