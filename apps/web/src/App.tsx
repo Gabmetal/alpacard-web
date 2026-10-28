@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useSe
 import { getMerchantToken, api, MerchantUser } from './services/api';
 import { LanguageProvider } from './i18n/LanguageContext';
 import { ThemeProvider } from './theme/ThemeContext';
+import { ToastProvider } from './components/Toast';
 import { LandingPage } from './pages/LandingPage';
 import { DocumentationPage } from './pages/DocumentationPage';
 import { DemoPage } from './pages/DemoPage';
@@ -50,7 +51,13 @@ export function App() {
   useEffect(() => {
     if (token) {
       api.me()
-        .then((user) => setCurrentUser(user as MerchantUser))
+        .then((user) => {
+          if (user.role === 'CONSUMER') {
+            window.location.href = '/wallet';
+            return;
+          }
+          setCurrentUser(user as MerchantUser);
+        })
         .catch(() => setCurrentUser(null));
     } else {
       setCurrentUser(null);
@@ -112,50 +119,52 @@ export function App() {
   return (
     <LanguageProvider>
       <ThemeProvider>
-        <BrowserRouter>
-        <Routes>
-        {/* Public Marketing & Product Routes */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/docs" element={<DocumentationPage />} />
-        <Route path="/demo" element={<DemoPage />} />
-        <Route
-          path="/login"
-          element={
-            <LoginRoute
-              token={token}
-              onLoginSuccess={() => setToken(getMerchantToken())}
-            />
-          }
-        />
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Marketing & Product Routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/docs" element={<DocumentationPage />} />
+              <Route path="/demo" element={<DemoPage />} />
+              <Route
+                path="/login"
+                element={
+                  <LoginRoute
+                    token={token}
+                    onLoginSuccess={() => setToken(getMerchantToken())}
+                  />
+                }
+              />
 
-        {/* Authenticated Merchant Console Routes */}
-        {token ? (
-          <Route
-            element={
-              loading ? (
-                <div className="flex h-screen items-center justify-center bg-gray-50">
-                  <div className="text-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent mx-auto"></div>
-                    <p className="mt-3 text-xs font-semibold text-gray-500">Loading merchant backoffice...</p>
-                  </div>
-                </div>
-              ) : (
-                <Layout
-                  currentUser={currentUser}
-                  onLogout={() => {
-                    setToken(null);
-                    setCurrentUser(null);
-                    setBusinesses([]);
-                    setActiveBusiness(null);
-                  }}
-                  businesses={businesses}
-                  activeBusiness={activeBusiness}
-                  onSelectBusiness={(b) => setActiveBusiness(b)}
-                  onCreateBusiness={() => setShowCreateBiz(true)}
-                />
-              )
-            }
-          >
+              {/* Authenticated Merchant Console Routes */}
+              {token ? (
+                <Route
+                  element={
+                    loading ? (
+                      <div className="flex h-screen items-center justify-center bg-gray-50">
+                        <div className="text-center">
+                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-600 border-t-transparent mx-auto"></div>
+                          <p className="mt-3 text-xs font-semibold text-gray-500">Loading merchant backoffice...</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <Layout
+                        currentUser={currentUser}
+                        onLogout={() => {
+                          setToken(null);
+                          setCurrentUser(null);
+                          setBusinesses([]);
+                          setActiveBusiness(null);
+                        }}
+                        businesses={businesses}
+                        activeBusiness={activeBusiness}
+                        onSelectBusiness={(b) => setActiveBusiness(b)}
+                        onCreateBusiness={() => setShowCreateBiz(true)}
+                        onUserUpdated={(u) => setCurrentUser(u)}
+                      />
+                    )
+                  }
+                >
             <Route
               path="/dashboard"
               element={
@@ -241,7 +250,8 @@ export function App() {
           </div>
         </div>
       )}
-        </BrowserRouter>
+          </BrowserRouter>
+        </ToastProvider>
       </ThemeProvider>
     </LanguageProvider>
   );

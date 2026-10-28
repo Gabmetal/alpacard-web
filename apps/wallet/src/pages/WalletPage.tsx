@@ -9,6 +9,8 @@ import { getWalletCardStyle, getActiveStampColor } from '../components/CardTheme
 import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
+import { ProfileModal } from '../components/ProfileModal';
+import { useToast } from '../components/Toast';
 
 interface Card {
   id: string;
@@ -41,6 +43,7 @@ interface Card {
 export function WalletPage() {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
+  const toast = useToast();
   const cachedInitial = getCachedCards<Card>();
   const [cards, setCards] = useState<Card[]>(cachedInitial || []);
   const [loading, setLoading] = useState(cachedInitial ? false : true);
@@ -48,6 +51,7 @@ export function WalletPage() {
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [user, setUser] = useState<WalletUser | null>(getStoredUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const [selectedMerchant, setSelectedMerchant] = useState<string>('ALL');
   const [menuBusiness, setMenuBusiness] = useState<Card['campaign']['business'] | null>(null);
@@ -113,12 +117,20 @@ export function WalletPage() {
   const handleAuthSuccess = (authenticatedUser: WalletUser) => {
     setUser(authenticatedUser);
     loadCards();
+    toast.success(
+      isEs
+        ? '¡Bienvenido! Sesión iniciada con éxito.'
+        : 'Welcome! Signed in successfully.'
+    );
   };
 
   const handleLogout = () => {
     walletApi.logout();
     setUser(null);
     loadCards();
+    toast.info(
+      isEs ? 'Sesión cerrada correctamente.' : 'Signed out successfully.'
+    );
   };
 
   // Distinct merchant names for multi-merchant filtering
@@ -177,9 +189,11 @@ export function WalletPage() {
               </button>
             ) : (
               <div className="flex items-center gap-1.5">
-                <div
-                  className="flex items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 px-2.5 py-1 text-xs font-semibold text-stone-800 dark:text-stone-200 max-w-[140px] truncate"
-                  title={`${user?.name || user?.email} (${user?.role || 'USER'})`}
+                <button
+                  type="button"
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="flex items-center gap-1.5 rounded-xl bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700/80 border border-stone-200 dark:border-stone-700 px-2.5 py-1 text-xs font-semibold text-stone-800 dark:text-stone-200 max-w-[140px] truncate cursor-pointer transition"
+                  title={isEs ? 'Ver y editar mi perfil' : 'View & edit profile'}
                 >
                   <User className="h-3.5 w-3.5 shrink-0 text-[#5C4028] dark:text-amber-400" />
                   <span className="truncate">{user?.name || user?.email?.split('@')[0]}</span>
@@ -188,7 +202,7 @@ export function WalletPage() {
                       {user.role}
                     </span>
                   )}
-                </div>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-1.5 text-stone-600 dark:text-stone-300 transition hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100"
@@ -512,6 +526,23 @@ export function WalletPage() {
         onSuccess={handleAuthSuccess}
         defaultTab={authModalTab}
       />
+
+      {/* Profile Modal */}
+      {user && (
+        <ProfileModal
+          isOpen={isProfileModalOpen}
+          onClose={() => setIsProfileModalOpen(false)}
+          user={user}
+          onUserUpdated={(updated) => {
+            setUser(updated);
+          }}
+          onAccountDeleted={() => {
+            setUser(null);
+            setCards([]);
+            loadCards();
+          }}
+        />
+      )}
     </div>
   );
 }
