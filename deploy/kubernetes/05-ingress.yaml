@@ -126,9 +126,45 @@ spec:
             name: alpacard-web-service
             port:
               number: 80
+  - host: wallet.alpacard.app
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-api-service
+            port:
+              number: 4000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-wallet-service
+            port:
+              number: 80
+  - host: merchant.alpacard.app
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-api-service
+            port:
+              number: 4000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: alpacard-web-service
+            port:
+              number: 80
   tls:
   - hosts:
     - alpacard.app
     - www.alpacard.app
     - alpacard.gabo.lat
+    - wallet.alpacard.app
+    - merchant.alpacard.app
     secretName: alpacard-tls
