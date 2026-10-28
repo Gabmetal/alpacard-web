@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
+import { getDemoUrl } from '../utils/urls';
 import {
   BookOpen,
   ArrowLeft,
@@ -57,12 +58,12 @@ export function DocumentationPage() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
-            <Link
-              to="/demo"
+            <a
+              href={getDemoUrl()}
               className="hidden sm:inline-flex rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-700 transition"
             >
               {t.nav.liveDemo}
-            </Link>
+            </a>
             <Link
               to="/login"
               className="rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:text-stone-950 dark:hover:bg-amber-400 px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2C1F16] shadow-2xs transition"
@@ -205,7 +206,7 @@ export function DocumentationPage() {
                 <p>
                   When a customer points their phone camera at your stand, they are routed to{' '}
                   <code className="rounded bg-stone-100 px-1.5 py-0.5 text-stone-800">
-                    https://alpacard.app/claim/[campaignId]
+                    https://wallet.alpacard.app/claim/[campaignId]
                   </code>
                   . The app automatically provisions an anonymous customer wallet with zero
                   registration forms, adding the card to their device in under 1 second.

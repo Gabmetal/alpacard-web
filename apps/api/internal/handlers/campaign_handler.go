@@ -241,7 +241,7 @@ func (env *Env) GetCampaign(w http.ResponseWriter, r *http.Request) {
 	env.DB.Model(&models.Card{}).Select("COALESCE(SUM(stamps), 0)").Where("campaign_id = ?", campaign.ID).Scan(&totalStamps)
 	campaign.TotalStamps = totalStamps
 
-	claimURL := fmt.Sprintf("%s/claim/%s", env.Config.AppURL, campaign.ID)
+	claimURL := fmt.Sprintf("%s/claim/%s", strings.TrimRight(env.Config.WalletURL, "/"), campaign.ID)
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"campaign": campaign,

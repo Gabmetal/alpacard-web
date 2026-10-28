@@ -66,8 +66,8 @@ The test cycle is considered complete when:
 | :--- | :--- | :--- | :--- | :--- |
 | **Backoffice** | Create Merchant | The owner registers their venue, brand colors, and menu. All data is isolated within their database tenant. | `OWNER` | Medium |
 | **Backoffice** | Campaign Management | Defines the rules of the campaign (e.g., *"10 stamps = Free Cheese Scone or Coffee"*). Validates input limits. | `OWNER` | High |
-| **Backoffice / Acquisition** | Print Counter QR Poster | Generates a printable counter poster pointing directly to `https://alpacard.gabo.lat/claim/[campaignId]`. | `OWNER` | High |
-| **Acquisition** | Counter QR Scan | Scanning the printed poster redirects to `/claim/[campaignId]` and provisions an anonymous wallet in under 1 second without signup forms. | `CONSUMER` | High |
+| **Backoffice / Acquisition** | Print Counter QR Poster | Generates a printable counter poster pointing directly to `https://wallet.alpacard.app/claim/[campaignId]`. | `OWNER` | High |
+| **Acquisition** | Counter QR Scan | Scanning the printed poster opens `https://wallet.alpacard.app/claim/[campaignId]` and provisions an anonymous wallet in under 1 second without signup forms. | `CONSUMER` | High |
 | **Acquisition** | Session Persistence | Remembers the user session via cookies or LocalStorage. Reloading (F5) or reopening the browser preserves the wallet and progress. | `CONSUMER` | High |
 | **Acquisition** | PWA Offline Resilience | Installed PWA loads previous card state offline from Service Worker cache rather than a generic network error screen. | `CONSUMER` | Medium |
 | **Fidelity (Core)** | Stamp QR Generation | The customer's PWA generates a dynamic cryptographic QR code (signed JWT) that expires strictly in 5 minutes. | `CONSUMER` | Critical |
@@ -229,7 +229,7 @@ Validates frictionless zero-form customer onboarding, session retention, error h
 - **Module:** Acquisition / Customer Wallet
 - **Scenario:** Validate successful anonymous wallet creation upon accessing a valid campaign.
 - **Preconditions:**
-  1. Valid campaign claim link (`/claim/[campaignId]`) previously created by an `OWNER`.
+  1. Valid campaign claim link (`https://wallet.alpacard.app/claim/[campaignId]`) previously created by an `OWNER`.
   2. Use a browser in incognito mode (to simulate a brand new device with no AlpaCard history).
 - **Execution Steps:**
   1. Paste the campaign URL into the browser and press Enter (simulating scanning the printed counter QR).
@@ -256,7 +256,7 @@ Validates frictionless zero-form customer onboarding, session retention, error h
 - **Preconditions:**
   1. Browser with no active session.
 - **Execution Steps:**
-  1. Manually enter a malformed claim URL (e.g., `https://alpacard.gabo.lat/claim/12345-fake-campaign`).
+  1. Manually enter a malformed claim URL (e.g., `https://wallet.alpacard.app/claim/12345-fake-campaign`).
   2. Observe the interface response.
 - **Expected Result:**
   - The system does not create a wallet.
@@ -331,7 +331,7 @@ Validates merchant onboarding, loyalty rule definitions, poster generation, and 
   2. Inspect the generated file or popup view.
 - **Expected Result:**
   - The system generates a printable view containing a static QR code.
-  - Scanning this QR code with any camera decodes to the exact URL: `https://alpacard.gabo.lat/claim/[campaignId]`.
+  - Scanning this QR code with any camera decodes to the exact URL: `https://wallet.alpacard.app/claim/[campaignId]`.
 
 ##### Test Case ID: TC-014
 - **Module:** Backoffice / Input Validations

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Award,
@@ -21,6 +21,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { BusinessItem } from './BusinessesPage';
 import { ProfileModal } from '../components/ProfileModal';
 import { flashToast } from '../components/Toast';
+import { getWalletUrl } from '../utils/urls';
 
 interface LayoutProps {
   currentUser?: MerchantUser | null;
@@ -50,7 +51,8 @@ export function Layout({
 
   // Role Isolation: Customer accounts must never access the merchant dashboard layout
   if (currentUser?.role === 'CONSUMER') {
-    return <Navigate to="/wallet" replace />;
+    window.location.href = getWalletUrl();
+    return null;
   }
 
   useEffect(() => {
@@ -230,7 +232,7 @@ export function Layout({
               )}
 
               <a
-                href="/wallet"
+                href={getWalletUrl()}
                 className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap"
                 title={isEs ? 'Ver billetera de clientes' : 'View customer wallet'}
               >

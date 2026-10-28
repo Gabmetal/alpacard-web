@@ -15,6 +15,7 @@ import { BusinessesPage, BusinessItem } from './pages/BusinessesPage';
 import { StaffPage } from './pages/StaffPage';
 import { ScannerPage } from './pages/ScannerPage';
 import { Plus, X } from 'lucide-react';
+import { getWalletUrl } from './utils/urls';
 
 function LoginRoute({ token, onLoginSuccess }: { token: string | null; onLoginSuccess: () => void }) {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ export function App() {
       api.me()
         .then((user) => {
           if (user.role === 'CONSUMER') {
-            window.location.href = '/wallet';
+            window.location.href = getWalletUrl();
             return;
           }
           setCurrentUser(user as MerchantUser);
@@ -123,9 +124,19 @@ export function App() {
           <BrowserRouter>
             <Routes>
               {/* Public Marketing & Product Routes */}
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/docs" element={<DocumentationPage />} />
-              <Route path="/demo" element={<DemoPage />} />
+              {typeof window !== 'undefined' &&
+              (window.location.hostname.startsWith('demo') ||
+                window.location.hostname.includes('dev-demo')) ? (
+                <>
+                  <Route path="/" element={<DemoPage />} />
+                  <Route path="*" element={<DemoPage />} />
+                </>
+              ) : (
+                <>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/docs" element={<DocumentationPage />} />
+                </>
+              )}
               <Route
                 path="/login"
                 element={

@@ -4,6 +4,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
+import { getWalletUrl, getDemoUrl } from '../utils/urls';
 import {
   ShieldCheck,
   Server,
@@ -84,13 +85,13 @@ export function LandingPage() {
             >
               {t.nav.howItWorks}
             </a>
-            <Link
-              to="/demo"
+            <a
+              href={getDemoUrl()}
               className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition inline-flex items-center gap-1.5 font-semibold"
             >
               <Play className="h-3.5 w-3.5 fill-current shrink-0" />
               <span>{t.nav.liveDemo}</span>
-            </Link>
+            </a>
             <Link
               to="/docs"
               className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
@@ -106,7 +107,7 @@ export function LandingPage() {
 
             {/* Direct Wallet Access (Primary client-facing button) */}
             <a
-              href="/wallet"
+              href={getWalletUrl()}
               className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3 xl:px-3.5 py-2 text-xs xl:text-[13px] font-bold shadow-xs transition active:scale-[0.98]"
             >
               <Wallet className="h-3.5 w-3.5 xl:h-4 xl:w-4 shrink-0" />
@@ -126,7 +127,7 @@ export function LandingPage() {
           <div className="flex lg:hidden items-center gap-2">
             {/* Quick 1-tap mobile wallet button */}
             <a
-              href="/wallet"
+              href={getWalletUrl()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 px-3 py-1.5 text-xs font-bold shadow-xs active:scale-95 transition"
             >
               <Wallet className="h-3.5 w-3.5" />
@@ -148,7 +149,7 @@ export function LandingPage() {
           <div className="lg:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-4 shadow-lg transition-colors">
             {/* Prominent customer wallet link inside mobile drawer */}
             <a
-              href="/wallet"
+              href={getWalletUrl()}
               onClick={() => setMobileMenuOpen(false)}
               className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 py-3 text-center text-sm font-bold text-stone-950 shadow-xs transition"
             >
@@ -178,14 +179,14 @@ export function LandingPage() {
               >
                 {t.nav.howItWorks}
               </a>
-              <Link
-                to="/demo"
+              <a
+                href={getDemoUrl()}
                 onClick={() => setMobileMenuOpen(false)}
                 className="rounded-lg px-3 py-2 font-semibold text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 transition"
               >
                 <Play className="h-3.5 w-3.5 fill-current" />
                 {t.nav.liveDemo}
-              </Link>
+              </a>
               <Link
                 to="/docs"
                 onClick={() => setMobileMenuOpen(false)}
@@ -255,7 +256,7 @@ export function LandingPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 max-w-xl mx-auto lg:mx-0">
                 {/* Primary Button: Open Customer Wallet directly */}
                 <a
-                  href="/wallet"
+                  href={getWalletUrl()}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-5 py-3.5 text-sm font-black shadow-md transition active:scale-[0.99]"
                 >
                   <Wallet className="h-4 w-4 shrink-0" />
@@ -280,13 +281,13 @@ export function LandingPage() {
                   <span>{isEs ? 'Video Tutorial' : 'Video Tutorial'}</span>
                 </button>
 
-                <Link
-                  to="/demo"
+                <a
+                  href={getDemoUrl()}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
                 >
                   <Sparkles className="h-4 w-4 text-[#5C4028] shrink-0" />
                   <span>{t.landing.tryDemoBtn}</span>
-                </Link>
+                </a>
               </div>
 
               {/* Quick Metrics */}
@@ -538,13 +539,13 @@ export function LandingPage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link
-              to="/demo"
+            <a
+              href={getDemoUrl()}
               className="inline-flex items-center gap-2 rounded-xl bg-[#3D2B1F] px-6 py-3.5 text-sm font-semibold text-white shadow-xs hover:bg-[#2C1F16] transition active:scale-[0.99]"
             >
               <Play className="h-4 w-4" />
               {t.landing.visualCtaBtn}
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -602,9 +603,9 @@ export function LandingPage() {
             <Link to="/docs" className="hover:text-stone-900 transition">
               {t.nav.docs}
             </Link>
-            <Link to="/demo" className="hover:text-stone-900 transition">
+            <a href={getDemoUrl()} className="hover:text-stone-900 transition">
               {t.nav.liveDemo}
-            </Link>
+            </a>
             <a
               href="https://github.com/alpacard/alpacard-web"
               target="_blank"

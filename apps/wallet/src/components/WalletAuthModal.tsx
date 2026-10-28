@@ -3,6 +3,7 @@ import { X, Sparkles, LogIn, UserPlus, AlertCircle, RefreshCw, Eye, EyeOff } fro
 import { walletApi, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useToast, flashToast } from './Toast';
+import { getMerchantUrl } from '../utils/urls';
 
 interface WalletAuthModalProps {
   isOpen: boolean;
@@ -46,7 +47,7 @@ export function WalletAuthModal({
               : 'Welcome! Redirecting to Merchant Console...',
             'success'
           );
-          window.location.href = '/dashboard';
+          window.location.href = getMerchantUrl('/dashboard');
           return;
         }
         onSuccess(res.user);

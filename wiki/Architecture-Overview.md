@@ -42,9 +42,9 @@ flowchart TB
     C_PHONE -.->|Internal QA VPN| ROUTER
     ROUTER -.-> INGRESS
 
-    INGRESS -->|/| SVC_WEB
-    INGRESS -->|/wallet, /claim, /card| SVC_WALLET
-    INGRESS -->|/api/*| SVC_API
+    INGRESS -->|alpacard.app, merchant.alpacard.app, demo.alpacard.app| SVC_WEB
+    INGRESS -->|wallet.alpacard.app| SVC_WALLET
+    INGRESS -->|*/api/*| SVC_API
 
     SVC_API -->|Read & Write Transactions| DB_POSTGRES
     SVC_API -->|Publish Stamp Events| MQ_RABBIT
@@ -105,7 +105,7 @@ sequenceDiagram
     participant A as apps/api (Go Server)
     participant DB as PostgreSQL Database
 
-    C->>W: Scans Merchant Promotional QR (e.g. /claim?biz=cafe-alpaca)
+    C->>W: Scans Merchant Promotional QR (e.g. wallet.alpacard.app/claim/{campaignId})
     W->>A: POST /api/v1/cards/claim { businessSlug: "cafe-alpaca" }
     A->>DB: Query business metadata & reward thresholds
     A->>DB: INSERT INTO cards (id, business_id, stamps, status) VALUES (uuid, ..., 0, 'active')

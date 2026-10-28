@@ -14,12 +14,12 @@
 
 ## 🌐 Environments & Domains
 
-Alpacard features symmetrical, role-isolated subdomain routing across both Production and Development, while preserving backward-compatible path routing to protect physical counter QR codes already in circulation:
+Alpacard features symmetrical, role-isolated subdomain routing across both Production and Development for clean brand separation and security boundary isolation:
 
 | Environment | Purpose | Target Audience | URLs & Access Points | Security & Infrastructure |
 | :--- | :--- | :--- | :--- | :--- |
-| **Production** | Live Merchant & Customer traffic | Coffee shops, retail merchants & cardholders | • **Landing & Portal**: [https://alpacard.app](https://alpacard.app)<br/>• **Dedicated Merchant Console**: [https://merchant.alpacard.app](https://merchant.alpacard.app)<br/>• **Dedicated Customer Wallet**: [https://wallet.alpacard.app](https://wallet.alpacard.app)<br/>• **QR & Path Fallback**: [https://alpacard.app/wallet](https://alpacard.app/wallet)<br/>• **Interactive Live Demo**: [https://alpacard.app/demo](https://alpacard.app/demo)<br/>• **REST API**: `https://alpacard.app/api` | Public internet, Cloudflare Edge proxy with Universal SSL (`*.alpacard.app`), Traefik Ingress on Kubernetes, isolated PostgreSQL 16 ACID ledger with daily automated snapshots, RabbitMQ event broker. |
-| **Development / Non-Prod** | Pre-release testing, staging & QA validation | Core engineering, QA testers, beta merchants | • **Unified Dev Console**: [https://dev.alpacard.app](https://dev.alpacard.app)<br/>• **Dedicated Dev Merchant**: [https://dev-merchant.alpacard.app](https://dev-merchant.alpacard.app)<br/>• **Dedicated Dev Wallet**: [https://dev-wallet.alpacard.app](https://dev-wallet.alpacard.app)<br/>• **Dev Path Fallback**: [https://dev.alpacard.app/wallet](https://dev.alpacard.app/wallet)<br/>• **Dev REST API**: `https://dev.alpacard.app/api`<br/>• *(Local fallback)*: `http://dev.alpacard.local` | Cloudflare Edge proxy with Universal SSL (`*.alpacard.app`), automated Let's Encrypt TLS multi-SAN certificates (`alpacard-dev-tls`), isolated Kubernetes namespace (`alpacard-dev`), isolated database (`alpacard_dev`), and RabbitMQ broker. |
+| **Production** | Live Merchant & Customer traffic | Coffee shops, retail merchants & cardholders | • **Landing & Portal**: [https://alpacard.app](https://alpacard.app)<br/>• **Dedicated Merchant Console**: [https://merchant.alpacard.app](https://merchant.alpacard.app)<br/>• **Dedicated Customer Wallet**: [https://wallet.alpacard.app](https://wallet.alpacard.app)<br/>• **Interactive Live Demo**: [https://demo.alpacard.app](https://demo.alpacard.app)<br/>• **REST API**: `https://alpacard.app/api` | Public internet, Cloudflare Edge proxy with Universal SSL (`*.alpacard.app`), Traefik Ingress on Kubernetes, isolated PostgreSQL 16 ACID ledger with daily automated snapshots, RabbitMQ event broker. |
+| **Development / Non-Prod** | Pre-release testing, staging & QA validation | Core engineering, QA testers, beta merchants | • **Unified Dev Console**: [https://dev.alpacard.app](https://dev.alpacard.app)<br/>• **Dedicated Dev Merchant**: [https://dev-merchant.alpacard.app](https://dev-merchant.alpacard.app)<br/>• **Dedicated Dev Wallet**: [https://dev-wallet.alpacard.app](https://dev-wallet.alpacard.app)<br/>• **Dedicated Dev Demo**: [https://dev-demo.alpacard.app](https://dev-demo.alpacard.app)<br/>• **Dev REST API**: `https://dev.alpacard.app/api`<br/>• *(Local fallback)*: `http://dev.alpacard.local` | Cloudflare Edge proxy with Universal SSL (`*.alpacard.app`), automated Let's Encrypt TLS multi-SAN certificates (`alpacard-dev-tls`), isolated Kubernetes namespace (`alpacard-dev`), isolated database (`alpacard_dev`), and RabbitMQ broker. |
 
 ---
 
@@ -166,9 +166,8 @@ All daily development work occurs on short-lived topic branches branched from `i
 - 🔔 **Global Toast Notifications with Flash Persistence**:
   - Unified, accessible toast alerts with `sessionStorage` flash persistence that gracefully survives page reloads, cross-route navigation, and auth redirects.
 
-- 🌐 **Symmetrical Subdomain & Hybrid QR-Safe Routing**:
-  - Dedicated role-based subdomains (`merchant.alpacard.app`, `wallet.alpacard.app`, `dev-merchant.alpacard.app`, `dev-wallet.alpacard.app`) for clean brand separation.
-  - Built-in path fallbacks (`/wallet`, `/claim/:id`, `/card/:id`) ensure physical counter stand QR codes already printed and in circulation never break.
+- 🌐 **Symmetrical Pure Subdomain Routing**:
+  - Dedicated role-based subdomains (`merchant.alpacard.app`, `wallet.alpacard.app`, `demo.alpacard.app`, `dev-merchant.alpacard.app`, `dev-wallet.alpacard.app`, `dev-demo.alpacard.app`) for absolute brand clarity and security boundary isolation.
 
 - 🎨 **Deep Card Personalization**:
   - Custom merchant logos, brand color presets (Espresso Roast, Charcoal Slate, Forest Matcha, etc.), and custom hex colors.
@@ -215,12 +214,12 @@ alpacard/
 ```mermaid
 flowchart TD
     subgraph Clients["Clients & Edge Access"]
-        CustomerWallet["Customer Loyalty PWA<br/>• wallet.alpacard.app<br/>• alpacard.app/wallet (PWA)"]
-        MerchantWeb["Merchant Backoffice & Scanner<br/>• merchant.alpacard.app<br/>• alpacard.app/dashboard"]
+        CustomerWallet["Customer Loyalty PWA<br/>• wallet.alpacard.app"]
+        MerchantWeb["Merchant Backoffice & Scanner<br/>• merchant.alpacard.app"]
     end
 
     subgraph Ingress["Edge & Ingress (Traefik)"]
-        Traefik["Traefik Ingress (Cloudflare Edge SSL)<br/>Multi-Subdomain & Path Routing"]
+        Traefik["Traefik Ingress (Cloudflare Edge SSL)<br/>Multi-Subdomain Routing"]
     end
 
     subgraph Services["Core Cluster Services"]
