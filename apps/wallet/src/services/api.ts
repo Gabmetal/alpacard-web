@@ -12,6 +12,7 @@ export interface WalletUser {
   name: string;
   role: string;
   isAnonymous: boolean;
+  emailVerified?: boolean;
 }
 
 export function getToken(): string | null {
@@ -263,6 +264,29 @@ export const walletApi = {
     const user = await fetchWithAuth('/auth/me');
     setStoredUser(user);
     return user;
+  },
+
+  updateProfile: async (data: { name: string }): Promise<WalletUser> => {
+    const user = await fetchWithAuth('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    setStoredUser(user);
+    return user;
+  },
+
+  deleteAccount: async (): Promise<void> => {
+    await fetchWithAuth('/auth/account', {
+      method: 'DELETE',
+    });
+    clearToken();
+  },
+
+  resendVerification: async (email?: string): Promise<{ success: boolean; message: string }> => {
+    return fetchWithAuth('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
   },
 
   logout: () => {

@@ -5,6 +5,7 @@ export interface MerchantUser {
   email: string;
   name: string;
   role: 'OWNER' | 'STAFF' | 'CONSUMER';
+  emailVerified?: boolean;
 }
 
 export function getMerchantToken(): string | null {
@@ -49,6 +50,12 @@ export const api = {
   login: (data: { email: string; password: string }) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   me: () => request('/auth/me'),
+  updateProfile: (data: { name: string }) =>
+    request('/auth/profile', { method: 'PUT', body: JSON.stringify(data) }),
+  deleteAccount: () =>
+    request('/auth/account', { method: 'DELETE' }),
+  resendVerification: (email?: string) =>
+    request('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) }),
 
   // Business
   createBusiness: (data: {

@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { api, setMerchantToken } from '../services/api';
+import { api, setMerchantToken, clearMerchantToken } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { flashToast } from '../components/Toast';
+import { setCookie } from '../utils/cookies';
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
 }
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isEs = language === 'es';
   const [isRegister, setIsRegister] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,13 +42,43 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
         res = await api.login({ email, password });
       }
 
+      // Role Isolation: Consumer accounts must NOT enter merchant console
+      if (res.user?.role === 'CONSUMER') {
+        clearMerchantToken();
+        setCookie('alpacard_wallet_token', res.token);
+        try {
+          localStorage.setItem('alpacard_wallet_token', res.token);
+          localStorage.setItem('alpacard_wallet_user', JSON.stringify(res.user));
+        } catch {
+          // Ignore
+        }
+        flashToast(
+          isEs
+            ? '¡Bienvenido a tu Billetera! Sesión iniciada con éxito.'
+            : 'Welcome to your Wallet! Signed in successfully.',
+          'success'
+        );
+        window.location.href = '/wallet';
+        return;
+      }
+
       setMerchantToken(res.token);
+      flashToast(
+        isRegister
+          ? isEs
+            ? '¡Cuenta creada con éxito! Hemos enviado un enlace a tu correo.'
+            : 'Account created successfully! We sent a confirmation email.'
+          : isEs
+          ? '¡Bienvenido! Sesión iniciada con éxito.'
+          : 'Welcome back! Signed in successfully.',
+        'success'
+      );
       onLoginSuccess();
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Authentication failed');
+        setError(isEs ? 'Error en la autenticación' : 'Authentication failed');
       }
     } finally {
       setLoading(false);

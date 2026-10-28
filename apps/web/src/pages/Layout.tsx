@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Award,
@@ -19,6 +19,8 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { BusinessItem } from './BusinessesPage';
+import { ProfileModal } from '../components/ProfileModal';
+import { flashToast } from '../components/Toast';
 
 interface LayoutProps {
   currentUser?: MerchantUser | null;
@@ -27,6 +29,7 @@ interface LayoutProps {
   activeBusiness: BusinessItem | null;
   onSelectBusiness: (biz: BusinessItem) => void;
   onCreateBusiness: () => void;
+  onUserUpdated?: (user: MerchantUser) => void;
 }
 
 export function Layout({
@@ -36,12 +39,19 @@ export function Layout({
   activeBusiness,
   onSelectBusiness,
   onCreateBusiness,
+  onUserUpdated,
 }: LayoutProps) {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Role Isolation: Customer accounts must never access the merchant dashboard layout
+  if (currentUser?.role === 'CONSUMER') {
+    return <Navigate to="/wallet" replace />;
+  }
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -201,7 +211,12 @@ export function Layout({
             {/* Right: Controls & Sign Out */}
             <div className="flex items-center gap-2 shrink-0">
               {currentUser && (
-                <div className="hidden sm:flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 px-2.5 py-1 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(true)}
+                  className="hidden sm:flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700/80 px-2.5 py-1 text-xs cursor-pointer transition"
+                  title={isEs ? 'Ver y editar mi perfil' : 'View & edit profile'}
+                >
                   <div className="flex h-5 w-5 items-center justify-center rounded-md bg-[#3D2B1F] dark:bg-amber-500 text-white dark:text-stone-950 font-bold text-[10px]">
                     {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'M'}
                   </div>
@@ -211,7 +226,7 @@ export function Layout({
                   <span className="rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-extrabold text-[9px] px-1.5 py-0.5 uppercase tracking-wider">
                     {currentUser.role === 'OWNER' ? (isEs ? '👑 DUEÑO' : '👑 OWNER') : (isEs ? '💼 PERSONAL' : '💼 STAFF')}
                   </span>
-                </div>
+                </button>
               )}
 
               <a
@@ -236,6 +251,10 @@ export function Layout({
               <button
                 onClick={() => {
                   clearMerchantToken();
+                  flashToast(
+                    isEs ? 'Sesión cerrada correctamente.' : 'Signed out successfully.',
+                    'info'
+                  );
                   onLogout();
                 }}
                 className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap shrink-0"
@@ -277,6 +296,18 @@ export function Layout({
           <Outlet />
         </div>
       </main>
+
+      {/* Profile Modal */}
+      {currentUser && (
+        <ProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          user={currentUser}
+          onUserUpdated={(updated) => {
+            if (onUserUpdated) onUserUpdated(updated);
+          }}
+        />
+      )}
     </div>
   );
 }
