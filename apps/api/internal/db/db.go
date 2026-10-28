@@ -8,7 +8,7 @@ import (
 	"github.com/gabmetal/alpacard/api/internal/config"
 	"github.com/gabmetal/alpacard/api/internal/models"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
