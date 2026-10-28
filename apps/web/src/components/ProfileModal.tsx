@@ -10,6 +10,7 @@ import {
 import { api, clearMerchantToken, MerchantUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useToast, flashToast } from './Toast';
+import { getWalletUrl } from '../utils/urls';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -248,7 +249,7 @@ export function ProfileModal({
               </p>
             </div>
             <a
-              href="/wallet"
+              href={getWalletUrl()}
               className="inline-flex items-center gap-1 rounded-xl bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 font-bold px-3 py-1.5 text-xs transition"
             >
               <span>{isEs ? 'Abrir' : 'Open'}</span>

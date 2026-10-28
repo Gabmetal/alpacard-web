@@ -32,7 +32,7 @@ When designing Alpacard, we had three non-negotiable rules:
 
 ## 1. Zero-Friction Onboarding with Guest PWAs
 
-Instead of blocking the customer with a login wall at checkout, the counter QR code points to `/claim/:campaignId`.
+Instead of blocking the customer with a login wall at checkout, the counter QR code points directly to `https://wallet.alpacard.app/claim/:campaignId`.
 
 When a customer scans it:
 - The PWA checks `localStorage` for an existing token.
@@ -114,7 +114,8 @@ Merchants can also upload a PDF/image of their menu or use the built-in digital 
 Alpacard is 100% open-source under the GNU AGPLv3 license. We welcome contributions, bug reports, and feedback from developers and small business owners alike!
 
 - **GitHub Repository**: [https://github.com/alpacard/alpacard-web](https://github.com/alpacard/alpacard-web)
-- **Live Demo**: [https://alpacard.app](https://alpacard.app)
-- **Customer Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)
+- **Live Demo**: [https://demo.alpacard.app](https://demo.alpacard.app)
+- **Merchant Console**: [https://merchant.alpacard.app](https://merchant.alpacard.app)
+- **Customer Wallet**: [https://wallet.alpacard.app](https://wallet.alpacard.app)
 
 Feel free to star the repo and let us know what you think in the comments!

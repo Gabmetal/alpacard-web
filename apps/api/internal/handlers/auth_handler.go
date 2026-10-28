@@ -271,9 +271,9 @@ func (env *Env) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	// If browser HTML request, redirect with query param
 	accept := r.Header.Get("Accept")
 	if strings.Contains(accept, "text/html") {
-		redirectPath := "/login?verified=true"
+		redirectPath := fmt.Sprintf("%s/login?verified=true", strings.TrimRight(env.Config.AppURL, "/"))
 		if user.Role == models.RoleConsumer {
-			redirectPath = "/wallet?verified=true"
+			redirectPath = fmt.Sprintf("%s?verified=true", strings.TrimRight(env.Config.WalletURL, "/"))
 		}
 		http.Redirect(w, r, redirectPath, http.StatusSeeOther)
 		return

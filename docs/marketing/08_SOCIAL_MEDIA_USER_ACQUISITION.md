@@ -45,8 +45,8 @@ Ready-to-publish campaigns across Twitter/X, Instagram, TikTok/Reels, LinkedIn, 
 ### Tweet 5 (CTA & Live Link)
 > Experience it live right now:
 > 
-> 💳 Customer Wallet: https://alpacard.app/wallet
-> 💼 Merchant Portal: https://alpacard.app
+> 💳 Customer Wallet: https://wallet.alpacard.app
+> 💼 Merchant Portal: https://merchant.alpacard.app
 > 
 > We're onboarding our next 20 coffee shops & bakeries completely free. 
 > 

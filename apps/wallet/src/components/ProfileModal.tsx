@@ -12,6 +12,7 @@ import {
 import { walletApi, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { useToast } from './Toast';
+import { getMerchantUrl } from '../utils/urls';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -270,7 +271,7 @@ export function ProfileModal({
                 </p>
               </div>
               <a
-                href="/dashboard"
+                href={getMerchantUrl('/dashboard')}
                 className="inline-flex items-center gap-1 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold px-3 py-1.5 text-xs transition"
               >
                 <span>{isEs ? 'Ir al Panel' : 'Go to Panel'}</span>

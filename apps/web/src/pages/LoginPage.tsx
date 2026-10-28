@@ -7,6 +7,7 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { flashToast } from '../components/Toast';
 import { setCookie } from '../utils/cookies';
+import { getWalletUrl } from '../utils/urls';
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
@@ -58,7 +59,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
             : 'Welcome to your Wallet! Signed in successfully.',
           'success'
         );
-        window.location.href = '/wallet';
+        window.location.href = getWalletUrl();
         return;
       }
 
