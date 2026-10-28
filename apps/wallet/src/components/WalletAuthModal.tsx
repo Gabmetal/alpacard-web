@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Sparkles, LogIn, UserPlus, AlertCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { walletApi, WalletUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useToast, flashToast } from './Toast';
 
 interface WalletAuthModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export function WalletAuthModal({
 }: WalletAuthModalProps) {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
+  const toast = useToast();
   const [tab, setTab] = useState<'login' | 'register'>(defaultTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,6 +40,12 @@ export function WalletAuthModal({
         const res = await walletApi.login({ email, password });
         if (res.user && (res.user.role === 'OWNER' || res.user.role === 'STAFF')) {
           localStorage.setItem('alpacard_merchant_token', res.token);
+          flashToast(
+            isEs
+              ? '¡Bienvenido! Redirigiendo a tu Consola de Comercio...'
+              : 'Welcome! Redirecting to Merchant Console...',
+            'success'
+          );
           window.location.href = '/dashboard';
           return;
         }
@@ -45,6 +53,12 @@ export function WalletAuthModal({
       } else {
         const res = await walletApi.register({ email, password, name });
         onSuccess(res.user);
+        toast.success(
+          isEs
+            ? '¡Cuenta creada con éxito! Hemos enviado un enlace de confirmación a tu correo.'
+            : 'Account created successfully! We sent a verification email to your inbox.',
+          6000
+        );
       }
       onClose();
     } catch (err: unknown) {

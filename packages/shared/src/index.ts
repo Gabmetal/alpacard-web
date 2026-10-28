@@ -8,6 +8,7 @@ export interface User {
   name: string;
   role: Role;
   isAnonymous?: boolean;
+  emailVerified?: boolean;
   createdAt: string;
   updatedAt: string;
   ownedBusinesses?: Business[];

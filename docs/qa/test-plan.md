@@ -2,39 +2,37 @@
 
 ## 1. Project Objective
 
-The primary objective is to guarantee functional quality, reliability, and security across the **AlpaCard** web platform ([alpacard.gabo.lat](https://alpacard.gabo.lat)). Special emphasis is placed on validating that the core loyalty lifecycle—from customer wallet acquisition and dynamic stamp issuance to reward redemption and counter reset—operates without logical flaws, race conditions, or role privilege escalation vulnerabilities.
+The primary objective is to guarantee functional quality, reliability, and security across the **AlpaCard** web platform ([alpacard.gabo.lat](https://alpacard.gabo.lat)). The main goal is to ensure that the core customer loyalty lifecycle—stamp accumulation, reward redemption, and counter reset—operates without logical errors or role-based security vulnerabilities.
 
 ---
 
 ## 2. Scope
 
 ### In-Scope
-- **Authentication & RBAC Module:** User authentication and registration across roles (`OWNER`, `STAFF`, and anonymous `CONSUMER`). Strict role isolation to prevent privilege escalation (e.g., ensuring `CONSUMER` cannot increment stamps or execute cashier functions).
-- **Core Loyalty Lifecycle:** Dynamic QR code generation, real-time cryptographic stamp issuance, progress tracking, reward unlocking at capacity limit, and atomic reset back to zero after redemption.
-- **Merchant Backoffice & Campaign Setup:** Business profile onboarding, branding configuration, custom campaign rule definitions, and counter printable QR poster generation.
-- **Client PWA & Offline Experience:** Zero-friction anonymous wallet creation, state persistence (`LocalStorage` / session cookies), and offline card rendering via Service Worker cache.
+- **Authentication & User Management:** User login and registration across roles (`OWNER` / Merchant, `STAFF` / Barista, and `CONSUMER` / Client).
+- **Loyalty Lifecycle (Core):** Logic for incrementing stamps on virtual cards, progress visualization, unlocking reward redemption upon reaching the campaign threshold, and resetting the counter back to zero after consumption.
+- **Roles & Permissions (RBAC):** Validating strict role enforcement, specifically ensuring that a user with the `CONSUMER` role cannot alter or forge their own stamp balance, and ensuring `STAFF` can only operate campaigns belonging to their merchant.
 
 ### Out-of-Scope
-- Stress, load, and distributed server performance testing.
-- Payment gateway integration testing (outside current release flow).
-- Third-party social login integrations not included in the active MVP scope.
+- Server stress and high-volume performance testing.
+- Payment gateway integration testing (excluded from current release flows).
 
 ---
 
 ## 3. Test Strategy & Approach
 
-Quality Assurance is structured across three execution layers to ensure comprehensive end-to-end coverage:
+The project testing approach is organized across three complementary execution layers to ensure comprehensive test coverage:
 
-1. **Manual Functional & E2E Testing:**  
-   Validation of critical user journeys with real production-like scenarios (e.g., simulating recurring café customers collecting stamps toward perks such as a free coffee, cheese scone, or scallion scone, and verifying real-time UI/SSE updates).
-2. **Database Integrity & Relational Verification:**  
-   Direct database state verification against **PostgreSQL 16** using database management clients (e.g., pgAdmin, DBeaver, TablePlus). Execution of relational queries and `JOIN` checks to confirm consistent transaction states, correct foreign key constraints, absence of orphan records, and strict prevention of duplicate stamps.
+1. **Manual Functional Testing:**  
+   Validation of critical end-to-end business flows using production-like scenarios. This includes simulating recurring customers accumulating stamps to redeem for venue rewards (such as a coffee, cheese scone, or scallion scone) until completing the card, verifying that the user interface updates and reflects state transitions in real time.
+2. **Database Integrity Verification:**  
+   Direct relational data verification against **PostgreSQL 16** using database management clients (such as pgAdmin, DBeaver, or TablePlus). Relational integrity checks and `JOIN` queries will verify that transaction records, stamp increments, and entity relationships persist accurately without duplicates or inconsistent states.
 3. **Automated Regression Suite (Phase 2):**  
-   Automated end-to-end regression scripts built with **Selenium WebDriver (Java)** configured via `ChromeOptions` to:
-   - Natively emulate mobile device viewports and touch interactions.
-   - Automatically bypass camera permission dialogs and mock webcam video streams using `--use-fake-ui-for-media-stream` and `--use-fake-device-for-media-stream`.
-   - Validate Service Worker cache and PWA lifecycle.
-   - Integrate with continuous integration workflows in GitHub Actions (`.github/workflows/ci-main.yml`).
+   Development of automated regression scripts utilizing **Selenium WebDriver with Java**. Test setup will implement custom `ChromeOptions` to:
+   - Emulate mobile viewports and touch devices natively.
+   - Mock camera permissions and web media streams (`--use-fake-ui-for-media-stream`).
+   - Validate Service Worker caching mechanisms and offline PWA behavior.
+   - Integrate automated test execution directly into GitHub Actions continuous integration pipelines (`ci-main.yml` / `ci-integration.yml`).
 
 ---
 
@@ -42,304 +40,308 @@ Quality Assurance is structured across three execution layers to ensure comprehe
 
 | Category | Tool / Technology | Purpose |
 | :--- | :--- | :--- |
-| **Test Case & Bug Management** | Jira + Xray | Test repository, execution cycles, traceability, and defect tracking. |
-| **Database Verification** | PostgreSQL 16, pgAdmin / DBeaver / TablePlus | Direct persistence check, transactional consistency, and data validation. |
-| **Automation Framework** | Java, IntelliJ IDEA, Selenium WebDriver | Automated regression test authoring and mobile browser emulation. |
-| **API Testing** | Postman / Newman, cURL | REST API verification, replay attack validation, and status code checks. |
-| **QA Copilot & Edge Case Assistance** | Cursor, Claude, Antigravity | Complex test matrix generation, boundary exploration, and automation script debugging. |
-| **CI/CD Pipeline** | GitHub Actions (`ci-main.yml`) | Automated build verification and test pipeline execution. |
+| **Test Case & Bug Management** | Jira integrated with Xray | Test repository management, traceability, execution recording, and defect tracking. |
+| **Database Management & Verification** | pgAdmin / DBeaver / TablePlus (PostgreSQL 16) | Direct relational integrity validation, query debugging, and data state verification. |
+| **Development & Test Automation** | IntelliJ IDEA, Java, Selenium WebDriver | Automated regression script development and native mobile browser emulation. |
+| **Edge Case Generation & QA Assistance** | Cursor, Claude, Antigravity | Rapid authoring of complex test matrices, edge-case analysis, and automation debugging. |
+| **Continuous Integration** | GitHub Actions (`ci-main.yml` / `ci-integration.yml`) | Automated build validation and regression test pipeline execution. |
 
 ---
 
 ## 5. Acceptance & Suspension Criteria
 
 ### Suspension Criteria
-Testing execution will be immediately suspended if a critical/blocker defect in the **Authentication & Access Control Module** or core routing prevents access to the platform or blocks fundamental campaign navigation.
+Testing execution will be suspended if a blocker defect in the **Authentication Module** or core routing prevents general access to the platform or halts navigation into primary loyalty workflows.
 
-### Exit / Acceptance Criteria
-The test cycle is successfully signed off when:
-- **100% of Critical Priority test cases** (including Authentication, QR Token Issuance, and Stamp Accumulation) are executed.
-- **Zero open Blocker or Critical defects** remain unresolved.
-- High-severity defects have documented workarounds approved by engineering and product leads.
+### Acceptance Criteria (Exit Criteria)
+The test cycle is considered complete when:
+- **100% of critical test cases** (including Authentication and Stamp Issuance/Redemption flows) have been fully executed.
+- **Zero open defects** of High or Critical severity remain unresolved.
 
 ---
 
 ## 6. Inventory of Functionalities
 
-| Main Module | Sub-Module / Screen | Business Rule / Expected Result | Target Role | Priority |
+| Main Module | Sub-Module / Screen | Business Rule (Expected Result) | Role | Priority |
 | :--- | :--- | :--- | :--- | :--- |
-| **Backoffice** | Create Merchant | Merchant registers business name, brand colors, and menu metadata. Isolated per tenant in DB. | `OWNER` | Medium |
-| **Backoffice** | Campaign Management | Defines loyalty business logic (e.g., *"10 stamps = Free Coffee or Cheese Scone"*). Validates positive non-zero boundaries. | `OWNER` | High |
-| **Backoffice / Acquisition** | Print Counter QR Poster | Generates printable counter poster pointing directly to `https://alpacard.gabo.lat/claim/[campaignId]`. | `OWNER` | High |
-| **Acquisition** | Counter QR Scan | Scanning counter QR redirects to `/claim/[campaignId]` and provisions an anonymous wallet in <1s without signup forms. | `CONSUMER` | High |
-| **Acquisition** | Session Persistence | Anonymous wallet persists across browser reloads (F5) or restarts via `LocalStorage` / cookies. | `CONSUMER` | High |
-| **Acquisition** | PWA Offline Resilience | Installed PWA loads previous stamp state (e.g., 3 stamps) offline from Service Worker cache rather than standard browser error. | `CONSUMER` | Medium |
-| **Fidelity (Core)** | Stamp QR Generation | Customer PWA generates dynamic cryptographic QR code (signed JWT) expiring strictly in 5 minutes. Exactly 1 API call per interval. | `CONSUMER` | Critical |
-| **Operation** | Barista Scanner | Staff scanner decodes customer QR, plays audio chime, triggers haptic feedback (vibrate), and increments stamp by 1. | `STAFF` | Critical |
-| **Operation / Fidelity** | Reward Unlock & Claim | Reaching capacity (e.g., 10/10) locks stamp button and enables "Claim Reward". Staff validates redemption; SSE resets counter to 0. | `STAFF` / `CONSUMER` | Critical |
-| **Security** | Anti-Replay Protection | Scanning the same QR JWT token more than once is rejected by the backend with `409 Conflict`. | `STAFF` / API | Critical |
-| **Security** | Access Control (RBAC) | Customers cannot scan cards or access cashier routes. Staff can only award stamps for campaigns belonging to their merchant. | All Roles | High |
+| **Backoffice** | Create Merchant | The owner registers their venue, brand colors, and menu. All data is isolated within their database tenant. | `OWNER` | Medium |
+| **Backoffice** | Campaign Management | Defines the rules of the campaign (e.g., *"10 stamps = Free Cheese Scone or Coffee"*). Validates input limits. | `OWNER` | High |
+| **Backoffice / Acquisition** | Print Counter QR Poster | Generates a printable counter poster pointing directly to `https://alpacard.gabo.lat/claim/[campaignId]`. | `OWNER` | High |
+| **Acquisition** | Counter QR Scan | Scanning the printed poster redirects to `/claim/[campaignId]` and provisions an anonymous wallet in under 1 second without signup forms. | `CONSUMER` | High |
+| **Acquisition** | Session Persistence | Remembers the user session via cookies or LocalStorage. Reloading (F5) or reopening the browser preserves the wallet and progress. | `CONSUMER` | High |
+| **Acquisition** | PWA Offline Resilience | Installed PWA loads previous card state offline from Service Worker cache rather than a generic network error screen. | `CONSUMER` | Medium |
+| **Fidelity (Core)** | Stamp QR Generation | The customer's PWA generates a dynamic cryptographic QR code (signed JWT) that expires strictly in 5 minutes. | `CONSUMER` | Critical |
+| **Operation** | Barista Scanner | Reads the customer's QR code. If valid, emits an audible chime, triggers vibration, and increments one stamp. | `STAFF` | Critical |
+| **Operation / Fidelity** | Reward Unlock & Claim | Reaching the campaign stamp limit disables "Add Stamp", enables "Claim Reward", and resets the counter to 0 upon staff validation. | `STAFF` / `CONSUMER` | Critical |
+| **Security** | Anti-Replay Protection | If staff or a malicious actor attempts to scan the same QR code twice, the API rejects it with an HTTP `409 Conflict` error. | `STAFF` / API | Critical |
+| **Security** | Access Control (RBAC) | A `CONSUMER` cannot scan cards. `STAFF` can only operate campaigns belonging to their own venue. | All Roles | High |
 
 ---
 
-## 7. Test Scenarios & Detailed Test Cases
+## 7. Test Scenarios and Test Cases
 
-### Scenario Overview Matrix
+### Test Scenario 01: Verify QR Code Security, Expiration, and Anti-Fraud Prevention
 
-| Scenario ID | Title | Execution Status |
-| :--- | :--- | :--- |
-| **Scenario 01** | Verify QR Code Security, Expiration, and Anti-Fraud Prevention | **BLOCKED** *(Under active bug investigation)* |
-| **Scenario 02** | Verify Reward Redemption Flow and Wallet Reset at Stamp Limit | **BLOCKED** *(Awaiting dependent flow fix)* |
-| **Scenario 03** | Verify Anonymous Customer Wallet Creation, Access, and Persistence | **PASSED** |
-| **Scenario 04** | Verify Merchant Account Onboarding and Campaign Rule Configuration | **PASSED** |
+Validates that cryptographic QR tokens used for stamp allocation function securely, cannot be replayed, expire after the defined duration, and behave properly on client generation.
 
----
-
-### Scenario 01: QR Security, Expiration & Anti-Fraud Prevention
-**Status:** `BLOCKED`  
-**Objective:** Verify that dynamic QR tokens cannot be reused, expire strictly within the configured window, and do not trigger infinite frontend API loops.
+#### Test Cases:
+- **TC-001 (Happy Path):** Validate that the QR code successfully increments a stamp when scanned for the first time (HTTP 200).
+- **TC-002 (Negative Path):** Validate that the system returns HTTP `409 Conflict` if a duplicate or already used QR code is scanned.
+- **TC-003 (Negative Path):** Validate that the QR code expires after exactly 5 minutes and cannot be scanned afterwards.
+- **TC-004 (Edge Case):** Validate that the frontend issues a single network call to the API when generating a token, without entering infinite regeneration loops.
 
 ---
 
-#### Test Case ID: `TC-001`
-- **Module:** Fidelity / Scanner Operation (Frontend)
-- **Scenario:** Validate that scanning a valid dynamic QR code increments the stamp counter on initial scan (HTTP 200).
+#### Detailed Specifications:
+
+##### Test Case ID: TC-001
+- **Module:** Fidelity / Operation (Frontend)
+- **Scenario:** Validate that the QR code adds a stamp correctly when scanned for the first time in the interface.
 - **Preconditions:**
-  1. **Device A (Customer):** PWA active with an anonymous wallet having at least one empty stamp slot (e.g., 0/10).
-  2. **Device B (Barista):** Authenticated with role `STAFF` or `OWNER` with scanner camera access enabled.
+  - Device A (Customer): Access to the AlpaCard PWA with an active anonymous wallet that has at least one open slot for a stamp.
+  - Device B (Barista): Logged in with role `STAFF` or `OWNER` with access to the scanner tool using camera or web app.
 - **Execution Steps:**
-  1. On Device A, generate and display a fresh dynamic QR code.
-  2. On Device B, open the AlpaCard staff scanner.
-  3. Point Device B camera at Device A screen to scan the QR code before the 5-minute timer expires.
+  1. On Device A, generate and display a fresh dynamic QR code on screen.
+  2. On Device B, open the platform scanner.
+  3. Aim Device B's camera at Device A's screen to read the QR code before the 5 minutes expire.
   4. Observe physical and visual feedback on Device B.
-  5. Check wallet interface on Device A.
+  5. Refresh or check the wallet screen on Device A.
 - **Expected Result:**
-  - Device B plays confirmation chime, vibrates, and displays a success notification indicating the stamp was added.
-  - Device A updates in real-time (via SSE/WebSocket), incrementing the visual counter (e.g., from `0/10` to `1/10`).
+  - Device B (Barista) emits a confirmation chime, vibrates, and shows a success notification indicating the stamp was added.
+  - Device A (Customer) updates its interface in real time, incrementing the visual stamp counter (e.g., from `0/10` to `1/10`).
 
----
-
-#### Test Case ID: `TC-002`
-- **Module:** Security / Anti-Fraud (Replay Protection)
-- **Scenario:** Validate that the system returns `409 Conflict` if a duplicate or previously redeemed QR token is submitted.
+##### Test Case ID: TC-002
+- **Module:** Security / Anti-Fraud Prevention
+- **Scenario:** Validate that the system returns HTTP `409 Conflict` if a duplicate or already used QR code is scanned.
 - **Preconditions:**
-  1. Fresh, valid customer JWT token obtained from the client QR interface.
-  2. Valid Bearer authentication token for a user with `STAFF` or `OWNER` role.
+  1. Valid JWT token recently generated from customer view.
+  2. Valid Bearer Token corresponding to a user with role `STAFF` or `OWNER`.
 - **Execution Steps:**
-  1. In Postman or cURL, configure a `POST` request to `/api/v1/scan`.
-  2. Include the Staff Bearer Token in authorization headers.
-  3. Include customer JWT in the JSON request body.
-  4. Send request and verify initial response is `200 OK`.
-  5. Immediately re-send the exact same `POST` payload with the identical JWT.
+  1. Configure a `POST` request in Postman/client to the `/api/v1/scan` endpoint.
+  2. Provide the `STAFF` Bearer Token in authorization headers.
+  3. Send the request including the customer's JWT token in the JSON body.
+  4. Confirm that the system returns HTTP `200 OK`.
+  5. Immediately resend the exact same `POST` request using the identical JWT token.
 - **Expected Result:**
-  - The second request is strictly rejected by the backend with HTTP `409 Conflict` preventing duplicate stamp allocation.
+  - The second request is rejected by the backend, returning strictly an HTTP `409 Conflict` code to prevent duplicate stamp increments.
 
----
-
-#### Test Case ID: `TC-003`
-- **Module:** Fidelity / Security (Token Expiration)
-- **Scenario:** Validate QR token invalidation upon reaching the 5-minute lifespan limit.
+##### Test Case ID: TC-003
+- **Module:** Fidelity / Security
+- **Scenario:** Validate QR code expiration upon reaching the 5-minute time limit.
 - **Preconditions:**
-  1. **Device A (Customer):** Active wallet displayed.
-  2. **Device B (Barista):** Staff scanner open.
-  3. Auto-refresh paused or screenshot taken immediately upon QR generation to freeze token image.
+  - Device A (Customer): Access to the AlpaCard PWA with an active wallet.
+  - Device B (Barista): Session logged in with role `STAFF` or `OWNER` and scanner tool open.
+  - Temporarily disable automatic QR refresh (or take a screenshot as soon as generated to freeze the image).
 - **Execution Steps:**
-  1. On Device A, generate a fresh QR code and note the exact timestamp.
-  2. Wait 5 minutes and 1 second until the countdown reaches `0:00`.
-  3. On Device B, scan the expired QR code (or the frozen screenshot).
-  4. Inspect feedback on Device B and wallet state on Device A.
+  1. On Device A, generate a new dynamic QR code and note the exact time.
+  2. Deliberately wait for 5 minutes and 1 second to elapse (the visual countdown timer should reach `0:00`).
+  3. On Device B, open the scanner and aim at the expired QR code (or the screenshot).
+  4. Observe the response on Device B and verify stamp count on Device A.
 - **Expected Result:**
-  - Device B rejects the token and displays an explicit error message (e.g., *"Expired Token"* or *"Invalid QR Code"*).
-  - No chime or vibration is emitted.
-  - Device A stamp count remains unchanged.
+  - Device B's scanner rejects the code and displays an explicit error message (e.g., *"Expired token"* or *"Invalid code"*).
+  - No confirmation chime or vibration is emitted.
+  - The customer's stamp counter on Device A remains intact without adding any point.
 
----
-
-#### Test Case ID: `TC-004`
-- **Module:** Fidelity / QR Generation Lifecycle
-- **Scenario:** Verify single network call on QR generation and timer renewal behavior.
-- **Preconditions:** Browser DevTools open to Network tab.
+##### Test Case ID: TC-004
+- **Module:** Fidelity / QR Generation
+- **Scenario:** Verify single network call on QR code generation and timer behavior.
 - **Execution Steps:**
-  1. Navigate to customer wallet view.
-  2. Monitor outgoing network traffic to `/qr`.
-  3. Allow countdown to reach `0:00` (5 minutes elapsed).
+  1. Open browser DevTools (Network tab).
+  2. Enter the customer wallet view.
+  3. Validate the count of network calls made to `/qr`.
+  4. Wait for the 5-minute interval to reach `0:00`.
 - **Expected Result:**
-  - Exactly 1 network request is made to `/qr` on initial load.
-  - No continuous polling or request loop occurs during the 5-minute countdown.
-  - Only when the timer reaches 0 is a second automated request dispatched to renew the token.
+  - Exactly 1 network call to `/qr` is logged.
+  - The countdown timer reaches `0:00` at exactly 5 minutes, and only then is a second automatic request generated to renew the QR code.
 
 ---
 
-### Scenario 02: Reward Redemption & Card Reset
-**Status:** `BLOCKED`  
-**Objective:** Verify that cards reaching capacity transition correctly into reward redemption mode, prevent overflow, and reset cleanly back to zero.
+### Test Scenario 02: Verify Reward Redemption Flow and Card Reset upon Reaching Limit
+
+Validates that once customer stamps reach campaign capacity, redemption mode is unlocked, invalid additional stamps are blocked, and consumption properly resets the counter.
+
+#### Test Cases:
+- **TC-005 (Happy Path):** Validate that the interface unlocks "Reward Ready / Claim" state upon reaching the campaign stamp limit.
+- **TC-006 (Happy Path):** Validate successful reward redemption by the barista and that the customer wallet counter resets to zero.
+- **TC-007 (Edge Case):** Validate that the system prevents adding an additional stamp if the card is already full and pending redemption.
 
 ---
 
-#### Test Case ID: `TC-005`
-- **Module:** Fidelity / Reward Unlocking
-- **Scenario:** Validate that the interface unlocks "Reward Ready / Claim" state upon reaching campaign stamp limit.
+#### Detailed Specifications:
+
+##### Test Case ID: TC-005
+- **Module:** Fidelity / Reward Claim
+- **Scenario:** Validate that the interface unlocks reward claim status upon reaching the stamp limit.
 - **Preconditions:**
-  1. **Device A (Customer):** Wallet with $N-1$ stamps (e.g., 9 out of 10 stamps collected).
-  2. **Device B (Barista):** Authenticated with `STAFF` role.
+  1. Device A (Customer): Active wallet with $N-1$ stamps (e.g., 9 out of 10 stamps, missing only one).
+  2. Device B (Barista): Session logged in with role `STAFF`.
 - **Execution Steps:**
-  1. On Device A, generate stamp QR code.
-  2. On Device B, scan QR to grant the final stamp.
-  3. Observe UI transition on Device A.
+  1. On Device A, generate the QR code.
+  2. On Device B, scan the QR code to grant the final stamp.
+  3. Observe screen update on Device A.
 - **Expected Result:**
-  - Counter reaches full capacity (e.g., `10/10`).
-  - Device A disables "Add Stamp" button and displays reward badge and "Claim Reward" dynamic voucher.
+  - The counter reaches the campaign maximum (e.g., `10/10`).
+  - The customer's interface visually transitions and disables "Add Stamp", showing instead the option or dynamic QR code for "Claim Reward".
 
----
-
-#### Test Case ID: `TC-006`
-- **Module:** Fidelity / Reward Redemption Flow
-- **Scenario:** Validate reward redemption by staff and automatic wallet reset to zero.
+##### Test Case ID: TC-006
+- **Module:** Fidelity / Reward Claim
+- **Scenario:** Validate reward consumption and card reset.
 - **Preconditions:**
-  1. **Device A (Customer):** Card in "Ready to Claim" state (`10/10`).
-  2. **Device B (Barista):** Staff session open.
+  1. Device A (Customer): Full card in "Ready for claim" state (`10/10`).
+  2. Device B (Barista): Session logged in with role `STAFF`.
 - **Execution Steps:**
-  1. On Device A, tap "Claim Reward" and show redemption QR/code to barista.
-  2. On Device B, scan and confirm redemption.
-  3. Check resulting wallet state on Device A.
+  1. On Device A, open the "Claim Reward" option and present the QR or validation view to the barista.
+  2. On Device B, confirm or scan the reward redemption.
+  3. Verify the resulting state on Device A.
 - **Expected Result:**
-  - Device B confirms reward was successfully redeemed.
-  - Device A receives real-time SSE event, triggers celebration animation, screen brightness returns to normal, and stamp counter resets to `0/10`, ready for a new cycle.
+  - Device B confirms that the reward was handed out.
+  - Device A (via real-time SSE update) triggers a celebratory animation, screen brightness resets to normal, and the card empties back to `0`, ready for a new campaign cycle.
 
----
-
-#### Test Case ID: `TC-007`
-- **Module:** Fidelity / Boundary & Overflow Protection
-- **Scenario:** Validate that system blocks adding stamps to an already completed card pending redemption.
-- **Preconditions:** Device A wallet at `10/10` in reward claim state.
-- **Execution Steps:**
-  1. Attempt to force-request a regular stamp QR token on Device A.
-  2. If presented, attempt to scan using Device B (Staff).
-  3. Verify system error handling.
-- **Expected Result:**
-  - System blocks the action. If scanned, staff scanner throws error: *"Card already full; process reward redemption first."* Stamp count does not increment to 11/10.
-
----
-
-### Scenario 03: Anonymous Customer Wallet Lifecycle & Persistence
-**Status:** `PASSED`  
-**Objective:** Verify seamless customer onboarding with zero friction and robust local session retention.
-
----
-
-#### Test Case ID: `TC-008`
-- **Module:** Acquisition / Anonymous Customer Wallet
-- **Scenario:** Validate instant anonymous wallet provisioning upon visiting valid campaign URL.
+##### Test Case ID: TC-007
+- **Module:** Fidelity / Operation (Limits)
+- **Scenario:** Validate that the system blocks adding an additional stamp if the card is already full.
 - **Preconditions:**
-  1. Active campaign claim link (`/claim/[campaignId]`) created by merchant `OWNER`.
-  2. Incognito/private browser session without previous AlpaCard session history.
+  1. Device A (Customer): Full card in "Ready for claim" state (`10/10`).
 - **Execution Steps:**
-  1. Navigate to `/claim/[campaignId]` (simulating counter QR scan).
-  2. Measure load time.
-  3. Inspect landing screen.
+  1. Attempt to force-generate a regular QR code to add a stamp on Device A (if interface permits).
+  2. If generated, attempt to scan it using Device B (Barista).
+  3. Observe the system response.
 - **Expected Result:**
-  - System prompts no registration forms, usernames, or emails.
-  - Instantly redirects to the campaign loyalty card in under 1 second with `0 stamps`.
+  - The system blocks the action. If the client generates the QR anyway, the barista scanner displays an error (e.g., *"Card is already full, process reward claim first"*), and the counter does not advance to `11/10`.
 
 ---
 
-#### Test Case ID: `TC-009`
-- **Module:** Acquisition / PWA Session Persistence
-- **Scenario:** Validate that anonymous wallet session persists across page refreshes and browser restarts.
-- **Preconditions:** Completed `TC-008` with active wallet displayed.
-- **Execution Steps:**
-  1. Refresh page (`F5`).
-  2. Close tab completely, open a new tab, and navigate back to `https://alpacard.gabo.lat`.
-- **Expected Result:**
-  - User session is remembered via cookies/`LocalStorage`.
-  - Exactly the same wallet ID and stamp balance load without duplicate wallet generation or login prompts.
+### Test Scenario 03: Verify Access, Creation, and Persistence of Anonymous Wallets for New Customers
+
+Validates frictionless zero-form customer onboarding, session retention, error handling, and offline availability.
+
+#### Test Cases:
+- **TC-008 (Happy Path):** Validate instant anonymous wallet creation upon accessing a valid campaign URL.
+- **TC-009 (Edge Case):** Validate anonymous session persistence when refreshing the page or restarting the browser (PWA).
+- **TC-010 (Negative Path):** Validate error handling when attempting to access an invalid or non-existent campaign URL.
+- **TC-015 (Offline PWA):** Validate card rendering from Service Worker cache without an internet connection.
 
 ---
 
-#### Test Case ID: `TC-010`
+#### Detailed Specifications:
+
+##### Test Case ID: TC-008
+- **Module:** Acquisition / Customer Wallet
+- **Scenario:** Validate successful anonymous wallet creation upon accessing a valid campaign.
+- **Preconditions:**
+  1. Valid campaign claim link (`/claim/[campaignId]`) previously created by an `OWNER`.
+  2. Use a browser in incognito mode (to simulate a brand new device with no AlpaCard history).
+- **Execution Steps:**
+  1. Paste the campaign URL into the browser and press Enter (simulating scanning the printed counter QR).
+  2. Observe load time and initial screen presented to the user.
+- **Expected Result:**
+  - The system displays no registration forms and does not ask for an email.
+  - Instantly redirects to the campaign loyalty card view with the counter at `0 stamps` in under 1 second.
+
+##### Test Case ID: TC-009
+- **Module:** Acquisition / PWA Persistence
+- **Scenario:** Validate anonymous wallet persistence to prevent loss of customer stamps.
+- **Preconditions:**
+  1. Successfully completed `TC-008` and on the newly created card screen.
+- **Execution Steps:**
+  1. Refresh the browser page (`F5`).
+  2. Close the browser tab entirely, open a new tab, and navigate back to `alpacard.gabo.lat`.
+- **Expected Result:**
+  - The system remembers the user (via cookies or LocalStorage).
+  - Exactly the same wallet loads, preserving the same ID and progress, without creating a duplicate account or prompting for re-authentication.
+
+##### Test Case ID: TC-010
 - **Module:** Acquisition / Error Handling
-- **Scenario:** Validate error handling when accessing non-existent or invalid campaign URL.
-- **Preconditions:** Browser session without active claim.
-- **Execution Steps:**
-  1. Access invalid URL: `https://alpacard.gabo.lat/claim/12345-fake-campaign`.
-  2. Inspect HTTP status and visual screen.
-- **Expected Result:**
-  - No anonymous wallet is provisioned.
-  - Displays user-friendly error view (*"Campaign not found"* or *"Invalid QR Code"* - HTTP 404).
-
----
-
-#### Test Case ID: `TC-015`
-- **Module:** Acquisition / PWA Offline Connectivity
-- **Scenario:** Validate card rendering from Service Worker cache while offline.
+- **Scenario:** Validate system response when providing an invalid campaign ID.
 - **Preconditions:**
-  1. Device A with active wallet previously loaded online with stamps (e.g., 3 stamps).
-  2. Device placed in Airplane Mode (Wi-Fi and mobile data disabled).
+  1. Browser with no active session.
 - **Execution Steps:**
-  1. Close browser/installed PWA.
-  2. Reopen PWA without internet connectivity.
-  3. Verify rendered UI and cached state.
+  1. Manually enter a malformed claim URL (e.g., `https://alpacard.gabo.lat/claim/12345-fake-campaign`).
+  2. Observe the interface response.
 - **Expected Result:**
-  - Application renders from Service Worker cache showing last cached card state (3 stamps) rather than browser "No internet connection" error.
-- **Current Defect Note:** *(Tracked in Jira as bug; Service Worker offline fallback requires patch).*
+  - The system does not create a wallet.
+  - Displays a friendly error screen (e.g., *"Campaign not found"* or *"Invalid QR Code"* - HTTP 404), blocking access to the card view.
 
----
-
-### Scenario 04: Backoffice Merchant Account & Campaign Management
-**Status:** `PASSED`  
-**Objective:** Verify merchant onboarding, campaign creation rules, printable posters, and input validation.
-
----
-
-#### Test Case ID: `TC-011`
-- **Module:** Backoffice / Merchant Configuration
-- **Scenario:** Validate merchant account onboarding and store setup.
-- **Preconditions:** Authenticated AlpaCard user with role `OWNER`.
+##### Test Case ID: TC-015
+- **Module:** Acquisition / Connectivity (Offline PWA)
+- **Scenario:** Validate card rendering from Service Worker cache without internet connection.
+- **Preconditions:**
+  1. Device A (Customer): Active wallet previously loaded with network connectivity (e.g., with 3 stamps).
+  2. Device placed in Airplane Mode (Wi-Fi and mobile data completely disabled).
 - **Execution Steps:**
-  1. Go to Merchant Settings section.
-  2. Fill required inputs: Business Name, Brand Color Palette, and Menu Details.
-  3. Save changes and refresh page.
+  1. Close the browser or installed PWA on Device A.
+  2. Reopen the application or navigate to the card URL without internet access.
+  3. Observe interface loading and displayed data.
 - **Expected Result:**
-  - Data saved to PostgreSQL database.
-  - Dashboard updates to reflect store name and branding theme.
+  - The application loads using Service Worker cache.
+  - The customer can view their previous card state (3 stamps) and graphic interface intact, rather than a generic browser "No internet connection" error.
 
 ---
 
-#### Test Case ID: `TC-012`
+### Test Scenario 04: Verify Merchant Account Creation and Campaign Rule Configuration from Backoffice
+
+Validates merchant onboarding, loyalty rule definitions, poster generation, and strict boundary input validation.
+
+#### Test Cases:
+- **TC-011 (Happy Path):** Validate successful registration of a commercial venue defining name, colors, and menu.
+- **TC-012 (Happy Path):** Validate creation of a new loyalty campaign configuring required stamp count and reward title.
+- **TC-013 (Happy Path):** Validate correct generation and preview of the printable counter QR poster.
+- **TC-014 (Edge Case / Negative):** Validate that the campaign creation form rejects invalid stamp counts (e.g., 0, negative numbers, or text).
+
+---
+
+#### Detailed Specifications:
+
+##### Test Case ID: TC-011
+- **Module:** Backoffice / Venue Configuration
+- **Scenario:** Validate initial registration of a merchant account.
+- **Preconditions:**
+  1. Access to the AlpaCard Console with an `OWNER` role user.
+- **Execution Steps:**
+  1. Navigate to the venue configuration section.
+  2. Complete required fields: Business Name, Brand Colors, and Menu Information.
+  3. Save changes.
+  4. Check venue preview or refresh page.
+- **Expected Result:**
+  - Data is saved to the PostgreSQL database.
+  - The interface updates the admin dashboard displaying the business name and selected brand styling.
+
+##### Test Case ID: TC-012
 - **Module:** Backoffice / Campaign Management
-- **Scenario:** Validate creation of a new loyalty campaign with valid rules.
-- **Preconditions:** Merchant configured (`TC-011`); authenticated as `OWNER`.
+- **Scenario:** Validate creation of a campaign with valid rules.
+- **Preconditions:**
+  1. Merchant configured previously (`TC-011`).
+  2. User authenticated as `OWNER`.
 - **Execution Steps:**
   1. Navigate to **Campaigns -> New Campaign**.
-  2. Set required stamps count to `10`.
-  3. Enter reward title: *"Free Cheese Scone"*.
+  2. Enter a valid required stamp count (e.g., `10`).
+  3. Enter customer reward name (e.g., *"Free Cheese Scone"*).
   4. Save and activate campaign.
 - **Expected Result:**
-  - Campaign transitions to status `Active` with a unique `campaignId`. Appears in merchant campaign list.
+  - Campaign is created with status "Active" and assigned a unique `campaignId`.
+  - Appears listed in the merchant's campaign dashboard.
 
----
-
-#### Test Case ID: `TC-013`
-- **Module:** Backoffice / Acquisition Poster
-- **Scenario:** Validate counter printable QR poster generation.
-- **Preconditions:** At least one active campaign (`TC-012`).
+##### Test Case ID: TC-013
+- **Module:** Backoffice / Acquisition
+- **Scenario:** Validate static counter QR poster generation.
+- **Preconditions:**
+  1. Have at least one active campaign (`TC-012`).
 - **Execution Steps:**
-  1. Click **"Print QR Poster"** from the active campaign card.
-  2. Inspect popup/printable preview.
-  3. Scan generated poster QR with an external smartphone camera.
+  1. From the active campaign card, click "Print QR Poster".
+  2. Inspect the generated file or popup view.
 - **Expected Result:**
-  - Printable view displays brand styling and static counter QR.
-  - Decoded URL points accurately to `https://alpacard.gabo.lat/claim/[campaignId]`.
+  - The system generates a printable view containing a static QR code.
+  - Scanning this QR code with any camera decodes to the exact URL: `https://alpacard.gabo.lat/claim/[campaignId]`.
 
----
-
-#### Test Case ID: `TC-014`
-- **Module:** Backoffice / Input Validation
-- **Scenario:** Validate rejection of invalid stamp requirements in campaign form.
-- **Preconditions:** `OWNER` session on New Campaign page.
+##### Test Case ID: TC-014
+- **Module:** Backoffice / Input Validations
+- **Scenario:** Validate error handling when inputting invalid stamp counts.
+- **Preconditions:**
+  1. User authenticated as `OWNER` on the New Campaign screen.
 - **Execution Steps:**
-  1. Attempt to create campaign with `0` required stamps.
-  2. Attempt with negative integers (e.g., `-5`) or text (e.g., `"ten"`).
-  3. Click Save.
+  1. Attempt to create a campaign entering `0` as required stamps.
+  2. Click Save.
+  3. Repeat by entering negative numbers (e.g., `-5`) or text (e.g., `"ten"`).
 - **Expected Result:**
-  - Form validation blocks submission on both client and API validation layers. Input highlighted in red with error: *"Stamp count must be greater than 0"*.
+  - The form applies both frontend and backend validations.
+  - Blocks campaign creation, highlighting the field in red and showing an explicit error message (e.g., *"Stamp count must be greater than 0"*).
