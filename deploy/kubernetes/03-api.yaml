@@ -10,7 +10,7 @@ data:
   RABBITMQ_URL: "amqp://guest:guest@alpacard-rabbitmq-service:5672/"
   APP_URL: "https://alpacard.app"
   SMTP_FROM: "Alpacard <no-reply@alpacard.app>"
-  CORS_ORIGINS: "https://alpacard.app,https://www.alpacard.app,https://alpacard.gabo.lat,http://localhost:5173,http://localhost:5174,https://dev.alpacard.app"
+  CORS_ORIGINS: "https://alpacard.app,https://www.alpacard.app,https://wallet.alpacard.app,https://merchant.alpacard.app,https://alpacard.gabo.lat,http://localhost:5173,http://localhost:5174,https://dev.alpacard.app"
 ---
 apiVersion: v1
 kind: Secret
