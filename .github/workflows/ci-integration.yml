@@ -34,6 +34,15 @@ jobs:
           CGO_ENABLED=0 go build -v -o /dev/null ./cmd/server
           CGO_ENABLED=0 go build -v -o /dev/null ./cmd/worker
 
+      - name: E2E API Contract Tests via Newman (Postman)
+        run: |
+          npm install -g newman
+          cd apps/api
+          go run cmd/server/main.go &
+          cd ../..
+          timeout 30s bash -c 'until curl -sf http://localhost:4000/api/health; do sleep 1; done'
+          newman run alpacard-postman-collection.json --env-var "baseUrl=http://localhost:4000" --reporters cli
+
   test-frontend:
     name: Frontend TypeScript Builds & Typecheck
     runs-on: ubuntu-latest

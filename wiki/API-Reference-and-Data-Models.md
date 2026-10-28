@@ -2,6 +2,9 @@
 
 This page documents the RESTful HTTP API contracts, PostgreSQL database schema definitions, and asynchronous RabbitMQ event envelopes used across Alpacard.
 
+> [!TIP]
+> For a step-by-step Postman testing manual with test assertions and an importable Postman collection, see the **[Postman API Testing Guide](Postman-API-Testing-Guide)**.
+
 ---
 
 ## 🌐 REST API Endpoints
