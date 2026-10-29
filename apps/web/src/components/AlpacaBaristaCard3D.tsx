@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 interface AlpacaBaristaCard3DProps {
@@ -20,7 +20,9 @@ interface AlpacaBaristaCard3DProps {
  */
 function playScannerBeep(isRewardUnlock: boolean) {
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioCtx) return;
     const ctx = new AudioCtx();
     const now = ctx.currentTime;
@@ -66,27 +68,6 @@ function createRoundedRectShape(width: number, height: number, radius: number): 
 }
 
 /**
- * Helper to create a 5-pointed star THREE.Shape centered at (0, 0)
- */
-function createStarShape(outerRadius: number, innerRadius: number, points = 5): THREE.Shape {
-  const shape = new THREE.Shape();
-  const step = Math.PI / points;
-  for (let i = 0; i < points * 2; i++) {
-    const r = i % 2 === 0 ? outerRadius : innerRadius;
-    const angle = i * step + Math.PI / 2;
-    const x = Math.cos(angle) * r;
-    const y = Math.sin(angle) * r;
-    if (i === 0) {
-      shape.moveTo(x, y);
-    } else {
-      shape.lineTo(x, y);
-    }
-  }
-  shape.closePath();
-  return shape;
-}
-
-/**
  * Draws a rounded rect path onto a 2D canvas context
  */
 function roundRect2D(
@@ -110,6 +91,145 @@ function roundRect2D(
   ctx.closePath();
 }
 
+/**
+ * Creates a baked warm brick wall texture with subtle ambient occlusion
+ */
+function createBakedBrickTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 256;
+  const ctx = c.getContext('2d')!;
+
+  // Mortar base
+  ctx.fillStyle = '#c9b8a8';
+  ctx.fillRect(0, 0, 512, 256);
+
+  const rows = 10;
+  const cols = 8;
+  const brickH = 256 / rows;
+  const brickW = 512 / cols;
+  const palette = ['#9c4a32', '#b0583c', '#8a3e28', '#a85138', '#bf6a4b', '#7d3722'];
+
+  for (let r = 0; r < rows; r++) {
+    const offset = (r % 2) * (brickW / 2);
+    for (let col = -1; col <= cols; col++) {
+      const x = col * brickW + offset;
+      const y = r * brickH;
+      ctx.fillStyle = palette[(r * 7 + col * 3 + 10) % palette.length];
+      roundRect2D(ctx, x + 3, y + 3, brickW - 6, brickH - 6, 3);
+      ctx.fill();
+    }
+  }
+
+  // Baked warm top/bottom AO vignette
+  const grad = ctx.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, 'rgba(30, 15, 5, 0.35)');
+  grad.addColorStop(0.3, 'rgba(255, 210, 160, 0.08)');
+  grad.addColorStop(1, 'rgba(25, 12, 5, 0.45)');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 512, 256);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/**
+ * Creates a baked wooden horizontal plank texture for the front of the coffee counter
+ */
+function createBakedWoodPlankTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 256;
+  const ctx = c.getContext('2d')!;
+
+  const planks = 5;
+  const pH = 256 / planks;
+  const tones = ['#9c663b', '#8c5830', '#a66f43', '#825029', '#966036'];
+
+  for (let i = 0; i < planks; i++) {
+    ctx.fillStyle = tones[i % tones.length];
+    ctx.fillRect(0, i * pH, 512, pH);
+    // Plank seam line
+    ctx.fillStyle = '#4a2c14';
+    ctx.fillRect(0, i * pH, 512, 3);
+  }
+
+  // Baked top shadow under countertop lip
+  const ao = ctx.createLinearGradient(0, 0, 0, 256);
+  ao.addColorStop(0, 'rgba(20, 10, 4, 0.42)');
+  ao.addColorStop(0.22, 'rgba(0, 0, 0, 0)');
+  ao.addColorStop(1, 'rgba(20, 10, 4, 0.25)');
+  ctx.fillStyle = ao;
+  ctx.fillRect(0, 0, 512, 256);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+/**
+ * Creates the Chalkboard MENU texture seen on the upper-right brick wall
+ */
+function createChalkboardMenuTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 384;
+  c.height = 220;
+  const ctx = c.getContext('2d')!;
+
+  // Slate chalkboard background
+  ctx.fillStyle = '#1c1b1a';
+  ctx.fillRect(0, 0, 384, 220);
+
+  ctx.fillStyle = '#f5f5f4';
+  ctx.font = 'bold 24px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('MENU', 192, 34);
+
+  ctx.strokeStyle = 'rgba(245,245,244,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(32, 44);
+  ctx.lineTo(352, 44);
+  ctx.stroke();
+
+  ctx.font = '600 13px monospace';
+  ctx.textAlign = 'left';
+  const leftItems = [
+    ['ESPRESSO', '3.50'],
+    ['AMERICANO', '3.60'],
+    ['FLAT WHITE', '4.20'],
+    ['CAPPUCCINO', '4.50'],
+    ['CROISSANT', '3.80'],
+  ];
+  leftItems.forEach(([name, price], i) => {
+    const y = 70 + i * 26;
+    ctx.fillStyle = '#e7e5e4';
+    ctx.fillText(name, 26, y);
+    ctx.fillStyle = '#fcd34d';
+    ctx.fillText(price, 142, y);
+  });
+
+  const rightItems = [
+    ['COLD BREW', '4.50'],
+    ['MOCHA', '4.80'],
+    ['MATCHA', '4.90'],
+    ['POUR OVER', '5.20'],
+    ['MUFFIN', '3.50'],
+  ];
+  rightItems.forEach(([name, price], i) => {
+    const y = 70 + i * 26;
+    ctx.fillStyle = '#e7e5e4';
+    ctx.fillText(name, 206, y);
+    ctx.fillStyle = '#fcd34d';
+    ctx.fillText(price, 326, y);
+  });
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 export function AlpacaBaristaCard3D({
   stamps,
   maxStamps,
@@ -124,6 +244,7 @@ export function AlpacaBaristaCard3D({
   resetTrigger,
 }: AlpacaBaristaCard3DProps) {
   const mountRef = useRef<HTMLDivElement | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   // Store latest props in ref for the animation & texture draw loop
   const propsRef = useRef({
@@ -149,21 +270,25 @@ export function AlpacaBaristaCard3D({
     remainingStampsText,
   };
 
-  // Animation state shared with the Three.js loop
+  // Animation & lifecycle state shared with the Three.js loop
   const animRef = useRef({
     isScanning: false,
     scanStartTime: 0,
-    scanDuration: 1.95, // seconds for the full scan + 3D tilt + stamp punch sequence
+    scanDuration: 1.95,
     targetSlotIndex: -1,
     isRewardCelebration: false,
     isResetFlip: false,
     resetStartTime: 0,
     userPointerX: 0,
     userPointerY: 0,
+    gyroX: 0,
+    gyroY: 0,
     isPointerHoveringCard: false,
     hasRevealed3D: false,
     needTextureUpdate: true,
     displayedStampsOnCard: stamps,
+    isVisibleInViewport: true,
+    isTabActive: true,
   });
 
   // Trigger scan animation when scanTrigger increments
@@ -174,7 +299,6 @@ export function AlpacaBaristaCard3D({
     a.scanStartTime = performance.now() / 1000;
     a.targetSlotIndex = Math.max(0, stamps - 1);
     a.isRewardCelebration = stamps >= maxStamps;
-    // Keep card face showing previous count until the laser hits at progress = 0.34
     a.displayedStampsOnCard = Math.max(0, stamps - 1);
     a.hasRevealed3D = true;
     a.needTextureUpdate = true;
@@ -216,8 +340,8 @@ export function AlpacaBaristaCard3D({
 
     const getContainerSize = () => {
       const rect = container.getBoundingClientRect();
-      const w = Math.max(240, Math.floor(rect.width || container.clientWidth || 320));
-      const h = w < 350 ? 470 : 520;
+      const w = Math.max(250, Math.floor(rect.width || container.clientWidth || 340));
+      const h = w < 360 ? 535 : 585;
       return { w, h };
     };
 
@@ -226,17 +350,19 @@ export function AlpacaBaristaCard3D({
     // 1. SCENE, CAMERA, RENDERER
     const scene = new THREE.Scene();
 
-    const fov = 34;
+    const fov = 35;
     const camera = new THREE.PerspectiveCamera(fov, initW / initH, 0.1, 100);
+    let baseCameraZ = 12.0;
 
     const updateCameraDistance = (w: number, h: number) => {
       const aspect = w / h;
       const halfFovTan = Math.tan((fov * Math.PI) / 360);
-      // Ensure 4.45 world units of horizontal width always fit inside the frustum even when card tilts forward
-      const requiredZForWidth = 4.45 / (2 * halfFovTan * aspect) + 0.55;
+      // Ensure the full coffee shop counter + card width (4.65 units) fits on both mobile & desktop
+      const requiredZForWidth = 4.65 / (2 * halfFovTan * aspect) + 0.45;
+      baseCameraZ = Math.max(11.6, requiredZForWidth);
       camera.aspect = aspect;
-      camera.position.set(0, -0.05, Math.max(11.8, requiredZForWidth));
-      camera.lookAt(0, -0.05, 0);
+      camera.position.set(0, 0.05, baseCameraZ);
+      camera.lookAt(0, 0.02, 0);
       camera.updateProjectionMatrix();
     };
 
@@ -256,319 +382,581 @@ export function AlpacaBaristaCard3D({
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.08;
+    renderer.toneMappingExposure = 1.12;
 
     container.innerHTML = '';
     container.appendChild(renderer.domElement);
 
-    // 2. LIGHTING (Soft studio clay lighting matching alpacard-logo.jpg)
-    const ambientLight = new THREE.AmbientLight(0xfffaf2, 1.55);
+    // 2. WARM SPECIALTY COFFEE SHOP LIGHTING
+    // Warm cozy ambient fill
+    const ambientLight = new THREE.AmbientLight(0xfff6e9, 1.45);
     scene.add(ambientLight);
 
-    const keyLight = new THREE.DirectionalLight(0xfffdf9, 1.85);
-    keyLight.position.set(4.5, 7.5, 6.5);
-    keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
-    keyLight.shadow.camera.near = 1;
-    keyLight.shadow.camera.far = 20;
-    const d = 5;
-    keyLight.shadow.camera.left = -d;
-    keyLight.shadow.camera.right = d;
-    keyLight.shadow.camera.top = d;
-    keyLight.shadow.camera.bottom = -d;
-    keyLight.shadow.bias = -0.0015;
-    scene.add(keyLight);
+    // Warm morning sunlight streaming through the left street window
+    const windowSunLight = new THREE.DirectionalLight(0xfffbeb, 1.9);
+    windowSunLight.position.set(-5.2, 6.2, 5.5);
+    windowSunLight.castShadow = true;
+    windowSunLight.shadow.mapSize.width = 1024;
+    windowSunLight.shadow.mapSize.height = 1024;
+    windowSunLight.shadow.camera.near = 1;
+    windowSunLight.shadow.camera.far = 20;
+    const d = 5.5;
+    windowSunLight.shadow.camera.left = -d;
+    windowSunLight.shadow.camera.right = d;
+    windowSunLight.shadow.camera.top = d;
+    windowSunLight.shadow.camera.bottom = -d;
+    windowSunLight.shadow.bias = -0.0015;
+    scene.add(windowSunLight);
 
-    const rimLight = new THREE.DirectionalLight(0xdbeafe, 0.75);
-    rimLight.position.set(-5, 3, -3);
-    scene.add(rimLight);
+    // Warm golden point light from the hanging Edison pendant lamps
+    const pendantPointLight = new THREE.PointLight(0xffb74d, 1.8, 8.5);
+    pendantPointLight.position.set(0.2, 2.85, 0.3);
+    scene.add(pendantPointLight);
 
-    // Dynamic green/amber scanner point light that illuminates the card during scan
+    // Dynamic green POS scanner point light (activates during smartphone scan)
     const scanPointLight = new THREE.PointLight(0x10b981, 0, 5.5);
     scanPointLight.position.set(0, 0.2, 1.5);
     scene.add(scanPointLight);
 
     // ============================================================================
-    // 3. TOP DIORAMA: BARISTA ALPACA MANNING THE COFFEE BAR
+    // 3. SPECIALTY COFFEE SHOP DIORAMA (Customer POV matching Reference Image)
     // ============================================================================
-    const dioramaGroup = new THREE.Group();
-    dioramaGroup.position.set(0, 1.72, -0.25);
-    scene.add(dioramaGroup);
+    const shopGroup = new THREE.Group();
+    shopGroup.position.set(0, 1.65, -0.35);
+    scene.add(shopGroup);
 
-    // Shared Materials (Matte soft clay aesthetic like alpacard-logo.jpg)
+    // Shared Stylized Clay / Toy Materials
     const woolMat = new THREE.MeshStandardMaterial({
-      color: 0xfbf7f0,
-      roughness: 0.72,
+      color: 0xfbf6ee,
+      roughness: 0.74,
       metalness: 0.02,
     });
     const faceSkinMat = new THREE.MeshStandardMaterial({
-      color: 0xf4dec2,
+      color: 0xf5dfc3,
       roughness: 0.65,
       metalness: 0.02,
     });
     const snoutMat = new THREE.MeshStandardMaterial({
-      color: 0xfcefd9,
+      color: 0xfdf1dc,
       roughness: 0.6,
       metalness: 0.02,
     });
     const innerEarMat = new THREE.MeshStandardMaterial({
-      color: 0xe3b58c,
+      color: 0xe5b18a,
       roughness: 0.7,
-      metalness: 0.0,
     });
     const darkBrownMat = new THREE.MeshStandardMaterial({
       color: 0x3b2316,
-      roughness: 0.4,
+      roughness: 0.42,
       metalness: 0.08,
     });
     const eyeMat = new THREE.MeshStandardMaterial({
-      color: 0x24130b,
-      roughness: 0.12,
+      color: 0x1e110a,
+      roughness: 0.1,
       metalness: 0.15,
     });
-    const collarBlueMat = new THREE.MeshStandardMaterial({
-      color: 0x2c36b8,
-      roughness: 0.35,
-      metalness: 0.18,
+    // Forest Green Barista Apron (from reference image!)
+    const greenApronMat = new THREE.MeshStandardMaterial({
+      color: 0x2c4c38,
+      roughness: 0.72,
+      metalness: 0.04,
     });
-    const goldStarMat = new THREE.MeshStandardMaterial({
-      color: 0xf5a623,
-      roughness: 0.25,
-      metalness: 0.65,
-      emissive: 0x4a2c00,
-      emissiveIntensity: 0.15,
-    });
-    const apronMat = new THREE.MeshStandardMaterial({
-      color: 0x3d2b1f,
-      roughness: 0.75,
+    const woodShelfMat = new THREE.MeshStandardMaterial({
+      color: 0x8f5b34,
+      roughness: 0.62,
       metalness: 0.05,
     });
-    const counterWoodMat = new THREE.MeshStandardMaterial({
-      color: 0x8c5832,
+    const stoneCounterTopMat = new THREE.MeshStandardMaterial({
+      color: 0xc7bdb1,
+      roughness: 0.48,
+      metalness: 0.06,
+    });
+    const leafGreenMat = new THREE.MeshStandardMaterial({
+      color: 0x3b7a3e,
+      roughness: 0.58,
+    });
+    const leafLightMat = new THREE.MeshStandardMaterial({
+      color: 0x5da34e,
       roughness: 0.55,
-      metalness: 0.05,
     });
-    const counterBaseMat = new THREE.MeshStandardMaterial({
-      color: 0x4a3525,
-      roughness: 0.7,
-      metalness: 0.05,
+    const pastryGoldMat = new THREE.MeshStandardMaterial({
+      color: 0xd9822b,
+      roughness: 0.52,
+      metalness: 0.04,
+    });
+    const breadCrustMat = new THREE.MeshStandardMaterial({
+      color: 0xc87a2e,
+      roughness: 0.6,
     });
 
-    // --- 3A. THE ALPACA CHARACTER ---
+    // --- 3A. BACKGROUND ARCHITECTURE: BRICK WALL, STREET WINDOW, SHELVES, MENU & PENDANT LAMPS ---
+    const bgGroup = new THREE.Group();
+    bgGroup.position.set(0, 0.25, -1.05);
+    shopGroup.add(bgGroup);
+
+    // 1. Warm Brick Back Wall (center & right)
+    const brickTex = createBakedBrickTexture();
+    const brickWallMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(3.25, 2.35, 0.12),
+      new THREE.MeshStandardMaterial({ map: brickTex, roughness: 0.85 })
+    );
+    brickWallMesh.position.set(0.65, 0.36, 0);
+    brickWallMesh.receiveShadow = true;
+    bgGroup.add(brickWallMesh);
+
+    // 2. Large Left Street Window (black mullion frame + sunlit street glow + hanging plants)
+    const windowGroup = new THREE.Group();
+    windowGroup.position.set(-1.52, 0.36, 0.05);
+    windowGroup.rotation.y = 0.18;
+    bgGroup.add(windowGroup);
+
+    // Sunlit outside street backdrop plane
+    const streetSkyMat = new THREE.MeshBasicMaterial({ color: 0xfef9c3 });
+    const windowGlassPane = new THREE.Mesh(new THREE.PlaneGeometry(1.32, 2.28), streetSkyMat);
+    windowGlassPane.position.set(0, 0, -0.02);
+    windowGroup.add(windowGlassPane);
+
+    // Soft blurred warm building/trees silhouette outside the window
+    const outsideBuilding = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.28, 0.95),
+      new THREE.MeshBasicMaterial({ color: 0xd6b892 })
+    );
+    outsideBuilding.position.set(0, 0.2, -0.01);
+    windowGroup.add(outsideBuilding);
+
+    const outsideGreenery = new THREE.Mesh(
+      new THREE.SphereGeometry(0.38, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0x86efac })
+    );
+    outsideGreenery.scale.set(1.4, 0.9, 0.2);
+    outsideGreenery.position.set(-0.2, -0.35, -0.005);
+    windowGroup.add(outsideGreenery);
+
+    // Black window mullions / frame bars
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.5 });
+    const vFrameLeft = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.32, 0.06), frameMat);
+    vFrameLeft.position.set(-0.64, 0, 0.02);
+    windowGroup.add(vFrameLeft);
+
+    const vFrameMid = new THREE.Mesh(new THREE.BoxGeometry(0.045, 2.32, 0.05), frameMat);
+    vFrameMid.position.set(0, 0, 0.02);
+    windowGroup.add(vFrameMid);
+
+    const vFrameRight = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.32, 0.06), frameMat);
+    vFrameRight.position.set(0.64, 0, 0.02);
+    windowGroup.add(vFrameRight);
+
+    const hFrameTop = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.06, 0.06), frameMat);
+    hFrameTop.position.set(0, 1.13, 0.02);
+    windowGroup.add(hFrameTop);
+
+    const hFrameMid = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.045, 0.05), frameMat);
+    hFrameMid.position.set(0, 0.35, 0.02);
+    windowGroup.add(hFrameMid);
+
+    // Hanging potted ivy vines at the top of the street window
+    const hangingVinesGroup = new THREE.Group();
+    hangingVinesGroup.position.set(-0.1, 1.02, 0.12);
+    windowGroup.add(hangingVinesGroup);
+
+    const planterBox = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.16, 0.16), woodShelfMat);
+    hangingVinesGroup.add(planterBox);
+
+    for (let v = 0; v < 9; v++) {
+      const vx = -0.4 + v * 0.1;
+      const vLen = 0.25 + (v % 3) * 0.16;
+      for (let l = 0; l < 4; l++) {
+        const leaf = new THREE.Mesh(
+          new THREE.SphereGeometry(0.048, 8, 8),
+          (v + l) % 2 === 0 ? leafGreenMat : leafLightMat
+        );
+        leaf.scale.set(0.8, 1.3, 0.5);
+        leaf.position.set(vx + Math.sin(l) * 0.02, -0.08 - l * (vLen / 3.5), 0.05);
+        hangingVinesGroup.add(leaf);
+      }
+    }
+
+    // 3. Framed Chalkboard MENU on Upper-Right Brick Wall
+    const menuGroup = new THREE.Group();
+    menuGroup.position.set(1.42, 0.88, 0.09);
+    bgGroup.add(menuGroup);
+
+    const menuFrame = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.86, 0.05), woodShelfMat);
+    menuFrame.castShadow = true;
+    menuGroup.add(menuFrame);
+
+    const menuBoard = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.3, 0.74),
+      new THREE.MeshBasicMaterial({ map: createChalkboardMenuTexture() })
+    );
+    menuBoard.position.set(0, 0, 0.028);
+    menuGroup.add(menuBoard);
+
+    // 4. Wooden Wall Shelves Behind the Alpaca with Coffee Bags, Jars & Trailing Plants
+    const shelfGroup = new THREE.Group();
+    shelfGroup.position.set(-0.12, 0.72, 0.16);
+    bgGroup.add(shelfGroup);
+
+    const topShelf = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.055, 0.26), woodShelfMat);
+    topShelf.position.set(0, 0.34, 0);
+    topShelf.castShadow = true;
+    shelfGroup.add(topShelf);
+
+    const lowerShelf = new THREE.Mesh(new THREE.BoxGeometry(1.38, 0.055, 0.26), woodShelfMat);
+    lowerShelf.position.set(0, -0.06, 0);
+    lowerShelf.castShadow = true;
+    shelfGroup.add(lowerShelf);
+
+    // Small coffee bags & jars sitting on the wall shelves
+    const shelfBagColors = [0xfbbf24, 0x60a5fa, 0xf472b6, 0x34d399];
+    for (let sb = 0; sb < 4; sb++) {
+      const sBag = new THREE.Mesh(
+        new THREE.BoxGeometry(0.16, 0.22, 0.11),
+        new THREE.MeshStandardMaterial({ color: 0xd6b08a, roughness: 0.7 })
+      );
+      sBag.position.set(-0.44 + sb * 0.26, 0.08, 0);
+      shelfGroup.add(sBag);
+
+      const sLabel = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.11, 0.1),
+        new THREE.MeshBasicMaterial({ color: shelfBagColors[sb] })
+      );
+      sLabel.position.set(-0.44 + sb * 0.26, 0.06, 0.058);
+      shelfGroup.add(sLabel);
+    }
+
+    // Trailing green plant on the right side of the top shelf
+    const shelfPlantGroup = new THREE.Group();
+    shelfPlantGroup.position.set(0.52, 0.42, 0.04);
+    shelfGroup.add(shelfPlantGroup);
+    for (let p = 0; p < 7; p++) {
+      const pLeaf = new THREE.Mesh(
+        new THREE.SphereGeometry(0.055, 8, 8),
+        p % 2 === 0 ? leafGreenMat : leafLightMat
+      );
+      pLeaf.scale.set(1.0, 1.2, 0.7);
+      pLeaf.position.set(Math.sin(p * 1.3) * 0.08, -p * 0.075, 0.05);
+      shelfPlantGroup.add(pLeaf);
+    }
+
+    // 5. Back Counter Behind Barista: Commercial Dual-Grouphead Espresso Machine + Bean Grinders
+    const backBarGroup = new THREE.Group();
+    backBarGroup.position.set(1.12, -0.25, 0.35);
+    bgGroup.add(backBarGroup);
+
+    const steelMat = new THREE.MeshStandardMaterial({
+      color: 0xd6d3d1,
+      roughness: 0.26,
+      metalness: 0.72,
+    });
+    const darkMachineMat = new THREE.MeshStandardMaterial({
+      color: 0x292524,
+      roughness: 0.45,
+      metalness: 0.35,
+    });
+
+    // Commercial wide espresso machine body
+    const espBody = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.56, 0.42), steelMat);
+    espBody.position.set(0, 0.18, 0);
+    espBody.castShadow = true;
+    backBarGroup.add(espBody);
+
+    // Dual groupheads & portafilter handles
+    [-0.22, 0.22].forEach((gx) => {
+      const gh = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.055, 0.08, 14), darkMachineMat);
+      gh.position.set(gx, 0.14, 0.22);
+      backBarGroup.add(gh);
+
+      const handle = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.02, 0.14, 6, 8),
+        darkMachineMat
+      );
+      handle.rotation.x = Math.PI / 2;
+      handle.rotation.z = -0.25;
+      handle.position.set(gx + 0.05, 0.12, 0.31);
+      backBarGroup.add(handle);
+    });
+
+    // Stacked ceramic espresso cups on top of the machine
+    const cupColors = [0xffffff, 0xfde68a, 0x93c5fd, 0xffffff];
+    cupColors.forEach((cc, ci) => {
+      const miniCup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.055, 0.042, 0.09, 12),
+        new THREE.MeshStandardMaterial({ color: cc, roughness: 0.25 })
+      );
+      miniCup.position.set(-0.3 + ci * 0.18, 0.51, 0);
+      backBarGroup.add(miniCup);
+    });
+
+    // Coffee Bean Grinder next to the espresso machine
+    const grinderBase = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.13, 0.36, 16), darkMachineMat);
+    grinderBase.position.set(0.68, 0.08, 0.02);
+    backBarGroup.add(grinderBase);
+
+    const grinderHopper = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.13, 0.08, 0.24, 16),
+      new THREE.MeshStandardMaterial({
+        color: 0x78350f,
+        transparent: true,
+        opacity: 0.78,
+        roughness: 0.2,
+      })
+    );
+    grinderHopper.position.set(0.68, 0.38, 0.02);
+    backBarGroup.add(grinderHopper);
+
+    // Rising Steam Puffs from the Espresso Machine
+    const steamPuffs: THREE.Mesh[] = [];
+    const steamMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.42,
+    });
+    for (let i = 0; i < 4; i++) {
+      const sPuff = new THREE.Mesh(new THREE.SphereGeometry(0.052 - i * 0.006, 10, 10), steamMat.clone());
+      sPuff.position.set(-0.18, 0.55 + i * 0.12, 0.15);
+      backBarGroup.add(sPuff);
+      steamPuffs.push(sPuff);
+    }
+
+    // 6. Hanging Warm Cage Pendant Lamps (Swaying gently in the animation loop!)
+    const createPendantLamp = (x: number, y: number, z: number) => {
+      const pivot = new THREE.Group();
+      pivot.position.set(x, y, z);
+
+      const cord = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.012, 0.012, 0.42, 8),
+        frameMat
+      );
+      cord.position.set(0, -0.21, 0);
+      pivot.add(cord);
+
+      const shadeCap = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.05, 0.11, 0.08, 14),
+        frameMat
+      );
+      shadeCap.position.set(0, -0.42, 0);
+      pivot.add(shadeCap);
+
+      // Wire cage around bulb
+      const cage = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.13, 0.16, 0.22, 8, 1, true),
+        new THREE.MeshBasicMaterial({ color: 0x292524, wireframe: true })
+      );
+      cage.position.set(0, -0.54, 0);
+      pivot.add(cage);
+
+      // Glowing warm Edison bulb
+      const bulb = new THREE.Mesh(
+        new THREE.SphereGeometry(0.075, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xffedd5 })
+      );
+      bulb.scale.set(0.85, 1.25, 0.85);
+      bulb.position.set(0, -0.53, 0);
+      pivot.add(bulb);
+
+      // Soft warm halo glow sprite around the bulb
+      const halo = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 16, 16),
+        new THREE.MeshBasicMaterial({
+          color: 0xfbbf24,
+          transparent: true,
+          opacity: 0.24,
+          depthWrite: false,
+        })
+      );
+      halo.position.set(0, -0.53, 0);
+      pivot.add(halo);
+
+      return pivot;
+    };
+
+    const leftLamp = createPendantLamp(-0.92, 1.52, 0.55);
+    const centerLamp = createPendantLamp(0.08, 1.56, 0.65);
+    bgGroup.add(leftLamp, centerLamp);
+
+    // --- 3B. CENTER CHARACTER: THE STYLIZED ALPACA BARISTA IN GREEN APRON ---
     const alpacaRoot = new THREE.Group();
-    alpacaRoot.position.set(0, -0.15, -0.12);
-    alpacaRoot.scale.setScalar(0.92);
-    dioramaGroup.add(alpacaRoot);
+    alpacaRoot.position.set(0.14, -0.24, 0.02);
+    alpacaRoot.scale.setScalar(0.86);
+    shopGroup.add(alpacaRoot);
 
-    // Body / Chest Torso
     const bodyGroup = new THREE.Group();
     alpacaRoot.add(bodyGroup);
 
-    const torsoGeo = new THREE.CapsuleGeometry(0.62, 0.55, 16, 24);
-    const torsoMesh = new THREE.Mesh(torsoGeo, woolMat);
-    torsoMesh.position.set(0, 0.15, 0);
+    // Fluffy White Torso & Long Neck (matching reference image!)
+    const torsoMesh = new THREE.Mesh(new THREE.CapsuleGeometry(0.58, 0.58, 16, 24), woolMat);
+    torsoMesh.position.set(0, 0.08, 0);
     torsoMesh.castShadow = true;
     torsoMesh.receiveShadow = true;
     bodyGroup.add(torsoMesh);
 
-    // Fluffy chest cloud puffs (like bottom of the logo)
-    const chestPuffPositions: [number, number, number, number][] = [
-      [0, -0.02, 0.46, 0.26],
-      [-0.27, 0.03, 0.41, 0.23],
-      [0.27, 0.03, 0.41, 0.23],
-      [-0.46, 0.12, 0.26, 0.21],
-      [0.46, 0.12, 0.26, 0.21],
+    const neckMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.4, 0.52, 20), woolMat);
+    neckMesh.position.set(0, 0.58, 0.04);
+    neckMesh.castShadow = true;
+    bodyGroup.add(neckMesh);
+
+    // Fluffy neck & shoulder wool puffs
+    const bodyPuffs: [number, number, number, number][] = [
+      [0, 0.55, 0.24, 0.19],
+      [-0.2, 0.52, 0.2, 0.17],
+      [0.2, 0.52, 0.2, 0.17],
+      [0, 0.36, 0.29, 0.21],
+      [-0.48, 0.12, 0.22, 0.23],
+      [0.48, 0.12, 0.22, 0.23],
+      [-0.52, -0.08, 0.26, 0.24],
+      [0.52, -0.08, 0.26, 0.24],
     ];
-    chestPuffPositions.forEach(([px, py, pz, pr]) => {
-      const puff = new THREE.Mesh(new THREE.SphereGeometry(pr, 20, 20), woolMat);
+    bodyPuffs.forEach(([px, py, pz, pr]) => {
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(pr, 18, 18), woolMat);
       puff.position.set(px, py, pz);
       puff.castShadow = true;
       bodyGroup.add(puff);
     });
 
-    // Barista Apron worn over torso
-    const apronFrontGeo = new THREE.CylinderGeometry(0.635, 0.655, 0.65, 24, 1, true, -0.95, 1.9);
-    const apronFront = new THREE.Mesh(apronFrontGeo, apronMat);
-    apronFront.position.set(0, -0.05, 0.03);
-    bodyGroup.add(apronFront);
-
-    // Apron coffee badge on chest
-    const apronBadge = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.11, 0.11, 0.03, 20),
-      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.4, metalness: 0.3 })
+    // Forest Green Barista Bib Apron (#2c4c38) + Neck Straps + Round Pin Badge
+    const apronBib = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.56, 0.61, 0.72, 24, 1, true, -0.82, 1.64),
+      greenApronMat
     );
-    apronBadge.rotation.x = Math.PI / 2;
-    apronBadge.position.set(0.22, 0.02, 0.64);
-    bodyGroup.add(apronBadge);
+    apronBib.position.set(0, -0.02, 0.06);
+    bodyGroup.add(apronBib);
 
-    // Iconic Royal Blue Collar (from alpacard-logo.jpg)
-    const collarGeo = new THREE.TorusGeometry(0.54, 0.135, 20, 40);
-    const collarMesh = new THREE.Mesh(collarGeo, collarBlueMat);
-    collarMesh.rotation.x = Math.PI / 2 + 0.12;
-    collarMesh.position.set(0, 0.34, 0.04);
-    collarMesh.castShadow = true;
-    bodyGroup.add(collarMesh);
-
-    // 3D Extruded Gold Star on the Collar
-    const starShape = createStarShape(0.24, 0.115, 5);
-    const starGeo = new THREE.ExtrudeGeometry(starShape, {
-      depth: 0.06,
-      bevelEnabled: true,
-      bevelThickness: 0.035,
-      bevelSize: 0.028,
-      bevelSegments: 5,
+    // Left & right green apron shoulder straps
+    [-0.24, 0.24].forEach((sx) => {
+      const strap = new THREE.Mesh(new THREE.BoxGeometry(0.085, 0.32, 0.05), greenApronMat);
+      strap.position.set(sx, 0.38, 0.48);
+      strap.rotation.x = -0.35;
+      strap.rotation.z = sx * -0.3;
+      bodyGroup.add(strap);
     });
-    starGeo.center();
-    const starMesh = new THREE.Mesh(starGeo, goldStarMat);
-    starMesh.position.set(0, 0.26, 0.68);
-    starMesh.rotation.x = 0.1;
-    starMesh.castShadow = true;
-    bodyGroup.add(starMesh);
 
-    // --- HEAD GROUP (Animated for nodding, looking at card, blinking) ---
+    // Cute round brass/wood barista pin on the right apron strap (just like reference image!)
+    const apronPin = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.068, 0.068, 0.03, 18),
+      new THREE.MeshStandardMaterial({ color: 0xd4a373, roughness: 0.35, metalness: 0.4 })
+    );
+    apronPin.rotation.x = Math.PI / 2;
+    apronPin.position.set(0.19, 0.24, 0.58);
+    bodyGroup.add(apronPin);
+
+    // --- ALPACA HEAD GROUP ---
     const headGroup = new THREE.Group();
-    headGroup.position.set(0, 0.88, 0.06);
+    headGroup.position.set(0, 0.96, 0.08);
     bodyGroup.add(headGroup);
 
-    // Base head sphere
-    const headCore = new THREE.Mesh(new THREE.SphereGeometry(0.56, 28, 28), woolMat);
+    const headCore = new THREE.Mesh(new THREE.SphereGeometry(0.52, 28, 28), woolMat);
     headCore.scale.set(1.04, 0.98, 0.95);
     headCore.castShadow = true;
     headGroup.add(headCore);
 
-    // Warm beige face inset
-    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.45, 28, 28), faceSkinMat);
+    const facePlate = new THREE.Mesh(new THREE.SphereGeometry(0.42, 28, 28), faceSkinMat);
     facePlate.scale.set(1.02, 0.88, 0.65);
-    facePlate.position.set(0, -0.03, 0.27);
+    facePlate.position.set(0, -0.02, 0.25);
     headGroup.add(facePlate);
 
-    // Fluffy Forehead & Cheek Wool Puffs (matching the exact silhouette of alpacard-logo.jpg)
+    // Fluffy Forehead & Cheek Puffs
     const headWoolPuffs: [number, number, number, number, number, number, number][] = [
-      [0, 0.36, 0.35, 0.27, 1.15, 1.0, 0.95],
-      [-0.28, 0.34, 0.28, 0.23, 1.0, 1.0, 0.9],
-      [0.28, 0.34, 0.28, 0.23, 1.0, 1.0, 0.9],
-      [0, 0.48, 0.08, 0.28, 1.1, 0.95, 1.0],
-      [-0.47, 0.06, 0.18, 0.24, 0.95, 1.05, 0.9],
-      [0.47, 0.06, 0.18, 0.24, 0.95, 1.05, 0.9],
-      [-0.44, -0.18, 0.22, 0.23, 1.0, 0.95, 0.9],
-      [0.44, -0.18, 0.22, 0.23, 1.0, 0.95, 0.9],
-      [0, -0.36, 0.24, 0.22, 1.35, 0.75, 0.85],
+      [0, 0.34, 0.32, 0.24, 1.15, 1.0, 0.95],
+      [-0.25, 0.32, 0.26, 0.21, 1.0, 1.0, 0.9],
+      [0.25, 0.32, 0.26, 0.21, 1.0, 1.0, 0.9],
+      [0, 0.45, 0.08, 0.25, 1.1, 0.95, 1.0],
+      [-0.44, 0.06, 0.16, 0.22, 0.95, 1.05, 0.9],
+      [0.44, 0.06, 0.16, 0.22, 0.95, 1.05, 0.9],
+      [-0.41, -0.16, 0.2, 0.21, 1.0, 0.95, 0.9],
+      [0.41, -0.16, 0.2, 0.21, 1.0, 0.95, 0.9],
+      [0, -0.34, 0.22, 0.2, 1.35, 0.75, 0.85],
     ];
     headWoolPuffs.forEach(([x, y, z, r, sx, sy, sz]) => {
-      const puff = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 20), woolMat);
+      const puff = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 18), woolMat);
       puff.position.set(x, y, z);
       puff.scale.set(sx, sy, sz);
       puff.castShadow = true;
       headGroup.add(puff);
     });
 
-    // Cute Barista Visor Cap on top of the alpaca's head
-    const capBrim = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.36, 0.36, 0.04, 24, 1, false, -Math.PI * 0.35, Math.PI * 0.7),
-      apronMat
-    );
-    capBrim.position.set(0, 0.56, 0.18);
-    capBrim.rotation.x = 0.22;
-    headGroup.add(capBrim);
-
-    // Snout / Muzzle
-    const snoutMesh = new THREE.Mesh(new THREE.SphereGeometry(0.21, 24, 24), snoutMat);
+    // Snout & Y-Nose + Smile
+    const snoutMesh = new THREE.Mesh(new THREE.SphereGeometry(0.19, 22, 22), snoutMat);
     snoutMesh.scale.set(1.12, 0.88, 0.85);
-    snoutMesh.position.set(0, -0.11, 0.49);
-    snoutMesh.castShadow = true;
+    snoutMesh.position.set(0, -0.1, 0.45);
     headGroup.add(snoutMesh);
 
-    // Nose & Smile (Y-shaped alpaca nose + curved smile from logo)
-    const noseTop = new THREE.Mesh(new THREE.SphereGeometry(0.055, 16, 16), darkBrownMat);
+    const noseTop = new THREE.Mesh(new THREE.SphereGeometry(0.05, 14, 14), darkBrownMat);
     noseTop.scale.set(1.35, 0.75, 0.7);
-    noseTop.position.set(0, -0.05, 0.66);
+    noseTop.position.set(0, -0.045, 0.61);
     headGroup.add(noseTop);
 
-    const philtrum = new THREE.Mesh(new THREE.CapsuleGeometry(0.016, 0.07, 8, 8), darkBrownMat);
-    philtrum.position.set(0, -0.1, 0.66);
+    const philtrum = new THREE.Mesh(new THREE.CapsuleGeometry(0.014, 0.065, 8, 8), darkBrownMat);
+    philtrum.position.set(0, -0.095, 0.61);
     headGroup.add(philtrum);
 
     const smileLeft = new THREE.Mesh(
-      new THREE.TorusGeometry(0.065, 0.016, 10, 20, Math.PI * 0.85),
+      new THREE.TorusGeometry(0.06, 0.015, 10, 18, Math.PI * 0.85),
       darkBrownMat
     );
     smileLeft.rotation.z = Math.PI + 0.2;
-    smileLeft.position.set(-0.06, -0.13, 0.645);
+    smileLeft.position.set(-0.055, -0.12, 0.595);
     headGroup.add(smileLeft);
 
     const smileRight = new THREE.Mesh(
-      new THREE.TorusGeometry(0.065, 0.016, 10, 20, Math.PI * 0.85),
+      new THREE.TorusGeometry(0.06, 0.015, 10, 18, Math.PI * 0.85),
       darkBrownMat
     );
     smileRight.rotation.z = Math.PI - 0.2;
-    smileRight.position.set(0.06, -0.13, 0.645);
+    smileRight.position.set(0.055, -0.12, 0.595);
     headGroup.add(smileRight);
 
     // Rosy Cheek Blushes
     const blushMat = new THREE.MeshBasicMaterial({
       color: 0xf4978e,
       transparent: true,
-      opacity: 0.38,
+      opacity: 0.42,
     });
-    const leftBlush = new THREE.Mesh(new THREE.CircleGeometry(0.075, 16), blushMat);
-    leftBlush.position.set(-0.29, -0.11, 0.54);
-    leftBlush.rotation.y = -0.35;
-    headGroup.add(leftBlush);
+    [-1, 1].forEach((s) => {
+      const blush = new THREE.Mesh(new THREE.CircleGeometry(0.07, 16), blushMat);
+      blush.position.set(s * 0.26, -0.09, 0.49);
+      blush.rotation.y = s * 0.35;
+      headGroup.add(blush);
+    });
 
-    const rightBlush = new THREE.Mesh(new THREE.CircleGeometry(0.075, 16), blushMat);
-    rightBlush.position.set(0.29, -0.11, 0.54);
-    rightBlush.rotation.y = 0.35;
-    headGroup.add(rightBlush);
-
-    // Glossy Eyes with white specular catchlights
-    const eyesGroup = new THREE.Group();
-    headGroup.add(eyesGroup);
-
+    // Big Glossy Chibi Eyes with Catchlights
     const createEye = (xSign: number) => {
       const eyeGroup = new THREE.Group();
-      eyeGroup.position.set(xSign * 0.22, 0.04, 0.53);
+      eyeGroup.position.set(xSign * 0.2, 0.04, 0.49);
 
       const eyeball = new THREE.Mesh(new THREE.SphereGeometry(0.072, 20, 20), eyeMat);
-      eyeball.scale.set(1, 1.08, 0.7);
+      eyeball.scale.set(1, 1.1, 0.7);
       eyeGroup.add(eyeball);
 
       const catchlight = new THREE.Mesh(
-        new THREE.SphereGeometry(0.022, 12, 12),
+        new THREE.SphereGeometry(0.022, 10, 10),
         new THREE.MeshBasicMaterial({ color: 0xffffff })
       );
-      catchlight.position.set(xSign * -0.02, 0.028, 0.052);
+      catchlight.position.set(xSign * -0.018, 0.028, 0.052);
       eyeGroup.add(catchlight);
-
-      const smallCatch = new THREE.Mesh(
-        new THREE.SphereGeometry(0.011, 8, 8),
-        new THREE.MeshBasicMaterial({ color: 0xffffff })
-      );
-      smallCatch.position.set(xSign * 0.022, -0.02, 0.05);
-      eyeGroup.add(smallCatch);
 
       return eyeGroup;
     };
 
     const leftEye = createEye(-1);
     const rightEye = createEye(1);
-    eyesGroup.add(leftEye, rightEye);
+    headGroup.add(leftEye, rightEye);
 
-    // Sculpted Curved Alpaca Ears
+    // Sculpted Alpaca Ears
     const createEar = (xSign: number) => {
       const earPivot = new THREE.Group();
-      earPivot.position.set(xSign * 0.36, 0.45, 0.05);
-      earPivot.rotation.z = xSign * -0.22;
+      earPivot.position.set(xSign * 0.33, 0.42, 0.04);
+      earPivot.rotation.z = xSign * -0.2;
 
-      const outerEar = new THREE.Mesh(new THREE.CapsuleGeometry(0.13, 0.26, 12, 16), faceSkinMat);
-      outerEar.position.set(0, 0.16, 0);
-      outerEar.scale.set(0.85, 1.0, 0.55);
+      const outerEar = new THREE.Mesh(new THREE.CapsuleGeometry(0.12, 0.25, 12, 16), woolMat);
+      outerEar.position.set(0, 0.15, 0);
+      outerEar.scale.set(0.82, 1.0, 0.55);
       outerEar.castShadow = true;
       earPivot.add(outerEar);
 
-      const innerEar = new THREE.Mesh(new THREE.CapsuleGeometry(0.075, 0.19, 10, 14), innerEarMat);
-      innerEar.position.set(0, 0.15, 0.045);
-      innerEar.scale.set(0.8, 1.0, 0.35);
+      const innerEar = new THREE.Mesh(new THREE.CapsuleGeometry(0.07, 0.18, 10, 14), innerEarMat);
+      innerEar.position.set(0, 0.14, 0.042);
+      innerEar.scale.set(0.78, 1.0, 0.35);
       earPivot.add(innerEar);
 
       return earPivot;
@@ -578,172 +966,215 @@ export function AlpacaBaristaCard3D({
     const rightEar = createEar(1);
     headGroup.add(leftEar, rightEar);
 
-    // --- 3B. THE COFFEE BAR COUNTER, ESPRESSO MACHINE, AND STEAMING MUG ---
-    const barGroup = new THREE.Group();
-    barGroup.position.set(0, -0.48, 0.55);
-    dioramaGroup.add(barGroup);
+    // --- 3C. FOREGROUND COUNTER: WOOD & STONE COUNTER, GLASS PASTRY DISPLAY, BRANDED COFFEE BAGS ---
+    const counterGroup = new THREE.Group();
+    counterGroup.position.set(0, -0.56, 0.62);
+    shopGroup.add(counterGroup);
 
-    // Wood Countertop Slab
-    const counterTopShape = createRoundedRectShape(3.8, 0.68, 0.14);
+    // Smooth Stone/Concrete Countertop Slab
+    const counterTopShape = createRoundedRectShape(4.28, 0.82, 0.1);
     const counterTopGeo = new THREE.ExtrudeGeometry(counterTopShape, {
-      depth: 0.13,
+      depth: 0.11,
       bevelEnabled: true,
-      bevelThickness: 0.03,
-      bevelSize: 0.03,
+      bevelThickness: 0.02,
+      bevelSize: 0.02,
       bevelSegments: 3,
     });
     counterTopGeo.center();
-    const counterTop = new THREE.Mesh(counterTopGeo, counterWoodMat);
+    const counterTop = new THREE.Mesh(counterTopGeo, stoneCounterTopMat);
     counterTop.rotation.x = Math.PI / 2;
-    counterTop.position.set(0, 0.08, 0);
+    counterTop.position.set(0, 0.06, 0);
     counterTop.receiveShadow = true;
     counterTop.castShadow = true;
-    barGroup.add(counterTop);
+    counterGroup.add(counterTop);
 
-    // Dark Roast Counter Front Base
-    const counterBase = new THREE.Mesh(new THREE.BoxGeometry(3.64, 0.28, 0.56), counterBaseMat);
-    counterBase.position.set(0, -0.12, -0.02);
-    counterBase.receiveShadow = true;
-    counterBase.castShadow = true;
-    barGroup.add(counterBase);
-
-    // Decorative gold trim strip on counter front
-    const counterTrim = new THREE.Mesh(
-      new THREE.BoxGeometry(3.66, 0.035, 0.58),
-      new THREE.MeshStandardMaterial({ color: 0xd97706, roughness: 0.35, metalness: 0.5 })
+    // Horizontal Wood Plank Front Panel
+    const woodPlankTex = createBakedWoodPlankTexture();
+    const counterFront = new THREE.Mesh(
+      new THREE.BoxGeometry(4.18, 0.36, 0.68),
+      new THREE.MeshStandardMaterial({ map: woodPlankTex, roughness: 0.68 })
     );
-    counterTrim.position.set(0, -0.02, -0.02);
-    barGroup.add(counterTrim);
+    counterFront.position.set(0, -0.17, -0.02);
+    counterFront.receiveShadow = true;
+    counterFront.castShadow = true;
+    counterGroup.add(counterFront);
 
-    // Left of Bar: Mini 3D Espresso Machine
-    const espressoGroup = new THREE.Group();
-    espressoGroup.position.set(-1.3, 0.15, -0.04);
-    espressoGroup.rotation.y = 0.22;
-    barGroup.add(espressoGroup);
+    // 1. LEFT COUNTER FOREGROUND: Glass Pastry Display Case with Croissants, Muffins & Bread Loaves
+    const pastryCaseGroup = new THREE.Group();
+    pastryCaseGroup.position.set(-1.18, 0.12, 0.04);
+    counterGroup.add(pastryCaseGroup);
 
-    const machineBodyMat = new THREE.MeshStandardMaterial({
-      color: 0xd6d3d1,
-      roughness: 0.28,
-      metalness: 0.65,
+    // Wooden pastry trays inside & on top of the display
+    const bottomTray = new THREE.Mesh(new THREE.BoxGeometry(1.42, 0.045, 0.52), woodShelfMat);
+    bottomTray.position.set(0, 0.02, 0);
+    pastryCaseGroup.add(bottomTray);
+
+    const topTray = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.04, 0.38), woodShelfMat);
+    topTray.position.set(-0.08, 0.56, -0.02);
+    pastryCaseGroup.add(topTray);
+
+    // Scored Artisan Bread Loaves on top & inside
+    [-0.32, 0.14].forEach((bx) => {
+      const loaf = new THREE.Mesh(new THREE.SphereGeometry(0.16, 16, 14), breadCrustMat);
+      loaf.scale.set(1.35, 0.72, 0.9);
+      loaf.position.set(bx, 0.66, -0.02);
+      loaf.castShadow = true;
+      pastryCaseGroup.add(loaf);
     });
-    const machineAccentMat = new THREE.MeshStandardMaterial({
-      color: 0x3d2b1f,
-      roughness: 0.5,
-      metalness: 0.2,
+
+    // Golden Muffins & Croissants inside the glass case
+    [-0.45, -0.18, 0.08].forEach((mx) => {
+      const muffinCup = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.085, 0.065, 0.08, 12),
+        new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.8 })
+      );
+      muffinCup.position.set(mx, 0.08, 0.06);
+      pastryCaseGroup.add(muffinCup);
+
+      const muffinTop = new THREE.Mesh(new THREE.SphereGeometry(0.095, 14, 12), pastryGoldMat);
+      muffinTop.scale.set(1.1, 0.75, 1.1);
+      muffinTop.position.set(mx, 0.13, 0.06);
+      pastryCaseGroup.add(muffinTop);
     });
 
-    const machineBase = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.58, 0.42), machineBodyMat);
-    machineBase.position.set(0, 0.29, 0);
-    machineBase.castShadow = true;
-    espressoGroup.add(machineBase);
-
-    const machineTop = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.09, 0.46), machineAccentMat);
-    machineTop.position.set(0, 0.61, 0);
-    espressoGroup.add(machineTop);
-
-    const gauge = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.075, 0.075, 0.04, 20),
-      new THREE.MeshStandardMaterial({ color: 0xfef3c7, roughness: 0.3 })
-    );
-    gauge.rotation.x = Math.PI / 2;
-    gauge.position.set(0, 0.44, 0.21);
-    espressoGroup.add(gauge);
-
-    const groupHead = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.085, 0.065, 0.09, 16),
-      machineAccentMat
-    );
-    groupHead.position.set(0, 0.26, 0.21);
-    espressoGroup.add(groupHead);
-
-    const portaHandle = new THREE.Mesh(
-      new THREE.CapsuleGeometry(0.022, 0.16, 8, 8),
-      darkBrownMat
-    );
-    portaHandle.rotation.x = Math.PI / 2;
-    portaHandle.rotation.z = -0.35;
-    portaHandle.position.set(0.07, 0.24, 0.31);
-    espressoGroup.add(portaHandle);
-
-    // Right of Bar: Ceramic Latte Cup + Saucer + Rising Steam Puffs
-    const cupGroup = new THREE.Group();
-    cupGroup.position.set(1.26, 0.15, 0.05);
-    barGroup.add(cupGroup);
-
-    const ceramicMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.2,
-      metalness: 0.05,
+    // Flaky Crescent Croissants on front-right wood tray
+    [0.34, 0.56].forEach((cx, ci) => {
+      const croissant = new THREE.Mesh(
+        new THREE.TorusGeometry(0.085, 0.042, 10, 16, Math.PI * 1.15),
+        pastryGoldMat
+      );
+      croissant.rotation.x = Math.PI / 2 - 0.2;
+      croissant.rotation.z = ci * 0.4;
+      croissant.position.set(cx, 0.08, 0.08);
+      croissant.castShadow = true;
+      pastryCaseGroup.add(croissant);
     });
-    const saucer = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.17, 0.035, 24), ceramicMat);
-    saucer.position.set(0, 0.02, 0);
-    cupGroup.add(saucer);
 
-    const cupBody = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.11, 0.22, 24), ceramicMat);
-    cupBody.position.set(0, 0.13, 0);
-    cupBody.castShadow = true;
-    cupGroup.add(cupBody);
+    // Little dark slate price tags along the front of the pastry trays
+    [-0.45, -0.12, 0.38].forEach((tx) => {
+      const tag = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.075, 0.015), frameMat);
+      tag.position.set(tx, 0.05, 0.27);
+      tag.rotation.x = -0.25;
+      pastryCaseGroup.add(tag);
+    });
 
-    const cupCoffee = new THREE.Mesh(
-      new THREE.CircleGeometry(0.135, 20),
-      new THREE.MeshStandardMaterial({ color: 0x6f4e37, roughness: 0.4 })
-    );
-    cupCoffee.rotation.x = -Math.PI / 2;
-    cupCoffee.position.set(0, 0.235, 0);
-    cupGroup.add(cupCoffee);
-
-    const cupHandle = new THREE.Mesh(
-      new THREE.TorusGeometry(0.06, 0.018, 10, 20, Math.PI),
-      ceramicMat
-    );
-    cupHandle.rotation.z = -Math.PI / 2;
-    cupHandle.position.set(0.15, 0.13, 0);
-    cupGroup.add(cupHandle);
-
-    // Rising Steam Puffs above the cup
-    const steamPuffs: THREE.Mesh[] = [];
-    const steamMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+    // Tinted Teal-Glass Pastry Display Panels (Front, Top, Sides)
+    const glassMat = new THREE.MeshStandardMaterial({
+      color: 0xccfbf1,
       transparent: true,
-      opacity: 0.45,
+      opacity: 0.28,
+      roughness: 0.08,
+      metalness: 0.15,
+      depthWrite: false,
     });
-    for (let i = 0; i < 3; i++) {
-      const sPuff = new THREE.Mesh(new THREE.SphereGeometry(0.05 - i * 0.007, 12, 12), steamMat.clone());
-      sPuff.position.set(0, 0.32 + i * 0.13, 0);
-      cupGroup.add(sPuff);
-      steamPuffs.push(sPuff);
-    }
+    const glassFront = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.52, 0.018), glassMat);
+    glassFront.position.set(0, 0.28, 0.25);
+    pastryCaseGroup.add(glassFront);
 
-    // --- 3C. ALPACA PAWS & THE MERCHANT SMARTPHONE + LASER SCANNER ---
+    const glassTop = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.02, 0.52), glassMat);
+    glassTop.position.set(0, 0.54, 0);
+    pastryCaseGroup.add(glassTop);
+
+    // Teal glass edge highlight strips (gives that exact tempered glass edge look from the reference image)
+    const glassEdgeMat = new THREE.MeshBasicMaterial({
+      color: 0x2dd4bf,
+      transparent: true,
+      opacity: 0.55,
+    });
+    const glassTopEdge = new THREE.Mesh(new THREE.BoxGeometry(1.46, 0.018, 0.018), glassEdgeMat);
+    glassTopEdge.position.set(0, 0.54, 0.25);
+    pastryCaseGroup.add(glassTopEdge);
+
+    // 2. RIGHT COUNTER FOREGROUND: Branded Kraft Coffee Bags with Pastel Labels
+    const coffeeBagsGroup = new THREE.Group();
+    coffeeBagsGroup.position.set(1.28, 0.12, 0.08);
+    counterGroup.add(coffeeBagsGroup);
+
+    const bagTray = new THREE.Mesh(new THREE.BoxGeometry(1.36, 0.055, 0.46), woodShelfMat);
+    bagTray.position.set(0, 0.025, 0);
+    coffeeBagsGroup.add(bagTray);
+
+    const kraftBagMat = new THREE.MeshStandardMaterial({
+      color: 0xd4a373,
+      roughness: 0.68,
+      metalness: 0.03,
+    });
+    const pastelLabelColors = [0xf97316, 0xfacc15, 0x38bdf8, 0xf472b6, 0x4ade80];
+
+    pastelLabelColors.forEach((lColor, bi) => {
+      const bx = -0.5 + bi * 0.25;
+      const bagMesh = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.34, 0.14), kraftBagMat);
+      bagMesh.position.set(bx, 0.2, 0);
+      bagMesh.rotation.y = -0.08;
+      bagMesh.castShadow = true;
+      coffeeBagsGroup.add(bagMesh);
+
+      // Folded top crease of coffee bag
+      const bagCrease = new THREE.Mesh(new THREE.BoxGeometry(0.19, 0.04, 0.06), kraftBagMat);
+      bagCrease.position.set(bx, 0.38, 0);
+      bagCrease.rotation.y = -0.08;
+      coffeeBagsGroup.add(bagCrease);
+
+      // Colorful pastel rectangular label on front of bag
+      const labelPlane = new THREE.Mesh(
+        new THREE.PlaneGeometry(0.14, 0.15),
+        new THREE.MeshBasicMaterial({ color: lColor })
+      );
+      labelPlane.position.set(bx, 0.17, 0.073);
+      labelPlane.rotation.y = -0.08;
+      coffeeBagsGroup.add(labelPlane);
+
+      // Little dark slate price tag on the wood tray lip
+      const priceTag = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.065, 0.015), frameMat);
+      priceTag.position.set(bx, 0.045, 0.24);
+      priceTag.rotation.x = -0.2;
+      coffeeBagsGroup.add(priceTag);
+    });
+
+    // --- 3D. ALPACA ARMS ON THE COUNTER & MERCHANT SMARTPHONE RIG ---
+    // Left fluffy arm resting on the counter with dark cloven hoof tip
+    const leftArmGroup = new THREE.Group();
+    leftArmGroup.position.set(-0.18, 0.19, 0.12);
+    counterGroup.add(leftArmGroup);
+
     const leftPaw = new THREE.Mesh(new THREE.SphereGeometry(0.15, 18, 18), woolMat);
-    leftPaw.scale.set(1.0, 0.78, 1.25);
-    leftPaw.position.set(-0.54, 0.21, 0.15);
+    leftPaw.scale.set(1.0, 0.78, 1.3);
     leftPaw.castShadow = true;
-    barGroup.add(leftPaw);
+    leftArmGroup.add(leftPaw);
 
-    // Right Arm & Smartphone Rig (lifts up and scans the card below when triggered!)
+    const leftHoof = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), darkBrownMat);
+    leftHoof.scale.set(1.1, 0.65, 0.9);
+    leftHoof.position.set(0, -0.04, 0.16);
+    leftArmGroup.add(leftHoof);
+
+    // Right Arm & Smartphone Rig (Rests on counter when idle; lifts Smartphone to scan when triggered!)
     const rightArmPivot = new THREE.Group();
-    rightArmPivot.position.set(0.54, 0.22, 0.14);
-    barGroup.add(rightArmPivot);
+    rightArmPivot.position.set(0.42, 0.19, 0.12);
+    counterGroup.add(rightArmPivot);
 
     const rightPaw = new THREE.Mesh(new THREE.SphereGeometry(0.15, 18, 18), woolMat);
-    rightPaw.scale.set(1.0, 0.85, 1.25);
+    rightPaw.scale.set(1.0, 0.82, 1.3);
     rightPaw.castShadow = true;
     rightArmPivot.add(rightPaw);
+
+    const rightHoof = new THREE.Mesh(new THREE.SphereGeometry(0.065, 12, 12), darkBrownMat);
+    rightHoof.scale.set(1.1, 0.65, 0.9);
+    rightHoof.position.set(0, -0.04, 0.16);
+    rightArmPivot.add(rightHoof);
 
     // 3D Smartphone held by the alpaca's right paw
     // Back of the phone (+Z side) has the rear camera island facing forward/down toward the card;
     // Front screen (-Z side) faces back toward the barista alpaca!
     const phoneGroup = new THREE.Group();
-    phoneGroup.position.set(-0.08, 0.16, 0.18);
+    phoneGroup.position.set(-0.06, 0.14, 0.16);
     phoneGroup.rotation.set(0.18, -0.22, 0.1);
     rightArmPivot.add(phoneGroup);
 
-    const phoneBodyGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(0.42, 0.74, 0.065), {
-      depth: 0.045,
+    const phoneBodyGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(0.38, 0.68, 0.06), {
+      depth: 0.042,
       bevelEnabled: true,
-      bevelThickness: 0.014,
-      bevelSize: 0.012,
+      bevelThickness: 0.012,
+      bevelSize: 0.01,
       bevelSegments: 3,
     });
     phoneBodyGeo.center();
@@ -756,24 +1187,21 @@ export function AlpacaBaristaCard3D({
     phoneMesh.castShadow = true;
     phoneGroup.add(phoneMesh);
 
-    // Smartphone Rear Backplate (+Z side facing viewer & card) with Camera Island + Gold Emblem
     const phoneBackCanvas = document.createElement('canvas');
     phoneBackCanvas.width = 128;
     phoneBackCanvas.height = 256;
     const pbCtx = phoneBackCanvas.getContext('2d')!;
     const drawPhoneBack = (activeScan: boolean) => {
-      // Matte graphite back glass
       pbCtx.fillStyle = '#1c1917';
       roundRect2D(pbCtx, 0, 0, 128, 256, 20);
       pbCtx.fill();
 
-      // Subtle metallic border
       pbCtx.strokeStyle = '#57534e';
       pbCtx.lineWidth = 4;
       roundRect2D(pbCtx, 2, 2, 124, 252, 18);
       pbCtx.stroke();
 
-      // Glossy Camera Island (top-left of backplate)
+      // Glossy Camera Island
       pbCtx.fillStyle = '#0c0a09';
       roundRect2D(pbCtx, 14, 14, 58, 82, 14);
       pbCtx.fill();
@@ -782,7 +1210,7 @@ export function AlpacaBaristaCard3D({
       roundRect2D(pbCtx, 14, 14, 58, 82, 14);
       pbCtx.stroke();
 
-      // Top Main Camera Lens Ring
+      // Dual Camera Lens Rings
       pbCtx.fillStyle = '#1f2937';
       pbCtx.beginPath();
       pbCtx.arc(34, 36, 13, 0, Math.PI * 2);
@@ -791,19 +1219,18 @@ export function AlpacaBaristaCard3D({
       pbCtx.lineWidth = 2.5;
       pbCtx.stroke();
 
-      // Bottom Ultra-Wide Camera Lens Ring
       pbCtx.beginPath();
       pbCtx.arc(34, 72, 13, 0, Math.PI * 2);
       pbCtx.fill();
       pbCtx.stroke();
 
-      // Scanner Laser / Flash LED inside camera island
+      // Flash / Scanner Laser LED
       pbCtx.fillStyle = activeScan ? '#34d399' : '#fde68a';
       pbCtx.beginPath();
       pbCtx.arc(58, 54, 6, 0, Math.PI * 2);
       pbCtx.fill();
 
-      // Alpacard Gold Star / Badge in center of phone back
+      // Gold Star Emblem on back of phone
       pbCtx.fillStyle = '#f59e0b';
       pbCtx.beginPath();
       pbCtx.arc(64, 148, 16, 0, Math.PI * 2);
@@ -818,19 +1245,19 @@ export function AlpacaBaristaCard3D({
     const phoneBackTex = new THREE.CanvasTexture(phoneBackCanvas);
     phoneBackTex.colorSpace = THREE.SRGBColorSpace;
     const phoneBackMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.39, 0.7),
+      new THREE.PlaneGeometry(0.35, 0.64),
       new THREE.MeshStandardMaterial({
         map: phoneBackTex,
         roughness: 0.35,
         metalness: 0.4,
       })
     );
-    phoneBackMesh.position.set(0, 0, 0.036);
+    phoneBackMesh.position.set(0, 0, 0.034);
     phoneGroup.add(phoneBackMesh);
 
-    // 3D Raised Camera Island & Glowing Lens on the +Z side (faces the card when scanning!)
+    // 3D Raised Rear Camera Lens on +Z face (points straight down at the card during scan!)
     const cameraLens = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.055, 0.055, 0.025, 20),
+      new THREE.CylinderGeometry(0.05, 0.05, 0.025, 20),
       new THREE.MeshStandardMaterial({
         color: 0x10b981,
         emissive: 0x10b981,
@@ -838,48 +1265,8 @@ export function AlpacaBaristaCard3D({
       })
     );
     cameraLens.rotation.x = Math.PI / 2;
-    cameraLens.position.set(-0.08, 0.19, 0.045);
+    cameraLens.position.set(-0.075, 0.17, 0.042);
     phoneGroup.add(cameraLens);
-
-    // Smartphone Merchant App Screen on the -Z side (facing the alpaca's eyes!)
-    const phoneScreenCanvas = document.createElement('canvas');
-    phoneScreenCanvas.width = 128;
-    phoneScreenCanvas.height = 256;
-    const pCtx = phoneScreenCanvas.getContext('2d')!;
-    const drawPhoneScreen = (activeScan: boolean) => {
-      pCtx.fillStyle = '#0c0a09';
-      pCtx.fillRect(0, 0, 128, 256);
-      pCtx.fillStyle = '#3D2B1F';
-      pCtx.fillRect(0, 0, 128, 42);
-      pCtx.fillStyle = '#fbbf24';
-      pCtx.font = 'bold 14px sans-serif';
-      pCtx.textAlign = 'center';
-      pCtx.fillText('ALPACARD POS', 64, 27);
-
-      pCtx.strokeStyle = activeScan ? '#10b981' : '#f59e0b';
-      pCtx.lineWidth = 5;
-      pCtx.strokeRect(20, 62, 88, 88);
-
-      if (activeScan) {
-        pCtx.fillStyle = 'rgba(16, 185, 129, 0.28)';
-        pCtx.fillRect(22, 64, 84, 84);
-        pCtx.fillStyle = '#10b981';
-        pCtx.beginPath();
-        pCtx.arc(64, 200, 24, 0, Math.PI * 2);
-        pCtx.fill();
-      }
-      drawPhoneBack(activeScan);
-      phoneBackTex.needsUpdate = true;
-    };
-    drawPhoneScreen(false);
-    const phoneScreenTex = new THREE.CanvasTexture(phoneScreenCanvas);
-    const phoneScreenMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.37, 0.66),
-      new THREE.MeshBasicMaterial({ map: phoneScreenTex })
-    );
-    phoneScreenMesh.rotation.y = Math.PI;
-    phoneScreenMesh.position.set(0, 0, -0.036);
-    phoneGroup.add(phoneScreenMesh);
 
     // Volumetric Laser Scanner Beam (Tip at 0,0,0; Base at z = +1.0 so lookAt() aims it straight down at the card!)
     const laserBeamGroup = new THREE.Group();
@@ -887,9 +1274,7 @@ export function AlpacaBaristaCard3D({
     laserBeamGroup.visible = false;
 
     const beamConeGeo = new THREE.ConeGeometry(1.65, 1.0, 32, 1, true);
-    // Move apex (tip) of cone to (0, 0, 0) and base to (0, -1, 0)
     beamConeGeo.translate(0, -0.5, 0);
-    // Rotate -90 deg around X so apex stays at (0,0,0) and open base is at (0, 0, +1) along +Z!
     beamConeGeo.rotateX(-Math.PI / 2);
 
     const beamConeMat = new THREE.MeshBasicMaterial({
@@ -919,14 +1304,13 @@ export function AlpacaBaristaCard3D({
     //    then tilts in 3D space with real depth, beveled layers & popping 3D stamps!
     // ============================================================================
     const cardPivot = new THREE.Group();
-    cardPivot.position.set(0, -1.28, 0);
+    cardPivot.position.set(0, -1.36, 0);
     scene.add(cardPivot);
 
     const cardWidth = 3.82;
-    const cardHeight = 3.92;
+    const cardHeight = 3.84;
     const cardDepth = 0.16;
 
-    // 4A. High-DPI Dynamic Front Face Canvas Texture (matches the Tailwind card design)
     const frontCanvas = document.createElement('canvas');
     frontCanvas.width = 1024;
     frontCanvas.height = 1056;
@@ -944,18 +1328,15 @@ export function AlpacaBaristaCard3D({
 
       fCtx.clearRect(0, 0, W, H);
 
-      // Card White Surface Background
       fCtx.fillStyle = '#FFFFFF';
       roundRect2D(fCtx, 0, 0, W, H, 56);
       fCtx.fill();
 
-      // Subtle border
       fCtx.strokeStyle = '#E7E5E4';
       fCtx.lineWidth = 8;
       roundRect2D(fCtx, 4, 4, W - 8, H - 8, 54);
       fCtx.stroke();
 
-      // Header Dark Roast Box (#3D2B1F)
       const pad = 54;
       const headerY = 52;
       const headerH = 248;
@@ -963,23 +1344,19 @@ export function AlpacaBaristaCard3D({
       roundRect2D(fCtx, pad, headerY, W - pad * 2, headerH, 36);
       fCtx.fill();
 
-      // Store Name (Uppercase tracking)
       fCtx.fillStyle = '#D6D3D1';
       fCtx.font = '600 24px system-ui, -apple-system, sans-serif';
       fCtx.textAlign = 'center';
       fCtx.fillText(p.storeName.toUpperCase(), W / 2, headerY + 68);
 
-      // Card Title
       fCtx.fillStyle = '#FFFFFF';
       fCtx.font = '800 50px system-ui, -apple-system, sans-serif';
       fCtx.fillText(p.cardTitle, W / 2, headerY + 138);
 
-      // Card Subtitle
       fCtx.fillStyle = '#E7E5E4';
       fCtx.font = '500 28px system-ui, -apple-system, sans-serif';
       fCtx.fillText(p.cardSubtitle, W / 2, headerY + 194);
 
-      // Progress Label Row
       const progY = 368;
       fCtx.textAlign = 'left';
       fCtx.fillStyle = '#57534E';
@@ -991,7 +1368,6 @@ export function AlpacaBaristaCard3D({
       fCtx.font = '800 32px system-ui, -apple-system, sans-serif';
       fCtx.fillText(`${curStamps} / ${p.maxStamps}`, W - pad - 4, progY);
 
-      // Recessed Stamp Slot Wells
       const gridTop = 408;
       const cols = 5;
       const gap = 24;
@@ -1017,7 +1393,6 @@ export function AlpacaBaristaCard3D({
         fCtx.setLineDash([]);
       }
 
-      // Bottom Status Box
       const statusY = 816;
       const statusH = 178;
       fCtx.fillStyle = isReady ? '#ECFDF5' : '#FAFAF9';
@@ -1048,7 +1423,6 @@ export function AlpacaBaristaCard3D({
       frontTexture.needsUpdate = true;
     };
 
-    // 4B. Back of the 3D Card Texture (seen during 360° celebratory/reset flips!)
     const backCanvas = document.createElement('canvas');
     backCanvas.width = 512;
     backCanvas.height = 528;
@@ -1081,7 +1455,6 @@ export function AlpacaBaristaCard3D({
     const backTexture = new THREE.CanvasTexture(backCanvas);
     backTexture.colorSpace = THREE.SRGBColorSpace;
 
-    // 4C. 3D Card Slab Mesh
     const cardShape = createRoundedRectShape(cardWidth, cardHeight, 0.22);
     const cardSlabGeo = new THREE.ExtrudeGeometry(cardShape, {
       depth: cardDepth,
@@ -1127,7 +1500,7 @@ export function AlpacaBaristaCard3D({
     backFacePlane.position.set(0, 0, -(cardDepth / 2 + 0.037));
     cardPivot.add(backFacePlane);
 
-    // 4D. 10 Physical 3D Stamp Tiles on the Card Face!
+    // 10 Physical 3D Stamp Tiles on the Card Face
     const createStampTileTexture = (label: string, isStamped: boolean, isLast: boolean) => {
       const c = document.createElement('canvas');
       c.width = 160;
@@ -1188,7 +1561,7 @@ export function AlpacaBaristaCard3D({
       return tex;
     };
 
-    const stampTileSize = 0.59;
+    const stampTileSize = 0.58;
     const stampTileGeo = new THREE.ExtrudeGeometry(
       createRoundedRectShape(stampTileSize, stampTileSize, 0.11),
       {
@@ -1272,7 +1645,7 @@ export function AlpacaBaristaCard3D({
       });
     }
 
-    // 4E. Floating 3D Holographic QR Ring that rises off the card during scanning
+    // Floating 3D Holographic QR Ring during scan
     const holoQrGroup = new THREE.Group();
     holoQrGroup.position.set(0, 0.85, cardDepth / 2 + 0.25);
     holoQrGroup.visible = false;
@@ -1289,7 +1662,7 @@ export function AlpacaBaristaCard3D({
     );
     holoQrGroup.add(holoRing);
 
-    // 4F. 3D Burst Particles when a stamp punches into the card
+    // 3D Burst Particles when a stamp punches into the card
     const particleCount = 18;
     const particles: { mesh: THREE.Mesh; vx: number; vy: number; vz: number; life: number }[] = [];
     const particleGeo = new THREE.OctahedronGeometry(0.055, 0);
@@ -1318,28 +1691,54 @@ export function AlpacaBaristaCard3D({
       });
     };
 
-    // Initial texture render
     drawFrontCardTexture();
+    setIsHydrated(true);
 
     // ============================================================================
-    // 5. POINTER INTERACTION (Allow curious users to tilt the 3D card after reveal)
+    // 5. CAMERA PARALLAX (Desktop PointerMove + Mobile Gyroscope) & LIFECYCLE
     // ============================================================================
     const handlePointerMove = (e: PointerEvent) => {
       const rect = renderer.domElement.getBoundingClientRect();
-      const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-      const ny = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+      const nx = THREE.MathUtils.clamp(((e.clientX - rect.left) / rect.width) * 2 - 1, -1, 1);
+      const ny = THREE.MathUtils.clamp(-((e.clientY - rect.top) / rect.height) * 2 + 1, -1, 1);
       animRef.current.userPointerX = nx;
       animRef.current.userPointerY = ny;
-      animRef.current.isPointerHoveringCard = ny < 0.25;
+      animRef.current.isPointerHoveringCard =
+        e.clientX >= rect.left &&
+        e.clientX <= rect.right &&
+        e.clientY >= rect.top &&
+        e.clientY <= rect.bottom &&
+        ny < 0.2;
     };
 
-    const handlePointerLeave = () => {
-      animRef.current.isPointerHoveringCard = false;
+    const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        animRef.current.gyroX = THREE.MathUtils.clamp(e.gamma / 35, -1, 1);
+        animRef.current.gyroY = THREE.MathUtils.clamp((e.beta - 45) / 35, -1, 1);
+      }
     };
 
-    const domElem = renderer.domElement;
-    domElem.addEventListener('pointermove', handlePointerMove);
-    domElem.addEventListener('pointerleave', handlePointerLeave);
+    const handleVisibilityChange = () => {
+      animRef.current.isTabActive = !document.hidden;
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    window.addEventListener('deviceorientation', handleDeviceOrientation, { passive: true });
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // IntersectionObserver to pause rendering when scrolled out of view (Crucial for PWA battery/CPU)
+    const io =
+      typeof IntersectionObserver !== 'undefined'
+        ? new IntersectionObserver(
+            (entries) => {
+              if (entries[0]) {
+                animRef.current.isVisibleInViewport = entries[0].isIntersecting;
+              }
+            },
+            { threshold: 0.05 }
+          )
+        : null;
+    io?.observe(container);
 
     // ============================================================================
     // 6. MAIN 60FPS ANIMATION LOOP
@@ -1350,46 +1749,68 @@ export function AlpacaBaristaCard3D({
 
     const animate = () => {
       reqId = requestAnimationFrame(animate);
+      const a = animRef.current;
+
+      // Lifecycle optimization: skip GPU draw when tab is hidden or hero scrolled out of view
+      if (!a.isTabActive || !a.isVisibleInViewport) {
+        prevTime = performance.now() / 1000;
+        return;
+      }
+
       const now = performance.now() / 1000;
       const dt = Math.min(0.05, now - prevTime);
       prevTime = now;
-
-      const a = animRef.current;
 
       if (a.needTextureUpdate) {
         drawFrontCardTexture();
         a.needTextureUpdate = false;
       }
 
-      // --- 6A. IDLE BARISTA ALPACA & COFFEE STEAM ANIMATIONS ---
-      bodyGroup.position.y = Math.sin(now * 2.4) * 0.025;
+      // Combined parallax input from mouse pointer + mobile gyroscope
+      const parallaxX = THREE.MathUtils.clamp(a.userPointerX + a.gyroX * 0.65, -1, 1);
+      const parallaxY = THREE.MathUtils.clamp(a.userPointerY + a.gyroY * 0.65, -1, 1);
+
+      // Subtle Customer-POV Camera Parallax & Shop Depth Shift
+      shopGroup.rotation.y += (parallaxX * 0.085 - shopGroup.rotation.y) * 0.08;
+      shopGroup.rotation.x += (-parallaxY * 0.045 - shopGroup.rotation.x) * 0.08;
+      bgGroup.position.x += (-parallaxX * 0.09 - bgGroup.position.x) * 0.08;
+
+      // --- 6A. IDLE ALPACA & COFFEE SHOP AMBIENT ANIMATIONS ---
+      // Alpaca gentle breathing loop
+      bodyGroup.position.y = Math.sin(now * 2.3) * 0.024;
       const targetHeadRotY = a.isScanning
         ? Math.sin((now - a.scanStartTime) * 6) * 0.08
-        : a.userPointerX * 0.18 + Math.sin(now * 1.1) * 0.06;
-      const targetHeadRotX = a.isScanning ? 0.28 : Math.sin(now * 1.6) * 0.03;
+        : parallaxX * 0.22 + Math.sin(now * 1.1) * 0.05;
+      const targetHeadRotX = a.isScanning ? 0.28 : -parallaxY * 0.1 + Math.sin(now * 1.6) * 0.03;
 
       headGroup.rotation.y += (targetHeadRotY - headGroup.rotation.y) * 0.12;
       headGroup.rotation.x += (targetHeadRotX - headGroup.rotation.x) * 0.12;
 
-      // Periodic blinking
-      const blinkCycle = now % 3.8;
-      const isBlinking = blinkCycle > 3.65;
+      // Occasional eye blink
+      const blinkCycle = now % 3.9;
+      const isBlinking = blinkCycle > 3.74;
       const targetEyeScaleY = isBlinking ? 0.08 : 1.0;
       leftEye.scale.y += (targetEyeScaleY - leftEye.scale.y) * 0.35;
       rightEye.scale.y += (targetEyeScaleY - rightEye.scale.y) * 0.35;
 
-      // Ear twitches
-      leftEar.rotation.z = 0.22 + Math.sin(now * 3.1) * 0.04;
-      rightEar.rotation.z = -0.22 - Math.cos(now * 2.7) * 0.04;
+      // Slight ear twitches
+      leftEar.rotation.z = 0.2 + Math.sin(now * 3.1) * 0.045;
+      rightEar.rotation.z = -0.2 - Math.cos(now * 2.7) * 0.045;
 
-      // Rising coffee steam puffs
+      // Gentle swaying of hanging pendant lamps & window vines
+      leftLamp.rotation.z = Math.sin(now * 1.4) * 0.045;
+      centerLamp.rotation.z = Math.cos(now * 1.25) * 0.04;
+      hangingVinesGroup.rotation.z = Math.sin(now * 1.8) * 0.025;
+      shelfPlantGroup.rotation.z = Math.cos(now * 1.6) * 0.035;
+
+      // Rising steam particles from the espresso machine
       steamPuffs.forEach((puff, idx) => {
-        const phase = (now * 0.55 + idx * 0.33) % 1;
-        puff.position.y = 0.3 + phase * 0.4;
-        puff.position.x = Math.sin(now * 2.5 + idx) * 0.035;
-        const s = 0.6 + Math.sin(phase * Math.PI) * 0.6;
+        const phase = (now * 0.5 + idx * 0.25) % 1;
+        puff.position.y = 0.52 + phase * 0.42;
+        puff.position.x = -0.18 + Math.sin(now * 2.4 + idx) * 0.04;
+        const s = 0.55 + Math.sin(phase * Math.PI) * 0.65;
         puff.scale.setScalar(s);
-        (puff.material as THREE.MeshBasicMaterial).opacity = Math.sin(phase * Math.PI) * 0.42;
+        (puff.material as THREE.MeshBasicMaterial).opacity = Math.sin(phase * Math.PI) * 0.38;
       });
 
       // --- 6B. SCANNING SEQUENCE: BARISTA LIFTS PHONE + CARD BREAKS INTO 3D ---
@@ -1397,10 +1818,10 @@ export function AlpacaBaristaCard3D({
       let targetCardRotY = 0;
       let targetCardRotZ = 0;
       let targetCardPosZ = 0;
-      let targetCardPosY = -1.28;
+      let targetCardPosY = -1.36;
 
-      let targetArmPosY = 0.22;
-      let targetArmPosZ = 0.14;
+      let targetArmPosY = 0.19;
+      let targetArmPosZ = 0.12;
       let targetArmRotX = 0;
       let targetPhoneRotX = 0.18;
       let targetPhoneRotY = -0.22;
@@ -1421,9 +1842,9 @@ export function AlpacaBaristaCard3D({
               ? 1.0
               : 1.0 - THREE.MathUtils.smoothstep(progress, 0.76, 1.0);
 
-          // 1) Barista Alpaca raises the Merchant Smartphone over the bar & tilts its rear camera down at the card
-          targetArmPosY = 0.22 + holdEnv * 0.44;
-          targetArmPosZ = 0.14 + holdEnv * 0.5;
+          // 1) Barista Alpaca raises the Merchant Smartphone over the counter & aims its rear camera down at the card
+          targetArmPosY = 0.19 + holdEnv * 0.42;
+          targetArmPosZ = 0.12 + holdEnv * 0.48;
           targetArmRotX = holdEnv * 0.42;
           targetPhoneRotX = 0.18 + holdEnv * 0.58;
           targetPhoneRotY = -0.22 + holdEnv * 0.16;
@@ -1432,14 +1853,13 @@ export function AlpacaBaristaCard3D({
           targetCardRotX = -0.54 * holdEnv;
           targetCardRotY = 0.32 * Math.cos(progress * Math.PI * 1.4) * holdEnv;
           targetCardRotZ = -0.06 * holdEnv;
-          targetCardPosZ = 0.85 * holdEnv;
-          targetCardPosY = -1.28 + 0.16 * holdEnv;
+          targetCardPosZ = 0.82 * holdEnv;
+          targetCardPosY = -1.36 + 0.16 * holdEnv;
 
-          // If this scan unlocks the 10/10 reward, do a full 360° celebratory Y-flip!
           if (a.isRewardCelebration && progress > 0.38) {
             const flipProg = THREE.MathUtils.smoothstep(progress, 0.38, 0.92);
             targetCardRotY += flipProg * Math.PI * 2;
-            alpacaRoot.position.y = -0.15 + Math.abs(Math.sin(flipProg * Math.PI * 3)) * 0.18;
+            alpacaRoot.position.y = -0.24 + Math.abs(Math.sin(flipProg * Math.PI * 3)) * 0.16;
           }
 
           // 3) Laser Beam & Sweep Line between progress = 0.16 and 0.68
@@ -1454,7 +1874,7 @@ export function AlpacaBaristaCard3D({
             cameraLens.getWorldPosition(phoneWorldPos);
             laserBeamGroup.position.copy(phoneWorldPos);
 
-            const sweepY = -0.45 - Math.sin(scanSweep * Math.PI) * 1.75;
+            const sweepY = -0.52 - Math.sin(scanSweep * Math.PI) * 1.75;
             laserLineMesh.position.set(0, sweepY, cardPivot.position.z + 0.42);
             laserLineMesh.rotation.copy(cardPivot.rotation);
 
@@ -1477,8 +1897,8 @@ export function AlpacaBaristaCard3D({
             stampBurstTriggeredForCurrentScan = true;
             a.displayedStampsOnCard = propsRef.current.stamps;
             a.needTextureUpdate = true;
-            drawPhoneScreen(true);
-            phoneScreenTex.needsUpdate = true;
+            drawPhoneBack(true);
+            phoneBackTex.needsUpdate = true;
             playScannerBeep(a.isRewardCelebration);
 
             const targetTile = stampTiles[a.targetSlotIndex];
@@ -1500,9 +1920,9 @@ export function AlpacaBaristaCard3D({
           laserLineMesh.visible = false;
           holoQrGroup.visible = false;
           scanPointLight.intensity = 0;
-          alpacaRoot.position.y = -0.15;
-          drawPhoneScreen(false);
-          phoneScreenTex.needsUpdate = true;
+          alpacaRoot.position.y = -0.24;
+          drawPhoneBack(false);
+          phoneBackTex.needsUpdate = true;
         }
       } else if (a.isResetFlip) {
         const elapsed = now - a.resetStartTime;
@@ -1517,9 +1937,8 @@ export function AlpacaBaristaCard3D({
           a.isResetFlip = false;
         }
       } else if (a.isPointerHoveringCard && a.hasRevealed3D) {
-        // Once the user discovers the card is 3D, hovering gently tilts it in 3D!
-        targetCardRotY = a.userPointerX * 0.22;
-        targetCardRotX = a.userPointerY * 0.18;
+        targetCardRotY = parallaxX * 0.22;
+        targetCardRotX = parallaxY * 0.18;
         targetCardPosZ = 0.22;
       }
 
@@ -1549,8 +1968,11 @@ export function AlpacaBaristaCard3D({
         }
 
         const cardTiltAmount =
-          Math.abs(cardPivot.rotation.x) + Math.abs(cardPivot.rotation.y) + cardPivot.position.z * 0.3;
-        const baseZ = cardDepth / 2 + 0.02 + (isStamped ? Math.min(0.08, cardTiltAmount * 0.12) : 0);
+          Math.abs(cardPivot.rotation.x) +
+          Math.abs(cardPivot.rotation.y) +
+          cardPivot.position.z * 0.3;
+        const baseZ =
+          cardDepth / 2 + 0.02 + (isStamped ? Math.min(0.08, cardTiltAmount * 0.12) : 0);
 
         if (a.isScanning && idx === a.targetSlotIndex) {
           const elapsed = now - a.scanStartTime;
@@ -1609,15 +2031,25 @@ export function AlpacaBaristaCard3D({
     return () => {
       cancelAnimationFrame(reqId);
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('deviceorientation', handleDeviceOrientation);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       resizeObs?.disconnect();
-      domElem.removeEventListener('pointermove', handlePointerMove);
-      domElem.removeEventListener('pointerleave', handlePointerLeave);
+      io?.disconnect();
       renderer.dispose();
     };
   }, [maxStamps]);
 
   return (
-    <div className="relative w-full max-w-full overflow-hidden select-none">
+    <div className="relative w-full max-w-full overflow-hidden select-none rounded-xl">
+      {/* Static Blur Placeholder while 3D Canvas Hydrates */}
+      {!isHydrated && (
+        <img
+          src="/alpaca-hero-poster.jpg"
+          alt="Alpacard Specialty Coffee Shop"
+          className="absolute inset-0 h-full w-full object-cover blur-sm opacity-60 transition-opacity duration-500 pointer-events-none"
+        />
+      )}
       <div
         ref={mountRef}
         className="w-full max-w-full overflow-hidden flex items-center justify-center"

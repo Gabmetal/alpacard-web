@@ -245,11 +245,23 @@ export function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 sm:py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+      <section className="relative overflow-hidden py-10 sm:py-16 lg:py-20">
+        {/* Subtle Warm Coffee Shop Ambient Glow Backdrop */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden opacity-15 dark:opacity-20"
+        >
+          <img
+            src="/alpaca-hero-poster.jpg"
+            alt=""
+            className="h-full w-full object-cover blur-3xl scale-110"
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:gap-10 lg:grid-cols-12 lg:items-center">
             {/* Hero Left Copy */}
-            <div className="lg:col-span-7 min-w-0 space-y-6 text-center lg:text-left">
+            <div className="lg:col-span-6 min-w-0 space-y-6 text-center lg:text-left">
               <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-stone-300 bg-white px-3.5 py-1 text-xs font-medium text-stone-700 shadow-2xs">
                 <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[#5C4028]" />
                 <span className="truncate sm:whitespace-normal">{t.landing.heroPill}</span>
@@ -327,8 +339,8 @@ export function LandingPage() {
             </div>
 
             {/* Hero Right: Live Interactive 3D Barista + Hidden 3D Card Widget */}
-            <div className="lg:col-span-5 min-w-0 w-full flex justify-center">
-              <div className="w-full max-w-md mx-auto rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xs p-3.5 sm:p-5 shadow-md relative">
+            <div className="lg:col-span-6 min-w-0 w-full flex justify-center">
+              <div className="w-full max-w-lg mx-auto rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white/85 dark:bg-stone-900/85 backdrop-blur-md p-3.5 sm:p-5 shadow-md relative">
                 <div className="absolute -top-3 right-4 sm:right-5 z-10 rounded-full bg-[#F5EFE6] border border-[#DFD3C3] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5C4028]">
                   {t.landing.interactiveDemoBadge}
                 </div>
