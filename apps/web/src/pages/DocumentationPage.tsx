@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
-import { getDemoUrl } from '../utils/urls';
+import { getDemoUrl, getMerchantUrl } from '../utils/urls';
 import {
   BookOpen,
   ArrowLeft,
@@ -64,12 +64,12 @@ export function DocumentationPage() {
             >
               {t.nav.liveDemo}
             </a>
-            <Link
-              to="/login"
+            <a
+              href={getMerchantUrl('/login')}
               className="rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:text-stone-950 dark:hover:bg-amber-400 px-3 sm:px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-[#2C1F16] shadow-2xs transition"
             >
               {t.nav.console}
-            </Link>
+            </a>
           </div>
         </div>
       </header>

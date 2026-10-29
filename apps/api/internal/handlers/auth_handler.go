@@ -406,3 +406,157 @@ func (env *Env) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 		"message": "Account successfully deleted",
 	})
 }
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+type ResetPasswordRequest struct {
+	Token    string `json:"token"`
+	Password string `json:"password"`
+}
+
+type ChangePasswordRequest struct {
+	CurrentPassword string `json:"currentPassword"`
+	NewPassword     string `json:"newPassword"`
+}
+
+// ForgotPassword initiates password recovery by emailing a secure reset link
+func (env *Env) ForgotPassword(w http.ResponseWriter, r *http.Request) {
+	var req ForgotPasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	req.Email = strings.TrimSpace(strings.ToLower(req.Email))
+	if req.Email == "" {
+		respondError(w, http.StatusBadRequest, "Email is required")
+		return
+	}
+
+	var user models.User
+	if err := env.DB.Where("email = ? AND is_anonymous = false", req.Email).First(&user).Error; err == nil {
+		resetToken := uuid.New().String()
+		expiresAt := time.Now().Add(1 * time.Hour)
+
+		user.ResetPasswordToken = resetToken
+		user.ResetPasswordExpiresAt = &expiresAt
+		if err := env.DB.Save(&user).Error; err == nil {
+			baseURL := env.Config.AppURL
+			if user.Role == models.RoleConsumer {
+				baseURL = env.Config.WalletURL
+			} else {
+				if strings.Contains(baseURL, "dev.alpacard.app") {
+					baseURL = "https://dev-merchant.alpacard.app"
+				} else if strings.Contains(baseURL, "alpacard.app") {
+					baseURL = "https://merchant.alpacard.app"
+				}
+			}
+
+			resetURL := fmt.Sprintf("%s/reset-password?token=%s", strings.TrimRight(baseURL, "/"), resetToken)
+			go func() {
+				_ = email.SendPasswordResetEmail(env.Config, user.Email, user.Name, resetURL)
+			}()
+		}
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{
+		"message": "If that email is registered, instructions to reset your password have been sent.",
+	})
+}
+
+// ResetPassword accepts a valid reset token and sets a new password
+func (env *Env) ResetPassword(w http.ResponseWriter, r *http.Request) {
+	var req ResetPasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	req.Token = strings.TrimSpace(req.Token)
+	if req.Token == "" || len(req.Password) < 6 {
+		respondError(w, http.StatusBadRequest, "Valid token and password (min 6 chars) are required")
+		return
+	}
+
+	var user models.User
+	if err := env.DB.Where("reset_password_token = ? AND reset_password_expires_at > ?", req.Token, time.Now()).First(&user).Error; err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid or expired password reset token")
+		return
+	}
+
+	hash, err := auth.HashPassword(req.Password)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to hash password")
+		return
+	}
+
+	user.PasswordHash = hash
+	user.ResetPasswordToken = ""
+	user.ResetPasswordExpiresAt = nil
+	user.EmailVerified = true
+
+	if err := env.DB.Save(&user).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to update password")
+		return
+	}
+
+	token, err := auth.GenerateAuthToken(&user, env.Config.JWTSecret)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to generate session token")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, AuthResponse{
+		Token: token,
+		User:  &user,
+	})
+}
+
+// ChangePassword allows authenticated users to update their password
+func (env *Env) ChangePassword(w http.ResponseWriter, r *http.Request) {
+	claims, ok := auth.GetUserFromContext(r.Context())
+	if !ok {
+		respondError(w, http.StatusUnauthorized, "Unauthorized")
+		return
+	}
+
+	var req ChangePasswordRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "Invalid request payload")
+		return
+	}
+
+	if len(req.NewPassword) < 6 {
+		respondError(w, http.StatusBadRequest, "New password must be at least 6 characters")
+		return
+	}
+
+	var user models.User
+	if err := env.DB.First(&user, "id = ?", claims.UserID).Error; err != nil {
+		respondError(w, http.StatusNotFound, "User not found")
+		return
+	}
+
+	if !auth.CheckPassword(req.CurrentPassword, user.PasswordHash) {
+		respondError(w, http.StatusUnauthorized, "Current password is incorrect")
+		return
+	}
+
+	hash, err := auth.HashPassword(req.NewPassword)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to hash password")
+		return
+	}
+
+	user.PasswordHash = hash
+	if err := env.DB.Save(&user).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to save new password")
+		return
+	}
+
+	respondJSON(w, http.StatusOK, map[string]string{
+		"message": "Password changed successfully",
+	})
+}

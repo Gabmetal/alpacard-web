@@ -207,3 +207,103 @@ func TestDeleteAccount(t *testing.T) {
 		t.Fatalf("Card was not deleted when account was deleted")
 	}
 }
+
+func TestForgotPasswordAndReset(t *testing.T) {
+	db, env, _, _ := setupTestDB(t)
+
+	// Create user
+	hash, _ := auth.HashPassword("oldpassword123")
+	user := &models.User{
+		Email:        "recovery@example.com",
+		PasswordHash: hash,
+		Name:         "Recovery Tester",
+		Role:         models.RoleOwner,
+	}
+	db.Create(user)
+
+	// 1. Request password reset
+	forgotBody, _ := json.Marshal(map[string]string{
+		"email": "recovery@example.com",
+	})
+	forgotReq := httptest.NewRequest("POST", "/api/v1/auth/forgot-password", bytes.NewBuffer(forgotBody))
+	forgotRR := httptest.NewRecorder()
+	env.ForgotPassword(forgotRR, forgotReq)
+
+	if forgotRR.Code != http.StatusOK {
+		t.Fatalf("Expected 200 for forgot password, got %d: %s", forgotRR.Code, forgotRR.Body.String())
+	}
+
+	// Fetch reset token from DB
+	var updatedUser models.User
+	db.First(&updatedUser, "id = ?", user.ID)
+	if updatedUser.ResetPasswordToken == "" {
+		t.Fatalf("Expected ResetPasswordToken to be set in DB")
+	}
+
+	// 2. Perform password reset
+	resetBody, _ := json.Marshal(map[string]string{
+		"token":    updatedUser.ResetPasswordToken,
+		"password": "brandnewpassword456",
+	})
+	resetReq := httptest.NewRequest("POST", "/api/v1/auth/reset-password", bytes.NewBuffer(resetBody))
+	resetRR := httptest.NewRecorder()
+	env.ResetPassword(resetRR, resetReq)
+
+	if resetRR.Code != http.StatusOK {
+		t.Fatalf("Expected 200 for reset password, got %d: %s", resetRR.Code, resetRR.Body.String())
+	}
+
+	// 3. Verify user can log in with new password
+	db.First(&updatedUser, "id = ?", user.ID)
+	if !auth.CheckPassword("brandnewpassword456", updatedUser.PasswordHash) {
+		t.Fatalf("New password hash check failed")
+	}
+	if updatedUser.ResetPasswordToken != "" {
+		t.Fatalf("ResetPasswordToken should be cleared after reset")
+	}
+}
+
+func TestChangePassword(t *testing.T) {
+	db, env, _, _ := setupTestDB(t)
+
+	hash, _ := auth.HashPassword("currentpass123")
+	user := &models.User{
+		Email:        "changepass@example.com",
+		PasswordHash: hash,
+		Name:         "Password Changer",
+		Role:         models.RoleOwner,
+	}
+	db.Create(user)
+
+	// 1. Invalid current password
+	badBody, _ := json.Marshal(map[string]string{
+		"currentPassword": "wrongpass",
+		"newPassword":     "newsecretpass789",
+	})
+	badReq := withAuth(httptest.NewRequest("POST", "/api/v1/auth/change-password", bytes.NewBuffer(badBody)), user)
+	badRR := httptest.NewRecorder()
+	env.ChangePassword(badRR, badReq)
+
+	if badRR.Code != http.StatusUnauthorized {
+		t.Fatalf("Expected 401 for wrong current password, got %d: %s", badRR.Code, badRR.Body.String())
+	}
+
+	// 2. Valid password change
+	goodBody, _ := json.Marshal(map[string]string{
+		"currentPassword": "currentpass123",
+		"newPassword":     "newsecretpass789",
+	})
+	goodReq := withAuth(httptest.NewRequest("POST", "/api/v1/auth/change-password", bytes.NewBuffer(goodBody)), user)
+	goodRR := httptest.NewRecorder()
+	env.ChangePassword(goodRR, goodReq)
+
+	if goodRR.Code != http.StatusOK {
+		t.Fatalf("Expected 200 for valid change password, got %d: %s", goodRR.Code, goodRR.Body.String())
+	}
+
+	var updatedUser models.User
+	db.First(&updatedUser, "id = ?", user.ID)
+	if !auth.CheckPassword("newsecretpass789", updatedUser.PasswordHash) {
+		t.Fatalf("Password was not updated in DB")
+	}
+}

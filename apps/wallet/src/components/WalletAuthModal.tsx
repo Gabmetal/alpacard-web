@@ -24,7 +24,9 @@ export function WalletAuthModal({
   const [tab, setTab] = useState<'login' | 'register'>(defaultTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,6 +36,22 @@ export function WalletAuthModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (tab === 'register') {
+      if (password.length < 6) {
+        setError(
+          isEs
+            ? 'La contraseña debe tener al menos 6 caracteres'
+            : 'Password must be at least 6 characters'
+        );
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError(isEs ? 'Las contraseñas no coinciden' : 'Passwords do not match');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -194,6 +212,33 @@ export function WalletAuthModal({
               </button>
             </div>
           </div>
+
+          {tab === 'register' && (
+            <div>
+              <label className="block text-xs font-semibold text-stone-700 mb-1">
+                {isEs ? 'Confirmar Contraseña' : 'Confirm Password'}
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  minLength={6}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 pr-10 text-xs font-medium text-stone-900 focus:border-[#4A3525] focus:outline-none focus:ring-1 focus:ring-[#4A3525] transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-stone-400 hover:text-stone-600 transition"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

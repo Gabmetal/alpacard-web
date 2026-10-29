@@ -4,7 +4,7 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
-import { getWalletUrl, getDemoUrl } from '../utils/urls';
+import { getWalletUrl, getDemoUrl, getMerchantUrl } from '../utils/urls';
 import {
   ShieldCheck,
   Server,
@@ -114,13 +114,13 @@ export function LandingPage() {
               <span>{t.nav.openWallet}</span>
             </a>
 
-            <Link
-              to="/login"
+            <a
+              href={getMerchantUrl('/login')}
               className="whitespace-nowrap shrink-0 text-xs xl:text-[13px] font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-2.5 xl:px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               title={t.nav.merchantLogin}
             >
               {t.nav.signIn}
-            </Link>
+            </a>
           </div>
 
           {/* Mobile Controls: Sleek and uncluttered */}
@@ -211,21 +211,21 @@ export function LandingPage() {
               <div className="text-[11px] font-semibold text-stone-400 px-1 uppercase tracking-wider">
                 {t.nav.merchantLogin}
               </div>
-              <Link
-                to="/login"
+              <a
+                href={getMerchantUrl('/login')}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 text-center text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition"
               >
                 {t.nav.signIn}
-              </Link>
-              <Link
-                to="/login?mode=register"
+              </a>
+              <a
+                href={getMerchantUrl('/login?mode=register')}
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:text-stone-950 dark:hover:bg-amber-400 py-2.5 text-center text-xs font-semibold text-white hover:bg-[#2C1F16] transition shadow-2xs"
               >
                 <span>{t.nav.getStarted}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              </a>
             </div>
           </div>
         )}
@@ -264,13 +264,13 @@ export function LandingPage() {
                 </a>
 
                 {/* Secondary Button: Merchant Backoffice Account */}
-                <Link
-                  to="/login?mode=register"
+                <a
+                  href={getMerchantUrl('/login?mode=register')}
                   className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#3D2B1F] dark:bg-stone-800 dark:hover:bg-stone-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
                 >
                   <Coffee className="h-4 w-4 text-amber-300 shrink-0" />
                   <span>{t.landing.launchMerchantBtn}</span>
-                </Link>
+                </a>
 
                 <button
                   type="button"

@@ -29,8 +29,6 @@ type resendResponse struct {
 }
 
 // SendVerificationEmail dispatches an account confirmation email with a unique verification link.
-// It prioritizes Resend REST API if RESEND_API_KEY is configured, falls back to SMTP if SMTP_HOST is set,
-// or logs the verification link for local environments.
 func SendVerificationEmail(cfg *config.Config, recipientEmail, recipientName, token string) error {
 	verifyURL := fmt.Sprintf("%s/api/v1/auth/verify-email?token=%s", strings.TrimRight(cfg.AppURL, "/"), token)
 	if recipientName == "" {
@@ -100,7 +98,82 @@ Si no te registraste en Alpacard, puedes ignorar este mensaje.
 </html>`, recipientName, verifyURL, verifyURL, verifyURL, recipientName)
 
 	log.Printf("[EMAIL SERVICE] Verification email for %s <%s> ready. Link: %s", recipientName, recipientEmail, verifyURL)
+	return sendMail(cfg, recipientEmail, subject, bodyHTML, bodyText)
+}
 
+// SendPasswordResetEmail dispatches a secure password recovery email with a 1-hour expiration link.
+func SendPasswordResetEmail(cfg *config.Config, recipientEmail, recipientName, resetURL string) error {
+	if recipientName == "" {
+		recipientName = "Alpacard User"
+	}
+
+	subject := "Reset your Alpacard Password / Restablece tu contraseña Alpacard"
+
+	bodyText := fmt.Sprintf(`Hello %s,
+
+We received a request to reset your Alpacard password. You can set a new password by clicking the link below:
+
+%s
+
+This link will expire in 1 hour.
+
+If you did not request a password reset, please ignore this email.
+
+---
+Hola %s,
+
+Recibimos una solicitud para restablecer tu contraseña en Alpacard. Puedes ingresar una nueva contraseña haciendo clic en el siguiente enlace:
+
+%s
+
+Este enlace vencerá en 1 hora.
+
+Si no solicitaste restablecer tu contraseña, puedes ignorar este mensaje de forma segura.
+`, recipientName, resetURL, recipientName, resetURL)
+
+	bodyHTML := fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #FAF8F5; margin: 0; padding: 24px; color: #292524; }
+    .container { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 20px; border: 1px solid #e7e5e4; padding: 36px 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo-badge { display: inline-block; background-color: #f59e0b; color: #1c1917; font-weight: 900; font-size: 20px; padding: 10px 18px; border-radius: 14px; text-decoration: none; }
+    h1 { font-size: 20px; font-weight: 800; color: #1c1917; margin-bottom: 12px; }
+    p { font-size: 14px; line-height: 1.6; color: #57534e; margin-bottom: 20px; }
+    .btn-container { text-align: center; margin: 28px 0; }
+    .btn { display: inline-block; background-color: #3d2b1f; color: #ffffff !important; font-weight: 700; font-size: 14px; text-decoration: none; padding: 13px 30px; border-radius: 12px; }
+    .divider { border-top: 1px solid #f5f5f4; margin: 28px 0; }
+    .footer { font-size: 11px; color: #a8a29e; text-align: center; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-badge">🦙 Alpacard</div>
+    </div>
+    <h1>Reset Your Password / Restablece Tu Contraseña</h1>
+    <p>Hello <strong>%s</strong>, we received a request to reset your password. Click the button below to set a new password:</p>
+    <div class="btn-container">
+      <a href="%s" class="btn" target="_blank">Reset Password / Restablecer Contraseña</a>
+    </div>
+    <p style="font-size: 12px; color: #78716c;">Link expires in 1 hour. If the button doesn't work, copy and paste this URL into your browser:<br/><a href="%s" style="color: #d97706; word-break: break-all;">%s</a></p>
+    <div class="divider"></div>
+    <p style="font-size: 13px;">¡Hola <strong>%s</strong>! Recibimos una solicitud para restablecer tu contraseña. Haz clic arriba para cambiarla. Este enlace vence en 1 hora.</p>
+    <div class="footer">
+      Alpacard • Open-Source Digital Loyalty Platform<br/>
+      If you did not request this change, you can safely ignore this email.
+    </div>
+  </div>
+</body>
+</html>`, recipientName, resetURL, resetURL, resetURL, recipientName)
+
+	log.Printf("[EMAIL SERVICE] Password reset email for %s <%s> ready. Link: %s", recipientName, recipientEmail, resetURL)
+	return sendMail(cfg, recipientEmail, subject, bodyHTML, bodyText)
+}
+
+func sendMail(cfg *config.Config, recipientEmail, subject, bodyHTML, bodyText string) error {
 	// 1. Resend REST API
 	if cfg.ResendAPIKey != "" {
 		fromAddr := cfg.SMTPFrom
@@ -145,8 +218,7 @@ Si no te registraste en Alpacard, puedes ignorar este mensaje.
 			_ = json.Unmarshal(respBytes, &rErr)
 			log.Printf("[EMAIL SERVICE] Resend delivery rejected (status %d): %s (%s)", resp.StatusCode, rErr.Message, rErr.Name)
 
-			// Graceful fallback: If custom domain is still pending verification in resend.com/domains,
-			// retry with onboarding@resend.dev so registration emails are not dropped during DNS verification.
+			// Graceful fallback: If custom domain is pending verification, retry with onboarding@resend.dev
 			if strings.Contains(rErr.Message, "not verified") && fromAddr != "Alpacard <onboarding@resend.dev>" {
 				log.Printf("[EMAIL SERVICE] Domain not yet verified in Resend. Retrying with onboarding@resend.dev fallback...")
 				payload.From = "Alpacard <onboarding@resend.dev>"
@@ -161,7 +233,7 @@ Si no te registraste en Alpacard, puedes ignorar este mensaje.
 						var rSuccess resendResponse
 						rRetryBytes, _ := io.ReadAll(retryResp.Body)
 						_ = json.Unmarshal(rRetryBytes, &rSuccess)
-						log.Printf("[EMAIL SERVICE] Verification email delivered via Resend fallback to %s (ID: %s)", recipientEmail, rSuccess.ID)
+						log.Printf("[EMAIL SERVICE] Email delivered via Resend fallback to %s (ID: %s)", recipientEmail, rSuccess.ID)
 						return nil
 					}
 				}
@@ -172,7 +244,7 @@ Si no te registraste en Alpacard, puedes ignorar este mensaje.
 
 		var rSuccess resendResponse
 		_ = json.Unmarshal(respBytes, &rSuccess)
-		log.Printf("[EMAIL SERVICE] Verification email successfully delivered via Resend API to %s (ID: %s)", recipientEmail, rSuccess.ID)
+		log.Printf("[EMAIL SERVICE] Email successfully delivered via Resend API to %s (ID: %s)", recipientEmail, rSuccess.ID)
 		return nil
 	}
 
@@ -189,10 +261,10 @@ Si no te registraste en Alpacard, puedes ignorar este mensaje.
 
 		err := smtp.SendMail(addr, auth, cfg.SMTPFrom, []string{recipientEmail}, msg)
 		if err != nil {
-			log.Printf("[EMAIL SERVICE] Warning: Failed to deliver verification email via SMTP to %s: %v", recipientEmail, err)
+			log.Printf("[EMAIL SERVICE] Warning: Failed to deliver email via SMTP to %s: %v", recipientEmail, err)
 			return err
 		}
-		log.Printf("[EMAIL SERVICE] Verification email successfully delivered via SMTP to %s", recipientEmail)
+		log.Printf("[EMAIL SERVICE] Email successfully delivered via SMTP to %s", recipientEmail)
 		return nil
 	}
 

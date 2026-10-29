@@ -1,3 +1,15 @@
+export function isMerchantHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host.startsWith('merchant') || host.includes('dev-merchant') || host.includes('merchant.');
+}
+
+export function isDemoHost(): boolean {
+  if (typeof window === 'undefined') return false;
+  const host = window.location.hostname;
+  return host.startsWith('demo') || host.includes('dev-demo') || host.includes('demo.');
+}
+
 export function getWalletUrl(path = ''): string {
   if (typeof window === 'undefined') return path;
   const host = window.location.hostname;

@@ -6,6 +6,9 @@ import {
   Save,
   CheckCircle2,
   CreditCard,
+  Lock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { api, clearMerchantToken, MerchantUser } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -35,7 +38,53 @@ export function ProfileModal({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
+  // Change password state
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [showPasswords, setShowPasswords] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+
   if (!isOpen) return null;
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError(null);
+
+    if (newPassword.length < 6) {
+      setPasswordError(
+        isEs
+          ? 'La nueva contraseña debe tener al menos 6 caracteres'
+          : 'New password must be at least 6 characters'
+      );
+      return;
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      setPasswordError(isEs ? 'Las contraseñas no coinciden' : 'Passwords do not match');
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      await api.changePassword({ currentPassword, newPassword });
+      toast.success(isEs ? '¡Contraseña cambiada con éxito!' : 'Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmNewPassword('');
+      setShowChangePassword(false);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setPasswordError(err.message);
+      } else {
+        setPasswordError(isEs ? 'Error al cambiar la contraseña' : 'Failed to change password');
+      }
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   const handleSaveName = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -254,6 +303,106 @@ export function ProfileModal({
             >
               <span>{isEs ? 'Abrir' : 'Open'}</span>
             </a>
+          </div>
+
+          {/* Security: Change Password */}
+          <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-stone-50/40 dark:bg-stone-800/20 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-stone-900 dark:text-stone-100 font-bold text-xs">
+                <Lock className="h-4 w-4 text-stone-600 dark:text-stone-400" />
+                <span>{isEs ? 'Seguridad y Contraseña' : 'Security & Password'}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowChangePassword(!showChangePassword);
+                  setPasswordError(null);
+                }}
+                className="text-xs font-bold text-amber-700 dark:text-amber-400 hover:underline"
+              >
+                {showChangePassword
+                  ? isEs
+                    ? 'Cancelar'
+                    : 'Cancel'
+                  : isEs
+                  ? 'Cambiar'
+                  : 'Change'}
+              </button>
+            </div>
+
+            {showChangePassword && (
+              <form onSubmit={handleChangePassword} className="space-y-3 pt-2 border-t border-stone-200 dark:border-stone-800">
+                {passwordError && (
+                  <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/40 p-2.5 text-xs text-red-700 dark:text-red-300">
+                    {passwordError}
+                  </div>
+                )}
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-700 dark:text-stone-300">
+                    {isEs ? 'Contraseña Actual' : 'Current Password'}
+                  </label>
+                  <input
+                    type={showPasswords ? 'text' : 'password'}
+                    required
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="mt-1 block w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 p-2 text-xs focus:border-[#4A3525] dark:focus:border-amber-400 focus:outline-none"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-700 dark:text-stone-300">
+                    {isEs ? 'Nueva Contraseña (mínimo 6 caracteres)' : 'New Password (min 6 chars)'}
+                  </label>
+                  <input
+                    type={showPasswords ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="mt-1 block w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 p-2 text-xs focus:border-[#4A3525] dark:focus:border-amber-400 focus:outline-none"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold text-stone-700 dark:text-stone-300">
+                    {isEs ? 'Confirmar Nueva Contraseña' : 'Confirm New Password'}
+                  </label>
+                  <input
+                    type={showPasswords ? 'text' : 'password'}
+                    required
+                    minLength={6}
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    className="mt-1 block w-full rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 p-2 text-xs focus:border-[#4A3525] dark:focus:border-amber-400 focus:outline-none"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswords(!showPasswords)}
+                    className="text-[11px] text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200 inline-flex items-center gap-1"
+                  >
+                    {showPasswords ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    <span>{showPasswords ? (isEs ? 'Ocultar' : 'Hide') : (isEs ? 'Mostrar' : 'Show')}</span>
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={passwordLoading}
+                    className="rounded-xl bg-[#3D2B1F] dark:bg-amber-500 dark:hover:bg-amber-400 dark:text-stone-950 px-3 py-1.5 text-xs font-bold text-white hover:bg-[#2C1F16] transition disabled:opacity-50"
+                  >
+                    {passwordLoading
+                      ? isEs
+                        ? 'Guardando...'
+                        : 'Saving...'
+                      : isEs
+                      ? 'Actualizar Contraseña'
+                      : 'Update Password'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {/* Danger Zone: Autonomous Account Deletion */}

@@ -14,13 +14,21 @@ import { CampaignsPage } from './pages/CampaignsPage';
 import { BusinessesPage, BusinessItem } from './pages/BusinessesPage';
 import { StaffPage } from './pages/StaffPage';
 import { ScannerPage } from './pages/ScannerPage';
+import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { Plus, X } from 'lucide-react';
-import { getWalletUrl } from './utils/urls';
+import { getWalletUrl, getMerchantUrl, isMerchantHost, isDemoHost } from './utils/urls';
 
 function LoginRoute({ token, onLoginSuccess }: { token: string | null; onLoginSuccess: () => void }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
+
+  // If on marketing domain (e.g. dev.alpacard.app or alpacard.app) and not localhost,
+  // redirect immediately to the dedicated merchant subdomain!
+  if (!isMerchantHost() && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    window.location.href = getMerchantUrl('/login' + window.location.search);
+    return null;
+  }
 
   if (token) {
     return <Navigate to={redirect} replace />;
@@ -39,6 +47,10 @@ function LoginRoute({ token, onLoginSuccess }: { token: string | null; onLoginSu
 function ProtectedFallback() {
   const location = useLocation();
   const currentPath = location.pathname + location.search;
+  if (!isMerchantHost() && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    window.location.href = getMerchantUrl(`/login?redirect=${encodeURIComponent(currentPath)}`);
+    return null;
+  }
   return <Navigate to={`/login?redirect=${encodeURIComponent(currentPath)}`} replace />;
 }
 
@@ -51,6 +63,15 @@ export function App() {
 
   useEffect(() => {
     if (token) {
+      // Cross-domain redirection: If user is on marketing domain, forward to merchant subdomain
+      if (!isMerchantHost() && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        const path = window.location.pathname;
+        if (path.startsWith('/dashboard') || path.startsWith('/campaigns') || path.startsWith('/businesses') || path.startsWith('/staff') || path.startsWith('/scanner') || path.startsWith('/login')) {
+          window.location.href = getMerchantUrl(window.location.pathname + window.location.search);
+          return;
+        }
+      }
+
       api.me()
         .then((user) => {
           if (user.role === 'CONSUMER') {
@@ -123,13 +144,15 @@ export function App() {
         <ToastProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Marketing & Product Routes */}
-              {typeof window !== 'undefined' &&
-              (window.location.hostname.startsWith('demo') ||
-                window.location.hostname.includes('dev-demo')) ? (
+              {/* Domain-Aware Root Routes */}
+              {isDemoHost() ? (
                 <>
                   <Route path="/" element={<DemoPage />} />
                   <Route path="*" element={<DemoPage />} />
+                </>
+              ) : isMerchantHost() ? (
+                <>
+                  <Route path="/" element={<Navigate to={token ? "/dashboard" : "/login"} replace />} />
                 </>
               ) : (
                 <>
@@ -146,6 +169,7 @@ export function App() {
                   />
                 }
               />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
 
               {/* Authenticated Merchant Console Routes */}
               {token ? (

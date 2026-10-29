@@ -48,6 +48,8 @@ type User struct {
 	EmailVerified         bool       `gorm:"default:false" json:"emailVerified"`
 	VerificationToken     string     `gorm:"type:varchar(100);index" json:"-"`
 	VerificationExpiresAt *time.Time `json:"-"`
+	ResetPasswordToken     string     `gorm:"type:varchar(100);index" json:"-"`
+	ResetPasswordExpiresAt *time.Time `json:"-"`
 	
 	// Relations
 	OwnedBusinesses []Business `gorm:"foreignKey:OwnerID" json:"ownedBusinesses,omitempty"`
