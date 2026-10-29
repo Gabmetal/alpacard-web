@@ -230,7 +230,15 @@ export function App() {
                 />
               }
             />
-            <Route path="/staff" element={<StaffPage businessId={activeBusiness?.id} />} />
+            <Route
+              path="/staff"
+              element={
+                <StaffPage
+                  businessId={activeBusiness?.id}
+                  onCreateBusiness={() => setShowCreateBiz(true)}
+                />
+              }
+            />
             <Route path="/scanner" element={<ScannerPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Route>
