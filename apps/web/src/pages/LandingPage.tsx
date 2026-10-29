@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import confetti from 'canvas-confetti';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
+import { AlpacaBaristaCard3D } from '../components/AlpacaBaristaCard3D';
 import { getWalletUrl, getDemoUrl, getMerchantUrl } from '../utils/urls';
 import {
   ShieldCheck,
   Server,
   ArrowRight,
-  CheckCircle2,
-  Gift,
   QrCode,
   Smartphone,
   Play,
   RotateCcw,
-  Check,
   Layers,
   Heart,
   Menu,
@@ -33,17 +32,31 @@ export function LandingPage() {
 
   // Interactive Punch Card Demo Widget State
   const [stamps, setStamps] = useState(7);
+  const [scanTrigger, setScanTrigger] = useState(0);
+  const [resetTrigger, setResetTrigger] = useState(0);
   const maxStamps = 10;
   const isRewardReady = stamps >= maxStamps;
 
   const handleAddStamp = () => {
     if (stamps < maxStamps) {
-      setStamps((prev) => prev + 1);
+      const next = stamps + 1;
+      setStamps(next);
+      setScanTrigger((prev) => prev + 1);
+      if (next >= maxStamps) {
+        setTimeout(() => {
+          confetti({
+            particleCount: 55,
+            spread: 65,
+            origin: { y: 0.6 },
+          });
+        }, 650);
+      }
     }
   };
 
   const handleResetDemo = () => {
     setStamps(0);
+    setResetTrigger((prev) => prev + 1);
   };
 
   return (
@@ -313,89 +326,43 @@ export function LandingPage() {
               </div>
             </div>
 
-            {/* Hero Right: Live Interactive Card Widget */}
+            {/* Hero Right: Live Interactive 3D Barista + Hidden 3D Card Widget */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 shadow-md relative">
-                <div className="absolute -top-3 right-5 rounded-full bg-[#F5EFE6] border border-[#DFD3C3] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5C4028]">
+              <div className="w-full max-w-md rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xs p-4 sm:p-5 shadow-md relative">
+                <div className="absolute -top-3 right-5 z-10 rounded-full bg-[#F5EFE6] border border-[#DFD3C3] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5C4028]">
                   {t.landing.interactiveDemoBadge}
                 </div>
 
-                {/* Card Header */}
-                <div className="rounded-xl bg-[#3D2B1F] p-5 text-white text-center shadow-xs">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-300">
-                    {t.landing.demoStoreName}
-                  </span>
-                  <h3 className="text-xl font-bold mt-0.5">{t.landing.demoCardTitle}</h3>
-                  <p className="text-xs text-stone-200 mt-1">{t.landing.demoCardSubtitle}</p>
-                </div>
-
-                {/* Stamp Circles */}
-                <div className="mt-5">
-                  <div className="flex items-center justify-between text-xs font-semibold text-stone-600 mb-3">
-                    <span>{t.landing.demoProgressLabel}</span>
-                    <span className="text-[#5C4028] font-bold">
-                      {stamps} / {maxStamps}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
-                    {Array.from({ length: maxStamps }).map((_, i) => {
-                      const isStamped = i < stamps;
-                      const isLast = i === maxStamps - 1;
-                      return (
-                        <div
-                          key={i}
-                          className={`aspect-square rounded-xl border flex items-center justify-center transition-all duration-200 ${
-                            isStamped
-                              ? 'border-[#4A3525] bg-[#4A3525] text-white shadow-2xs'
-                              : isLast
-                              ? 'border-dashed border-amber-700/60 bg-amber-50/70 text-amber-800'
-                              : 'border-stone-200 bg-stone-50 text-stone-400'
-                          }`}
-                        >
-                          {isStamped ? (
-                            <Check className="h-4 w-4 stroke-[2.5]" />
-                          ) : isLast ? (
-                            <Gift className="h-4 w-4" />
-                          ) : (
-                            <span className="text-xs font-semibold">{i + 1}</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Status Box */}
-                <div className="mt-5 rounded-xl bg-stone-50 border border-stone-200/80 p-3.5 text-center">
-                  {isRewardReady ? (
-                    <div className="space-y-1">
-                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-700" />{' '}
-                        {t.landing.demoRewardReady}
-                      </div>
-                      <p className="text-[11px] text-stone-600">{t.landing.demoRewardDesc}</p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-stone-600">
-                      {maxStamps - stamps} {t.landing.demoRemainingStamps}
-                    </p>
-                  )}
+                {/* Unified Three.js Diorama: Barista Alpaca at the Bar + Disguised 3D Loyalty Card */}
+                <div className="-mt-2 -mx-2">
+                  <AlpacaBaristaCard3D
+                    stamps={stamps}
+                    maxStamps={maxStamps}
+                    storeName={t.landing.demoStoreName}
+                    cardTitle={t.landing.demoCardTitle}
+                    cardSubtitle={t.landing.demoCardSubtitle}
+                    progressLabel={t.landing.demoProgressLabel}
+                    rewardReadyText={t.landing.demoRewardReady}
+                    rewardDescText={t.landing.demoRewardDesc}
+                    remainingStampsText={t.landing.demoRemainingStamps}
+                    scanTrigger={scanTrigger}
+                    resetTrigger={resetTrigger}
+                  />
                 </div>
 
                 {/* Interactive Controls */}
-                <div className="mt-4 flex gap-2">
+                <div className="mt-1 flex gap-2">
                   <button
                     onClick={handleAddStamp}
                     disabled={isRewardReady}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-900 py-2.5 text-xs font-semibold text-white hover:bg-stone-800 disabled:opacity-40 transition active:scale-[0.99]"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-900 dark:bg-amber-500 dark:text-stone-950 py-3 text-xs font-bold text-white hover:bg-stone-800 dark:hover:bg-amber-400 disabled:opacity-40 transition active:scale-[0.99] shadow-xs cursor-pointer"
                   >
-                    <CheckCircle2 className="h-4 w-4" />
+                    <Smartphone className="h-4 w-4" />
                     {t.landing.demoSimulateBtn}
                   </button>
                   <button
                     onClick={handleResetDemo}
-                    className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition"
+                    className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-3 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-700 transition cursor-pointer"
                     title="Reset Demo"
                   >
                     <RotateCcw className="h-4 w-4" />
