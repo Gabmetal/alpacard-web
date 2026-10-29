@@ -18,8 +18,9 @@ jobs:
 
       - name: Push to GitHub Wiki Git Repository
         env:
-          WIKI_REPO: "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git"
+          WIKI_AUTH_TOKEN: ${{ secrets.GH_TOKEN_WIKI || secrets.GITHUB_TOKEN }}
         run: |
+          WIKI_REPO="https://x-access-token:${WIKI_AUTH_TOKEN}@github.com/${{ github.repository }}.wiki.git"
           echo "🔍 Checking GitHub Wiki availability for ${{ github.repository }}..."
           TEMP_DIR=$(mktemp -d)
 
