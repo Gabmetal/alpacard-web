@@ -10,7 +10,9 @@ data:
   DATABASE_URL: "postgres://{{ .Values.postgres.auth.username }}:{{ .Values.postgres.auth.password }}@{{ include "alpacard.fullname" . }}-postgres-service:5432/{{ .Values.postgres.auth.database }}?sslmode=disable"
   RABBITMQ_URL: "amqp://{{ .Values.rabbitmq.auth.username }}:{{ .Values.rabbitmq.auth.password }}@{{ include "alpacard.fullname" . }}-rabbitmq-service:5672/"
   APP_URL: {{ .Values.global.appUrl | quote }}
-  CORS_ORIGINS: "https://alpacard.app,https://www.alpacard.app,https://alpacard.gabo.lat,http://localhost:5173,http://localhost:5174"
+  WALLET_URL: {{ .Values.global.walletUrl | default "https://wallet.alpacard.app" | quote }}
+  SMTP_FROM: "Alpacard <no-reply@alpacard.app>"
+  CORS_ORIGINS: "https://alpacard.app,https://www.alpacard.app,https://wallet.alpacard.app,https://merchant.alpacard.app,https://demo.alpacard.app,https://alpacard.gabo.lat,http://localhost:5173,http://localhost:5174"
 ---
 apiVersion: v1
 kind: Secret

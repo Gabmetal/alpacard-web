@@ -18,7 +18,6 @@ spec:
   - host: {{ $d }}
     http:
       paths:
-      # API Endpoints
       - path: /api
         pathType: Prefix
         backend:
@@ -26,52 +25,15 @@ spec:
             name: {{ $fullName }}-api-service
             port:
               number: 4000
-
-      # Customer Loyalty Wallet Routes (1-click Claim & Punch Card Presentation)
-      - path: /claim
+      {{- if hasPrefix "wallet." $d }}
+      - path: /
         pathType: Prefix
         backend:
           service:
             name: {{ $fullName }}-wallet-service
             port:
               number: 80
-      - path: /card
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $fullName }}-wallet-service
-            port:
-              number: 80
-      - path: /wallet
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $fullName }}-wallet-service
-            port:
-              number: 80
-      - path: /wallet-assets
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ $fullName }}-wallet-service
-            port:
-              number: 80
-      - path: /manifest.json
-        pathType: Exact
-        backend:
-          service:
-            name: {{ $fullName }}-wallet-service
-            port:
-              number: 80
-      - path: /sw.js
-        pathType: Exact
-        backend:
-          service:
-            name: {{ $fullName }}-wallet-service
-            port:
-              number: 80
-
-      # Merchant Backoffice & QR Scanner (Default /)
+      {{- else }}
       - path: /
         pathType: Prefix
         backend:
@@ -79,6 +41,7 @@ spec:
             name: {{ $fullName }}-web-service
             port:
               number: 80
+      {{- end }}
   {{- end }}
   tls:
   - hosts:

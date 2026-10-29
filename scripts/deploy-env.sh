@@ -50,7 +50,11 @@ podman save localhost/alpacard-wallet:latest | sudo k3s ctr --namespace k8s.io i
 podman save localhost/alpacard-api:latest | sudo k3s ctr --namespace k8s.io images import -
 
 # 5. Rotate Running Pods in the targeted Namespace
-echo "🔄 [5/6] Triggering rolling restart for namespace: $NAMESPACE..."
+echo "🔄 [5/6] Applying manifests and triggering rolling restart for namespace: $NAMESPACE..."
+if [ "$NAMESPACE" = "alpacard" ]; then
+  kubectl apply -f deploy/kubernetes/05-ingress.yaml -n "$NAMESPACE" || true
+  kubectl patch configmap alpacard-api-config -n "$NAMESPACE" --type merge -p '{"data":{"APP_URL":"https://alpacard.app","WALLET_URL":"https://wallet.alpacard.app","SMTP_FROM":"Alpacard <no-reply@alpacard.app>","CORS_ORIGINS":"https://alpacard.app,https://www.alpacard.app,https://wallet.alpacard.app,https://merchant.alpacard.app,https://demo.alpacard.app,https://alpacard.gabo.lat,http://localhost:5173,http://localhost:5174"}}' || true
+fi
 kubectl delete pod -l app=alpacard-web -n "$NAMESPACE" || true
 kubectl delete pod -l app=alpacard-wallet -n "$NAMESPACE" || true
 kubectl delete pod -l app=alpacard-api -n "$NAMESPACE" || true

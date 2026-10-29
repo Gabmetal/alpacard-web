@@ -6,7 +6,7 @@ metadata:
 data:
   PORT: "4000"
   DB_DRIVER: "postgres"
-  DATABASE_URL: "postgres://alpacard:alpacard_pg_prod_secret_2026@alpacard-postgres-service:5432/alpacard?sslmode=disable"
+  DATABASE_URL: "postgres://alpacard:alpacard_pg_homelab_secret_2026@alpacard-postgres-service:5432/alpacard?sslmode=disable"
   RABBITMQ_URL: "amqp://guest:guest@alpacard-rabbitmq-service:5672/"
   APP_URL: "https://alpacard.app"
   WALLET_URL: "https://wallet.alpacard.app"
