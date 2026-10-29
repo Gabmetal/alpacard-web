@@ -26,6 +26,7 @@ import { MenuModal } from '../components/MenuModal';
 import { RedeemCelebrationModal } from '../components/RedeemCelebrationModal';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { playStampCelebrationSound } from '../utils/audio';
+import { getMerchantUrl } from '../utils/urls';
 
 interface QRData {
   token: string;
@@ -636,7 +637,7 @@ export function CardDetailPage() {
                 <QRCode
                   value={
                     data.scanUrl ||
-                    `${window.location.origin}/scanner?token=${data.token}`
+                    getMerchantUrl(`/scanner?token=${data.token}`)
                   }
                   size={180}
                 />

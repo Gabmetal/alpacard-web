@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, Globe, Instagram, WifiOff } from 'lucide-react';
+import { CreditCard, Sparkles, RefreshCw, User, LogIn, LogOut, Store, BookOpen, Globe, Instagram, WifiOff, ScanLine, Mail } from 'lucide-react';
 import { walletApi, getStoredUser, WalletUser, getCachedCards, setCachedCards } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
@@ -10,6 +10,7 @@ import { WalletAuthModal } from '../components/WalletAuthModal';
 import { MenuModal } from '../components/MenuModal';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { ProfileModal } from '../components/ProfileModal';
+import { CampaignScannerModal } from '../components/CampaignScannerModal';
 import { useToast } from '../components/Toast';
 
 interface Card {
@@ -52,6 +53,8 @@ export function WalletPage() {
   const [user, setUser] = useState<WalletUser | null>(getStoredUser());
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [resendingEmail, setResendingEmail] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   const [selectedMerchant, setSelectedMerchant] = useState<string>('ALL');
   const [menuBusiness, setMenuBusiness] = useState<Card['campaign']['business'] | null>(null);
@@ -214,6 +217,16 @@ export function WalletPage() {
             )}
 
             <button
+              type="button"
+              onClick={() => setIsScannerOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-2.5 py-1.5 text-xs font-extrabold transition active:scale-95 shadow-2xs cursor-pointer"
+              title={isEs ? 'Escanear código QR de campaña' : 'Scan campaign QR code'}
+            >
+              <ScanLine className="h-3.5 w-3.5 shrink-0" />
+              <span className="hidden sm:inline">{isEs ? 'Escanear' : 'Scan'}</span>
+            </button>
+
+            <button
               onClick={loadCards}
               className="rounded-xl bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 p-1.5 text-stone-600 dark:text-stone-300 transition hover:bg-stone-200 dark:hover:bg-stone-700 hover:text-stone-900 dark:hover:text-stone-100 active:rotate-180"
               title="Refresh"
@@ -301,6 +314,61 @@ export function WalletPage() {
           </div>
         )}
 
+        {/* Email Verification Reminder Banner */}
+        {!isGuest && user && !user.emailVerified && (
+          <div className="rounded-2xl border border-amber-200 dark:border-amber-800/80 bg-amber-50/80 dark:bg-amber-950/30 p-3.5 shadow-2xs flex flex-wrap items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300">
+                <Mail className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-amber-900 dark:text-amber-200 truncate">
+                  {isEs ? 'Confirma tu correo electrónico' : 'Verify your email address'}
+                </p>
+                <p className="text-[11px] text-amber-800/80 dark:text-amber-300/80 truncate">
+                  {isEs
+                    ? 'Revisa tu bandeja de entrada o carpeta de Spam.'
+                    : 'Check your inbox or Spam/Junk folder.'}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              disabled={resendingEmail}
+              onClick={async () => {
+                setResendingEmail(true);
+                try {
+                  await walletApi.resendVerification(user.email);
+                  toast.success(
+                    isEs
+                      ? 'Correo de verificación reenviado. Revisa tu bandeja de entrada o Spam.'
+                      : 'Verification email resent. Check your inbox or Spam folder.'
+                  );
+                } catch (err: unknown) {
+                  toast.error(
+                    err instanceof Error
+                      ? err.message
+                      : isEs
+                      ? 'Error al reenviar el correo'
+                      : 'Failed to resend verification email'
+                  );
+                } finally {
+                  setResendingEmail(false);
+                }
+              }}
+              className="shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3 py-1.5 text-xs font-extrabold transition active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {resendingEmail
+                ? isEs
+                  ? 'Enviando...'
+                  : 'Sending...'
+                : isEs
+                ? 'Reenviar Correo'
+                : 'Resend Email'}
+            </button>
+          </div>
+        )}
+
         {/* Multi-Merchant Filter Tabs (Shown when customer has cards from multiple stores) */}
         {merchants.length > 1 && (
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 scrollbar-none">
@@ -353,10 +421,18 @@ export function WalletPage() {
             {error}
           </div>
         ) : displayedCards.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-white p-8 text-center shadow-xs">
+          <div className="rounded-2xl border-2 border-dashed border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-8 text-center shadow-xs">
             <CreditCard className="mx-auto h-12 w-12 text-stone-400" />
-            <h3 className="mt-3 text-base font-semibold text-stone-800">{t.noCardsTitle}</h3>
-            <p className="mt-1 text-sm text-stone-500">{t.noCardsDesc}</p>
+            <h3 className="mt-3 text-base font-semibold text-stone-800 dark:text-stone-100">{t.noCardsTitle}</h3>
+            <p className="mt-1 text-sm text-stone-500 dark:text-stone-400">{t.noCardsDesc}</p>
+            <button
+              type="button"
+              onClick={() => setIsScannerOpen(true)}
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#3D2B1F] dark:bg-amber-500 px-4 py-2.5 text-xs font-bold text-white dark:text-stone-950 shadow-sm transition hover:bg-[#2A1D15] dark:hover:bg-amber-400 active:scale-95 cursor-pointer"
+            >
+              <ScanLine className="h-4 w-4" />
+              <span>{isEs ? 'Escanear QR de Comercio' : 'Scan Store QR Code'}</span>
+            </button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -525,6 +601,12 @@ export function WalletPage() {
         onClose={() => setIsAuthModalOpen(false)}
         onSuccess={handleAuthSuccess}
         defaultTab={authModalTab}
+      />
+
+      {/* Campaign QR Scanner Modal */}
+      <CampaignScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
       />
 
       {/* Profile Modal */}

@@ -29,8 +29,18 @@ type resendResponse struct {
 }
 
 // SendVerificationEmail dispatches an account confirmation email with a unique verification link.
-func SendVerificationEmail(cfg *config.Config, recipientEmail, recipientName, token string) error {
-	verifyURL := fmt.Sprintf("%s/api/v1/auth/verify-email?token=%s", strings.TrimRight(cfg.AppURL, "/"), token)
+func SendVerificationEmail(cfg *config.Config, recipientEmail, recipientName, token string, role ...string) error {
+	baseURL := cfg.AppURL
+	if len(role) > 0 && role[0] == "CONSUMER" && cfg.WalletURL != "" {
+		baseURL = cfg.WalletURL
+	} else if len(role) > 0 && (role[0] == "OWNER" || role[0] == "STAFF") {
+		if strings.Contains(baseURL, "dev.alpacard.app") {
+			baseURL = "https://dev-merchant.alpacard.app"
+		} else if strings.Contains(baseURL, "alpacard.app") && !strings.Contains(baseURL, "merchant") {
+			baseURL = "https://merchant.alpacard.app"
+		}
+	}
+	verifyURL := fmt.Sprintf("%s/api/v1/auth/verify-email?token=%s", strings.TrimRight(baseURL, "/"), token)
 	if recipientName == "" {
 		recipientName = "Alpacard User"
 	}

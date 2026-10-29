@@ -77,7 +77,7 @@ func (env *Env) Register(w http.ResponseWriter, r *http.Request) {
 
 	// Dispatch asynchronous welcome/verification email
 	go func() {
-		_ = email.SendVerificationEmail(env.Config, user.Email, user.Name, verificationToken)
+		_ = email.SendVerificationEmail(env.Config, user.Email, user.Name, verificationToken, string(user.Role))
 	}()
 
 	token, err := auth.GenerateAuthToken(&user, env.Config.JWTSecret)
@@ -268,10 +268,16 @@ func (env *Env) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If browser HTML request, redirect with query param
+	// Redirect browser requests to the appropriate frontend app
 	accept := r.Header.Get("Accept")
-	if strings.Contains(accept, "text/html") {
-		redirectPath := fmt.Sprintf("%s/login?verified=true", strings.TrimRight(env.Config.AppURL, "/"))
+	if strings.Contains(accept, "text/html") || strings.Contains(accept, "*/*") {
+		merchantURL := env.Config.AppURL
+		if strings.Contains(merchantURL, "dev.alpacard.app") {
+			merchantURL = "https://dev-merchant.alpacard.app"
+		} else if strings.Contains(merchantURL, "alpacard.app") && !strings.Contains(merchantURL, "merchant") {
+			merchantURL = "https://merchant.alpacard.app"
+		}
+		redirectPath := fmt.Sprintf("%s/login?verified=true", strings.TrimRight(merchantURL, "/"))
 		if user.Role == models.RoleConsumer {
 			redirectPath = fmt.Sprintf("%s?verified=true", strings.TrimRight(env.Config.WalletURL, "/"))
 		}
@@ -329,7 +335,7 @@ func (env *Env) ResendVerificationEmail(w http.ResponseWriter, r *http.Request) 
 	_ = env.DB.Save(&user)
 
 	go func() {
-		_ = email.SendVerificationEmail(env.Config, user.Email, user.Name, token)
+		_ = email.SendVerificationEmail(env.Config, user.Email, user.Name, token, string(user.Role))
 	}()
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{

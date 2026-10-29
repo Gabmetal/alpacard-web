@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -169,7 +170,13 @@ func (env *Env) GetCardQRToken(w http.ResponseWriter, r *http.Request) {
 
 	metrics.QRTokensGeneratedTotal.Inc()
 
-	scanURL := fmt.Sprintf("%s/scanner?token=%s", env.Config.AppURL, tokenStr)
+	merchantURL := env.Config.AppURL
+	if strings.Contains(merchantURL, "dev.alpacard.app") {
+		merchantURL = "https://dev-merchant.alpacard.app"
+	} else if strings.Contains(merchantURL, "alpacard.app") && !strings.Contains(merchantURL, "merchant") {
+		merchantURL = "https://merchant.alpacard.app"
+	}
+	scanURL := fmt.Sprintf("%s/scanner?token=%s", strings.TrimRight(merchantURL, "/"), tokenStr)
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"token":     tokenStr,

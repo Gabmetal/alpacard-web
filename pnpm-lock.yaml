@@ -20,6 +20,9 @@ importers:
       '@types/canvas-confetti':
         specifier: ^1.9.0
         version: 1.9.0
+      '@yudiel/react-qr-scanner':
+        specifier: ^2.5.1
+        version: 2.6.0(@types/emscripten@1.41.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       canvas-confetti:
         specifier: ^1.9.4
         version: 1.9.4

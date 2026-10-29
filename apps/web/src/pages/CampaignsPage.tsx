@@ -27,6 +27,7 @@ import { CARD_THEME_PRESETS, CardThemePreset, CardStampIcon } from '@alpacard/sh
 import { api } from '../services/api';
 import { useLanguage } from '../i18n/LanguageContext';
 import { CardPreview, getCardStyle, parseImageBgConfig } from '../components/CardPreview';
+import { getWalletUrl } from '../utils/urls';
 
 interface Campaign {
   id: string;
@@ -991,7 +992,7 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store', onC
             <div className="mt-6 flex flex-col items-center justify-center rounded-2xl bg-stone-50 p-6 border border-stone-200">
               <div className="keep-light rounded-xl bg-white p-3 shadow-2xs">
                 <QRCode
-                  value={`${window.location.origin.replace('5173', '5174')}/claim/${qrModalCampaign.id}`}
+                  value={getWalletUrl(`/claim/${qrModalCampaign.id}`)}
                   size={200}
                 />
               </div>

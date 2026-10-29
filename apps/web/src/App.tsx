@@ -44,6 +44,14 @@ function LoginRoute({ token, onLoginSuccess }: { token: string | null; onLoginSu
   );
 }
 
+function ClaimRedirect() {
+  const location = useLocation();
+  useEffect(() => {
+    window.location.replace(getWalletUrl(location.pathname + location.search));
+  }, [location]);
+  return null;
+}
+
 function ProtectedFallback() {
   const location = useLocation();
   const currentPath = location.pathname + location.search;
@@ -170,6 +178,7 @@ export function App() {
                 }
               />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/claim/:id" element={<ClaimRedirect />} />
 
               {/* Authenticated Merchant Console Routes */}
               {token ? (
