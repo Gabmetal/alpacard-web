@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v2.2.1] - 2026-10-29
+
+### 🐛 Bug Fixes & Refinements
+- **Legacy Ingress & Route Decommissioning**:
+  - Removed obsolete `alpacard.gabo.lat` host declarations, rules, and TLS SAN entries from Kubernetes ingress manifests.
+  - Stripped `alpacard.gabo.lat` from API CORS origins across `03-api.yaml`, Docker Compose, Helm templates, and runtime ConfigMaps.
+  - Purged outdated domain references in QA documentation and automated test suites.
+- **DNS Cleanup**:
+  - Fully removed the legacy `alpacard.gabo.lat` Cloudflare CNAME record in zone `gabo.lat`, completing full domain migration to `alpacard.app` and its dedicated subdomains.
+
+---
+
 ## [v2.2.0] - 2026-10-29
 
 ### 🚀 Highlights & Architectural Upgrades

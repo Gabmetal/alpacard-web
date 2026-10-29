@@ -3,7 +3,7 @@ name: alpacard
 description: A Helm chart for Alpacard - Self-hosted Digital Punch Card & Loyalty Platform
 type: application
 version: 0.1.0
-appVersion: "2.0.0"
+appVersion: "2.2.1"
 icon: https://raw.githubusercontent.com/alpacard/alpacard-web/main/public/favicon.ico
 keywords:
   - loyalty
