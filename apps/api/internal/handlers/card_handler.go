@@ -109,7 +109,7 @@ func (env *Env) GetMyCards(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var cards []models.Card
+	cards := make([]models.Card, 0)
 	if err := env.DB.Preload("Campaign.Business").Where("user_id = ?", claims.UserID).Order("updated_at desc").Find(&cards).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to retrieve cards")
 		return

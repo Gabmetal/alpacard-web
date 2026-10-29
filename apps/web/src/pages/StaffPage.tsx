@@ -21,17 +21,23 @@ export function StaffPage({ businessId }: StaffPageProps) {
   const [error, setError] = useState<string | null>(null);
 
   const loadStaff = async () => {
-    if (!businessId) return;
+    if (!businessId) {
+      setStaff([]);
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
+      setError(null);
       const data = await api.listStaff(businessId);
-      setStaff(data);
+      setStaff(Array.isArray(data) ? data : []);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('Failed to fetch staff');
       }
+      setStaff([]);
     } finally {
       setLoading(false);
     }

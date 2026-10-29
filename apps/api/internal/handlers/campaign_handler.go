@@ -199,7 +199,7 @@ func (env *Env) ListCampaigns(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var campaigns []models.Campaign
+	campaigns := make([]models.Campaign, 0)
 	if err := env.DB.Where("business_id = ?", businessID).Order("created_at desc").Find(&campaigns).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to fetch campaigns")
 		return

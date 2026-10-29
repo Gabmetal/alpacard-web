@@ -48,6 +48,7 @@ interface Campaign {
 interface CampaignsPageProps {
   businessId?: string;
   businessName?: string;
+  onCreateBusiness?: () => void;
 }
 
 const AVAILABLE_STAMP_ICONS: {
@@ -65,7 +66,7 @@ const AVAILABLE_STAMP_ICONS: {
   { id: 'tag', label: 'Tag', icon: Tag },
 ];
 
-export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: CampaignsPageProps) {
+export function CampaignsPage({ businessId, businessName = 'Alpacard Store', onCreateBusiness }: CampaignsPageProps) {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
 
@@ -122,17 +123,23 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
   const [uploadingBg, setUploadingBg] = useState(false);
 
   const loadCampaigns = async () => {
-    if (!businessId) return;
+    if (!businessId) {
+      setCampaigns([]);
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
+      setError(null);
       const data = await api.listCampaigns(businessId);
-      setCampaigns(data);
+      setCampaigns(Array.isArray(data) ? data : []);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('Failed to fetch campaigns');
       }
+      setCampaigns([]);
     } finally {
       setLoading(false);
     }
@@ -299,7 +306,30 @@ export function CampaignsPage({ businessId, businessName = 'Alpacard Store' }: C
         </button>
       </div>
 
-      {loading ? (
+      {!businessId ? (
+        <div className="rounded-2xl border-2 border-dashed border-stone-200 bg-white p-10 sm:p-12 text-center shadow-2xs">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#4A3525] mb-4">
+            <Palette className="h-6 w-6" />
+          </div>
+          <h3 className="text-sm font-bold text-stone-800">
+            {isEs ? 'No tienes una tienda seleccionada' : 'No store selected'}
+          </h3>
+          <p className="mt-1 text-xs text-stone-500 max-w-sm mx-auto">
+            {isEs
+              ? 'Crea tu primera tienda o selecciona una para comenzar a diseñar campañas de fidelización.'
+              : 'Create your first store or select one to start designing loyalty campaigns.'}
+          </p>
+          {onCreateBusiness && (
+            <button
+              onClick={onCreateBusiness}
+              className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-[#3D2B1F] px-4 py-2 text-xs font-semibold text-white shadow-2xs hover:bg-[#2C1F16]"
+            >
+              <Plus className="h-4 w-4" />
+              {t.dashboard.createBusinessBtn || (isEs ? 'Crear Tienda' : 'Create Store')}
+            </button>
+          )}
+        </div>
+      ) : loading ? (
         <div className="flex h-40 items-center justify-center">
           <RefreshCw className="h-6 w-6 animate-spin text-[#5C4028]" />
         </div>

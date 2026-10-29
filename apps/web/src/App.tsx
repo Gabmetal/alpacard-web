@@ -211,7 +211,13 @@ export function App() {
             />
             <Route
               path="/campaigns"
-              element={<CampaignsPage businessId={activeBusiness?.id} businessName={activeBusiness?.name} />}
+              element={
+                <CampaignsPage
+                  businessId={activeBusiness?.id}
+                  businessName={activeBusiness?.name}
+                  onCreateBusiness={() => setShowCreateBiz(true)}
+                />
+              }
             />
             <Route
               path="/businesses"
