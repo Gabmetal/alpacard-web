@@ -94,10 +94,17 @@ func main() {
 			a.Post("/register", env.Register)
 			a.Post("/login", env.Login)
 			a.Post("/guest", env.GuestLogin)
+			a.Get("/verify-email", env.VerifyEmail)
+			a.Post("/resend-verification", env.ResendVerificationEmail)
+			a.Post("/forgot-password", env.ForgotPassword)
+			a.Post("/reset-password", env.ResetPassword)
 
-			// Authenticated user profile & account linking
+			// Authenticated user profile, settings & account management
 			a.With(auth.RequireAuth(cfg.JWTSecret)).Get("/me", env.Me)
+			a.With(auth.RequireAuth(cfg.JWTSecret)).Put("/profile", env.UpdateProfile)
+			a.With(auth.RequireAuth(cfg.JWTSecret)).Delete("/account", env.DeleteAccount)
 			a.With(auth.RequireAuth(cfg.JWTSecret)).Post("/link-guest", env.LinkGuestCards)
+			a.With(auth.RequireAuth(cfg.JWTSecret)).Post("/change-password", env.ChangePassword)
 		})
 
 		// Campaigns (Public inspection + Authenticated management)

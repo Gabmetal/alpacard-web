@@ -1,0 +1,55 @@
+{
+  "id": "e3b0c442-98fc-1c14-9afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "name": "Alpacard Staging (dev)",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "https://dev.alpacard.app",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "ownerToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "guestToken",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "businessId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "campaignId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "cardId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "qrToken",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "staffUserId",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}

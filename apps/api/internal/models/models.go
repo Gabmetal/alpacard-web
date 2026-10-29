@@ -40,11 +40,16 @@ func (b *BaseModel) BeforeCreate(tx *gorm.DB) (err error) {
 
 type User struct {
 	BaseModel
-	Email        string     `gorm:"uniqueIndex;not null" json:"email"`
-	PasswordHash string     `gorm:"not null" json:"-"`
-	Name         string     `json:"name"`
-	Role         Role       `gorm:"type:varchar(20);default:'CONSUMER'" json:"role"`
-	IsAnonymous  bool       `gorm:"default:false" json:"isAnonymous"`
+	Email                 string     `gorm:"uniqueIndex;not null" json:"email"`
+	PasswordHash          string     `gorm:"not null" json:"-"`
+	Name                  string     `json:"name"`
+	Role                  Role       `gorm:"type:varchar(20);default:'CONSUMER'" json:"role"`
+	IsAnonymous           bool       `gorm:"default:false" json:"isAnonymous"`
+	EmailVerified         bool       `gorm:"default:false" json:"emailVerified"`
+	VerificationToken     string     `gorm:"type:varchar(100);index" json:"-"`
+	VerificationExpiresAt *time.Time `json:"-"`
+	ResetPasswordToken     string     `gorm:"type:varchar(100);index" json:"-"`
+	ResetPasswordExpiresAt *time.Time `json:"-"`
 	
 	// Relations
 	OwnedBusinesses []Business `gorm:"foreignKey:OwnerID" json:"ownedBusinesses,omitempty"`

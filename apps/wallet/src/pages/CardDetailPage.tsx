@@ -26,6 +26,7 @@ import { MenuModal } from '../components/MenuModal';
 import { RedeemCelebrationModal } from '../components/RedeemCelebrationModal';
 import { PWAInstallPrompt } from '../components/PWAInstallPrompt';
 import { playStampCelebrationSound } from '../utils/audio';
+import { getMerchantUrl } from '../utils/urls';
 
 interface QRData {
   token: string;
@@ -362,7 +363,7 @@ export function CardDetailPage() {
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error || (isEs ? 'Tarjeta no encontrada' : 'Card not found')}
         </div>
-        <Link to="/wallet" className="mt-4 text-sm font-semibold text-[#4A3525] hover:underline">
+        <Link to="/" className="mt-4 text-sm font-semibold text-[#4A3525] hover:underline">
           &larr; {t.backToWallet}
         </Link>
       </div>
@@ -399,7 +400,7 @@ export function CardDetailPage() {
     <div className="min-h-screen bg-[#FAF8F5] pb-12 text-stone-900">
       <header className="sticky top-0 z-10 flex items-center justify-between bg-white border-b border-stone-200 px-4 py-3.5 shadow-xs">
         <div className="flex items-center gap-3">
-          <Link to="/wallet" className="rounded-full p-2 text-stone-600 hover:bg-stone-100">
+          <Link to="/" className="rounded-full p-2 text-stone-600 hover:bg-stone-100">
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <h1 className="text-base sm:text-lg font-bold text-stone-900">
@@ -636,7 +637,7 @@ export function CardDetailPage() {
                 <QRCode
                   value={
                     data.scanUrl ||
-                    `${window.location.origin}/scanner?token=${data.token}`
+                    getMerchantUrl(`/scanner?token=${data.token}`)
                   }
                   size={180}
                 />

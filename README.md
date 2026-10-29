@@ -14,10 +14,12 @@
 
 ## 🌐 Environments & Domains
 
-| Environment | Purpose | Target Audience | URLs & Access | Security & Network |
+Alpacard features symmetrical, role-isolated subdomain routing across both Production and Development for clean brand separation and security boundary isolation:
+
+| Environment | Purpose | Target Audience | URLs & Access Points | Security & Infrastructure |
 | :--- | :--- | :--- | :--- | :--- |
-| **Production** | Live Merchant & Customer traffic | Coffee shops, retail merchants & cardholders | • **Landing & Merchant**: [https://alpacard.app](https://alpacard.app)<br/>• **Customer Wallet**: [https://alpacard.app/wallet](https://alpacard.app/wallet)<br/>• **Interactive Demo**: [https://alpacard.app/demo](https://alpacard.app/demo)<br/>• **REST API**: `https://alpacard.app/api` | Public internet, Cloudflare proxy, automated Let's Encrypt TLS multi-SAN certificates |
-| **Development / Non-Prod** | Pre-release testing, staging & QA validation | Core team, QA testers, beta merchants | • **Merchant Console**: [https://dev.alpacard.app](https://dev.alpacard.app)<br/>• **Customer Wallet**: [https://dev.alpacard.app/wallet](https://dev.alpacard.app/wallet)<br/>• **Dev API**: `https://dev.alpacard.app/api`<br/>• *(Fallback local)*: `http://dev.alpacard.local` | **Zero public internet exposure**. Accessible strictly via secure **Tailscale VPN** subnet router (`192.168.0.0/24`) with valid Let's Encrypt TLS. Dedicated isolated database (`alpacard_dev`), RabbitMQ broker, and isolated k8s namespace (`alpacard-dev`). |
+| **Production** | Live Merchant & Customer traffic | Coffee shops, retail merchants & cardholders | • **Landing & Portal**: [https://alpacard.app](https://alpacard.app)<br/>• **Dedicated Merchant Console**: [https://merchant.alpacard.app](https://merchant.alpacard.app)<br/>• **Dedicated Customer Wallet**: [https://wallet.alpacard.app](https://wallet.alpacard.app)<br/>• **Interactive Live Demo**: [https://demo.alpacard.app](https://demo.alpacard.app)<br/>• **REST API**: `https://alpacard.app/api` | Public internet, Cloudflare Edge proxy with Universal SSL (`*.alpacard.app`), Traefik Ingress on Kubernetes, isolated PostgreSQL 16 ACID ledger with daily automated snapshots, RabbitMQ event broker. |
+| **Development / Non-Prod** | Pre-release testing, staging & QA validation | Core engineering, QA testers, beta merchants | • **Unified Dev Console**: [https://dev.alpacard.app](https://dev.alpacard.app)<br/>• **Dedicated Dev Merchant**: [https://dev-merchant.alpacard.app](https://dev-merchant.alpacard.app)<br/>• **Dedicated Dev Wallet**: [https://dev-wallet.alpacard.app](https://dev-wallet.alpacard.app)<br/>• **Dedicated Dev Demo**: [https://dev-demo.alpacard.app](https://dev-demo.alpacard.app)<br/>• **Dev REST API**: `https://dev.alpacard.app/api`<br/>• *(Local fallback)*: `http://dev.alpacard.local` | Cloudflare Edge proxy with Universal SSL (`*.alpacard.app`), automated Let's Encrypt TLS multi-SAN certificates (`alpacard-dev-tls`), isolated Kubernetes namespace (`alpacard-dev`), isolated database (`alpacard_dev`), and RabbitMQ broker. |
 
 ---
 
@@ -79,6 +81,7 @@ flowchart LR
     subgraph QAStage ["3. QA & Staging (alpacard-dev)"]
         DEV["dev branch"]
         DEV_DEPLOY["CD Pipeline (deploy-dev.yml)<br/>• Podman Container Build<br/>• Kubernetes containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Smoke Test dev.alpacard.app"]
+        QA_GATE{"🧪 QA Sign-off Gate<br/>Manual QA testing &<br/>explicit sign-off required"}
     end
 
     subgraph ProdStage ["4. Live Production (alpacard)"]
@@ -94,7 +97,8 @@ flowchart LR
     INT --> CI
     INT -->|"PR (Enforced: from integration)"| DEV
     DEV --> DEV_DEPLOY
-    DEV -->|"PR (Enforced: from dev)"| MAIN
+    DEV_DEPLOY --> QA_GATE
+    QA_GATE -->|"PR to main (ONLY after QA approval)"| MAIN
     MAIN --> PROD_DEPLOY
 
     MAIN -.->|"Branch off"| HOTFIX
@@ -145,6 +149,26 @@ All daily development work occurs on short-lived topic branches branched from `i
   - Generates an instant, anonymous guest wallet PWA—no app download or email signup required while waiting in line.
   - Customers can optionally register anytime to sync cards across all their devices.
 
+- ✉️ **Bilingual Transactional Email Verification (Resend API)**:
+  - Enterprise email delivery powered by Resend REST API and authenticated on domain `alpacard.app` via SPF, DKIM (`resend._domainkey`), and DMARC.
+  - Branded responsive HTML verification templates automatically localized in English and Spanish.
+  - One-tap account verification links with 24-hour expiration tokens and in-app resend triggers.
+
+- 🛡️ **Strict Role Isolation & Account Security**:
+  - Hard separation between `CONSUMER` (loyalty cardholder) and `OWNER`/`STAFF` (business merchant) roles.
+  - Consumers are blocked from merchant management routes and seamlessly routed to the wallet; merchants logging into wallet are smoothly transferred to the merchant console.
+
+- 👤 **Self-Service Profile & Account Deletion**:
+  - Real-time display name editing with validation.
+  - Instant email verification status badges.
+  - Autonomous GDPR-compliant self-service account deletion modal (`DELETE /api/v1/auth/account`) with cascading cleanup of unredeemed cards and session invalidation.
+
+- 🔔 **Global Toast Notifications with Flash Persistence**:
+  - Unified, accessible toast alerts with `sessionStorage` flash persistence that gracefully survives page reloads, cross-route navigation, and auth redirects.
+
+- 🌐 **Symmetrical Pure Subdomain Routing**:
+  - Dedicated role-based subdomains (`merchant.alpacard.app`, `wallet.alpacard.app`, `demo.alpacard.app`, `dev-merchant.alpacard.app`, `dev-wallet.alpacard.app`, `dev-demo.alpacard.app`) for absolute brand clarity and security boundary isolation.
+
 - 🎨 **Deep Card Personalization**:
   - Custom merchant logos, brand color presets (Espresso Roast, Charcoal Slate, Forest Matcha, etc.), and custom hex colors.
   - Background image uploading with fit modes: `contain` (centered), `cover` (full bleed), or `watermark` with custom base tints.
@@ -189,27 +213,29 @@ alpacard/
 
 ```mermaid
 flowchart TD
-    subgraph Clients["Clients"]
-        CustomerWallet["Customer Loyalty PWA<br/>(Mobile & Offline-first)"]
-        MerchantWeb["Merchant Backoffice & Camera Scanner<br/>(Desktop / Tablet / Mobile)"]
+    subgraph Clients["Clients & Edge Access"]
+        CustomerWallet["Customer Loyalty PWA<br/>• wallet.alpacard.app"]
+        MerchantWeb["Merchant Backoffice & Scanner<br/>• merchant.alpacard.app"]
     end
 
-    subgraph Ingress["Edge & Routing"]
-        Traefik["Traefik Ingress (alpacard.app)<br/>Automatic Let's Encrypt TLS"]
+    subgraph Ingress["Edge & Ingress (Traefik)"]
+        Traefik["Traefik Ingress (Cloudflare Edge SSL)<br/>Multi-Subdomain Routing"]
     end
 
-    subgraph Services["Services (alpacard namespace)"]
-        GoAPI["Alpacard Go API (Port 4000)<br/>Go + Chi + Native JWT"]
-        Postgres[("PostgreSQL 16 StatefulSet<br/>ACID Ledger & Persistent Storage")]
+    subgraph Services["Core Cluster Services"]
+        GoAPI["Alpacard Go API (Port 4000)<br/>Go 1.22 + Chi + Native JWT"]
+        Postgres[("PostgreSQL 16 StatefulSet<br/>ACID Ledger & Row Locking")]
         RabbitMQ[("RabbitMQ 3.13 Broker<br/>Async Stamp Events & Webhooks")]
         GoWorker["Alpacard Event Worker<br/>Async background consumer"]
+        Resend["Resend Email Service<br/>DKIM / SPF / DMARC Verified"]
     end
 
-    CustomerWallet -->|/claim, /card, /wallet| Traefik
-    MerchantWeb -->|/| Traefik
+    CustomerWallet --> Traefik
+    MerchantWeb --> Traefik
     Traefik -->|/api/*| GoAPI
     GoAPI --> Postgres
     GoAPI --> RabbitMQ
+    GoAPI -->|Transactional Verification| Resend
     RabbitMQ --> GoWorker
 ```
 
@@ -227,6 +253,12 @@ docker compose -f deploy/docker-compose.yml up --build
 - **Customer Wallet**: [http://localhost:5174](http://localhost:5174)
 - **Go REST API**: [http://localhost:4000](http://localhost:4000)
 - **RabbitMQ Dashboard**: [http://localhost:15672](http://localhost:15672) (`guest` / `guest`)
+
+#### Email Delivery Configuration
+To enable live transactional email verification locally or in staging:
+- `RESEND_API_KEY`: Resend API key (`re_...`). If omitted or blank, verification links are printed directly to the API container stdout logs for local dev convenience.
+- `SMTP_FROM`: Sender address, e.g., `Alpacard <no-reply@alpacard.app>`.
+- `APP_URL`: Base application URL for verification links (e.g., `https://dev.alpacard.app` or `http://localhost:5173`).
 
 ---
 

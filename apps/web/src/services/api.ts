@@ -1,3 +1,5 @@
+import { getCookie, setCookie, removeCookie } from '../utils/cookies';
+
 const API_BASE = '/api/v1';
 
 export interface MerchantUser {
@@ -5,18 +7,40 @@ export interface MerchantUser {
   email: string;
   name: string;
   role: 'OWNER' | 'STAFF' | 'CONSUMER';
+  emailVerified?: boolean;
 }
 
 export function getMerchantToken(): string | null {
-  return localStorage.getItem('alpacard_merchant_token');
+  const local = localStorage.getItem('alpacard_merchant_token');
+  if (local) return local;
+  const cookie = getCookie('alpacard_merchant_token');
+  if (cookie) {
+    try {
+      localStorage.setItem('alpacard_merchant_token', cookie);
+    } catch {
+      // Ignore
+    }
+    return cookie;
+  }
+  return null;
 }
 
 export function setMerchantToken(token: string) {
-  localStorage.setItem('alpacard_merchant_token', token);
+  try {
+    localStorage.setItem('alpacard_merchant_token', token);
+  } catch {
+    // Ignore
+  }
+  setCookie('alpacard_merchant_token', token, 365);
 }
 
 export function clearMerchantToken() {
-  localStorage.removeItem('alpacard_merchant_token');
+  try {
+    localStorage.removeItem('alpacard_merchant_token');
+  } catch {
+    // Ignore
+  }
+  removeCookie('alpacard_merchant_token');
 }
 
 export async function request(endpoint: string, options: RequestInit = {}) {
@@ -49,6 +73,18 @@ export const api = {
   login: (data: { email: string; password: string }) =>
     request('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
   me: () => request('/auth/me'),
+  updateProfile: (data: { name: string }) =>
+    request('/auth/profile', { method: 'PUT', body: JSON.stringify(data) }),
+  deleteAccount: () =>
+    request('/auth/account', { method: 'DELETE' }),
+  resendVerification: (email?: string) =>
+    request('/auth/resend-verification', { method: 'POST', body: JSON.stringify({ email }) }),
+  forgotPassword: (email: string) =>
+    request('/auth/forgot-password', { method: 'POST', body: JSON.stringify({ email }) }),
+  resetPassword: (data: { token: string; password: string }) =>
+    request('/auth/reset-password', { method: 'POST', body: JSON.stringify(data) }),
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    request('/auth/change-password', { method: 'POST', body: JSON.stringify(data) }),
 
   // Business
   createBusiness: (data: {

@@ -42,13 +42,13 @@ If you can't visit in person, message local coffee shops on Instagram or WhatsAp
 ### Spanish:
 > *"¡Hola equipo de [Nombre del Café]! 👋 Soy cliente habitual de su local y me encanta su café. Les escribo porque desarrollé un sistema de fidelización digital de código abierto (Alpacard) pensado para cafeterías de especialidad, para reemplazar las tarjetas de papel que los clientes siempre pierden.  
 > Los clientes no tienen que descargar ninguna app pesada; solo escanean un QR en la barra con la cámara de su celular y acumulan sellos digitales.  
-> Estamos seleccionando 3 cafeterías de la zona para habilitarles el sistema **100% gratis**. Si les interesa, les dejo una demo interactiva aquí: https://alpacard.app/demo  
+> Estamos seleccionando 3 cafeterías de la zona para habilitarles el sistema **100% gratis**. Si les interesa, les dejo una demo interactiva aquí: https://demo.alpacard.app  
 > ¡Me encantaría llevarles un parante de acrílico listo para probarlo sin ningún compromiso! Un abrazo."*
 
 ### English:
 > *"Hi [Coffee Shop Name] team! 👋 Regular customer here, love your coffee. I’m reaching out because I built an open-source digital punch card platform (Alpacard) specifically for local indie shops to replace paper cards that customers always lose.  
 > Customers don’t need to download any app; they just scan a QR code on your counter with their regular camera and collect digital stamps on their phone.  
-> We’re offering a free pilot for 3 local shops with zero fees forever. You can check out an interactive demo here: https://alpacard.app/demo  
+> We’re offering a free pilot for 3 local shops with zero fees forever. You can check out an interactive demo here: https://demo.alpacard.app  
 > I’d be happy to set up your logo and bring you a printed counter stand to test out anytime. Let me know if you'd be interested! Cheers."*
 
 ---

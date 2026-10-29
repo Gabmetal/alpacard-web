@@ -20,6 +20,7 @@ flowchart LR
     subgraph QAStage ["3. QA Staging (alpacard-dev)"]
         DEV["dev branch"]
         DEV_DEPLOY["deploy-dev.yml<br/>• Podman Container Build<br/>• Kubernetes containerd Import<br/>• Rolling Restart alpacard-dev<br/>• Health Check dev.alpacard.app"]
+        QA_GATE{"🧪 QA Sign-off Gate<br/>Manual QA testing &<br/>explicit sign-off required"}
     end
 
     subgraph ProdStage ["4. Live Production (alpacard)"]
@@ -35,7 +36,8 @@ flowchart LR
     INT --> CI
     INT -->|"PR (Enforced: from integration)"| DEV
     DEV --> DEV_DEPLOY
-    DEV -->|"PR (Enforced: from dev)"| MAIN
+    DEV_DEPLOY --> QA_GATE
+    QA_GATE -->|"PR to main (ONLY after QA approval)"| MAIN
     MAIN --> PROD_DEPLOY
 
     MAIN -.->|"Branch off"| HOTFIX
@@ -72,6 +74,15 @@ Every Pull Request targeting `dev` or `main` is evaluated by an automated GitHub
      ```
      ❌ Branch Strategy Violation: Pull Requests targeting 'main' (Production) MUST originate from 'dev' or 'hotfix/*'.
      ```
+
+---
+
+## 🛑 QA Sign-Off Gate Before Production
+
+To ensure maximum production reliability:
+1. Every feature or fix is deployed to `dev` first (`dev.alpacard.app`).
+2. **QA Testing**: The QA team conducts regression and smoke testing in the staging environment.
+3. **Explicit Confirmation**: Creating or merging a Pull Request from `dev` to `main` is **strictly blocked** until QA provides explicit sign-off. Changes must never be auto-promoted to `main`.
 
 ---
 

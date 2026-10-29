@@ -20,8 +20,9 @@ We’re building **Alpacard**—a 100% open-source alternative to expensive loya
 
 Instead of paper punch cards that get lost, customers scan a QR code with their regular phone camera, and their card immediately opens in their browser wallet.
 
-- **Interactive Live Demo**: https://alpacard.app/demo
-- **Live Wallet**: https://alpacard.app/wallet
+- **Interactive Live Demo**: https://demo.alpacard.app
+- **Live Wallet**: https://wallet.alpacard.app
+- **Merchant Console**: https://merchant.alpacard.app
 - **GitHub**: https://github.com/alpacard/alpacard-web
 
 ### What we need help testing:
@@ -29,7 +30,7 @@ Instead of paper punch cards that get lost, customers scan a QR code with their 
 1. **Camera QR Scanning**:
    - Does your native phone camera (iOS Camera or Android Google Lens / Samsung Camera) detect and open the loyalty card QR smoothly?
 2. **Replay-Attack Simulation**:
-   - In the interactive demo (`/demo`), try clicking *"Simulate Replay Attack"* or scanning twice to see if the security lock triggers.
+   - In the interactive demo (`demo.alpacard.app`), try clicking *"Simulate Replay Attack"* or scanning twice to see if the security lock triggers.
 3. **PWA Installability**:
    - On iOS Safari ("Add to Home Screen") or Android Chrome ("Install App"), does the app icon and splash screen look crisp?
 4. **Different Screen Sizes**:

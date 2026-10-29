@@ -35,7 +35,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '' }) => {
             title={opt.label}
             aria-label={opt.label}
             aria-pressed={isActive}
-            className={`flex items-center justify-center p-1.5 rounded-md transition-all ${
+            className={`flex items-center justify-center p-1.5 rounded-md cursor-pointer transition-all ${
               isActive
                 ? 'bg-white text-stone-900 shadow-2xs dark:bg-stone-700 dark:text-amber-400'
                 : 'hover:text-stone-900 dark:hover:text-stone-100 text-stone-500 dark:text-stone-400'

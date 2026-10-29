@@ -47,8 +47,9 @@ Most loyalty programs fail at local coffee shops because no customer wants to do
 
 We built **Alpacard**, an open-source, mobile-first PWA:
 - **Repo**: https://github.com/alpacard/alpacard-web
-- **Live Wallet**: https://alpacard.app/wallet
-- **Interactive Sandbox**: https://alpacard.app/demo
+- **Live Wallet**: https://wallet.alpacard.app
+- **Interactive Sandbox**: https://demo.alpacard.app
+- **Merchant Console**: https://merchant.alpacard.app
 
 ### Frontend Highlights:
 - **1-Click Guest Onboarding**:

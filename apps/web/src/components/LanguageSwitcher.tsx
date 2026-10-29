@@ -25,7 +25,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'l
       <button
         type="button"
         onClick={() => setLanguage('en')}
-        className={`px-2 py-1 rounded-md transition ${
+        className={`px-2 py-1 rounded-md cursor-pointer transition ${
           language === 'en'
             ? isDark
               ? 'bg-stone-700 text-stone-100 shadow-2xs'
@@ -42,7 +42,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ variant = 'l
       <button
         type="button"
         onClick={() => setLanguage('es')}
-        className={`px-2 py-1 rounded-md transition ${
+        className={`px-2 py-1 rounded-md cursor-pointer transition ${
           language === 'es'
             ? isDark
               ? 'bg-stone-700 text-stone-100 shadow-2xs'

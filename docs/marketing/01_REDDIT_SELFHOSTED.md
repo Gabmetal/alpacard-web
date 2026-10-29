@@ -22,9 +22,9 @@ Like many of you, I have friends and family who run small independent businesses
 I decided to build an open-source, self-hosted alternative: **Alpacard**.
 
 - **GitHub**: https://github.com/alpacard/alpacard-web
-- **Live Demo (Merchant Backoffice)**: https://alpacard.app
-- **Live Demo (Customer Wallet PWA)**: https://alpacard.app/wallet
-- **Interactive Sandbox**: https://alpacard.app/demo
+- **Live Merchant Console**: https://merchant.alpacard.app
+- **Live Customer Wallet PWA**: https://wallet.alpacard.app
+- **Interactive Sandbox**: https://demo.alpacard.app
 
 ---
 

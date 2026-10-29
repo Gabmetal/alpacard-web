@@ -6,10 +6,10 @@ This guide covers the merchant backoffice setup, loyalty campaign customization,
 
 ## ☕ 1. Setting Up Your Loyalty Program
 
-Merchants configure their branded digital loyalty experience via the **Merchant Portal** at [https://alpacard.app](https://alpacard.app) (or [https://dev.alpacard.app](https://dev.alpacard.app) in QA).
+Merchants configure their branded digital loyalty experience via the **Merchant Portal** at [https://merchant.alpacard.app](https://merchant.alpacard.app) (or [https://dev-merchant.alpacard.app](https://dev-merchant.alpacard.app) in QA).
 
 ### Program Parameters
-* **Business Name & Slug**: Unique URL path for customer card issuance (e.g., `alpacard.app/claim?biz=cafe-alpaca`).
+* **Business Name & Slug**: Unique URL path for customer card issuance (e.g., `wallet.alpacard.app/claim/[campaignId]`).
 * **Stamp Threshold**: Number of stamps required to unlock a free reward (typically 6, 8, or 10 stamps).
 * **Reward Title**: The reward earned by loyal customers (e.g., *"Free Specialty Coffee or Pastry"*).
 * **Theme Color**: Primary brand hex code that skins the customer's digital card (e.g., `#3D2B1F` for artisan roast, `#10B981` for matcha bar).

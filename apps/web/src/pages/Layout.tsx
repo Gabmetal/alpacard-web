@@ -19,6 +19,9 @@ import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { BusinessItem } from './BusinessesPage';
+import { ProfileModal } from '../components/ProfileModal';
+import { flashToast } from '../components/Toast';
+import { getWalletUrl } from '../utils/urls';
 
 interface LayoutProps {
   currentUser?: MerchantUser | null;
@@ -27,6 +30,7 @@ interface LayoutProps {
   activeBusiness: BusinessItem | null;
   onSelectBusiness: (biz: BusinessItem) => void;
   onCreateBusiness: () => void;
+  onUserUpdated?: (user: MerchantUser) => void;
 }
 
 export function Layout({
@@ -36,12 +40,20 @@ export function Layout({
   activeBusiness,
   onSelectBusiness,
   onCreateBusiness,
+  onUserUpdated,
 }: LayoutProps) {
   const { t, language } = useLanguage();
   const isEs = language === 'es';
   const location = useLocation();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Role Isolation: Customer accounts must never access the merchant dashboard layout
+  if (currentUser?.role === 'CONSUMER') {
+    window.location.href = getWalletUrl();
+    return null;
+  }
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -65,17 +77,17 @@ export function Layout({
     <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col transition-colors">
       {/* Top Bar */}
       <header className="bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800 sticky top-0 z-20 transition-colors">
-        <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between items-center gap-3">
+        <div className="w-full px-3 sm:px-6 lg:px-8">
+          <div className="flex h-16 justify-between items-center gap-2 sm:gap-4">
             {/* Left: Logo + Business Switcher */}
-            <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <Link to="/" className="flex items-center gap-2 shrink-0">
                 <img
                   src="/alpacard-logo.jpg"
                   alt="Alpacard"
                   className="h-8 w-8 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
                 />
-                <span className="hidden xl:inline text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">
+                <span className="hidden sm:inline text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">
                   Alpacard
                 </span>
               </Link>
@@ -85,13 +97,13 @@ export function Layout({
                 <button
                   type="button"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-800 dark:text-stone-200 transition active:scale-[0.99] whitespace-nowrap"
+                  className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 px-2 sm:px-3 py-1.5 text-xs font-semibold text-stone-800 dark:text-stone-200 transition active:scale-[0.99] whitespace-nowrap"
                 >
                   <span
                     className="h-2.5 w-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: activeBusiness?.brandColor || '#4A3525' }}
                   />
-                  <span className="max-w-[110px] sm:max-w-[150px] truncate">
+                  <span className="max-w-[90px] sm:max-w-[130px] md:max-w-[160px] truncate">
                     {activeBusiness?.name || (isEs ? 'Comercio' : 'Store')}
                   </span>
                   <ChevronDown className="h-3.5 w-3.5 text-stone-400 shrink-0" />
@@ -176,8 +188,8 @@ export function Layout({
               </div>
             </div>
 
-            {/* Center: Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1 shrink-0">
+            {/* Center: Desktop Navigation - only on 2xl+ to give full breathing room, sub-bar handles laptops & mobile */}
+            <nav className="hidden 2xl:flex items-center gap-1 shrink-0">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -199,28 +211,33 @@ export function Layout({
             </nav>
 
             {/* Right: Controls & Sign Out */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
               {currentUser && (
-                <div className="hidden sm:flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 px-2.5 py-1 text-xs">
-                  <div className="flex h-5 w-5 items-center justify-center rounded-md bg-[#3D2B1F] dark:bg-amber-500 text-white dark:text-stone-950 font-bold text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(true)}
+                  className="hidden sm:flex items-center gap-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-700/80 px-2.5 py-1 text-xs cursor-pointer transition shrink-0"
+                  title={isEs ? 'Ver y editar mi perfil' : 'View & edit profile'}
+                >
+                  <div className="flex h-5 w-5 items-center justify-center rounded-md bg-[#3D2B1F] dark:bg-amber-500 text-white dark:text-stone-950 font-bold text-[10px] shrink-0">
                     {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'M'}
                   </div>
-                  <span className="font-semibold text-stone-800 dark:text-stone-200 leading-tight truncate max-w-[100px] sm:max-w-[130px]">
+                  <span className="font-semibold text-stone-800 dark:text-stone-200 leading-tight truncate max-w-[80px] sm:max-w-[110px] lg:max-w-[140px]">
                     {currentUser.name || currentUser.email.split('@')[0]}
                   </span>
-                  <span className="rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-extrabold text-[9px] px-1.5 py-0.5 uppercase tracking-wider">
+                  <span className="rounded bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300 font-extrabold text-[9px] px-1.5 py-0.5 uppercase tracking-wider shrink-0">
                     {currentUser.role === 'OWNER' ? (isEs ? '👑 DUEÑO' : '👑 OWNER') : (isEs ? '💼 PERSONAL' : '💼 STAFF')}
                   </span>
-                </div>
+                </button>
               )}
 
               <a
-                href="/wallet"
-                className="hidden xl:inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap"
+                href={getWalletUrl()}
+                className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap shrink-0"
                 title={isEs ? 'Ver billetera de clientes' : 'View customer wallet'}
               >
-                <CreditCard className="h-3.5 w-3.5 text-stone-500" />
-                <span>{isEs ? 'Ver Billetera' : 'View Wallet'}</span>
+                <CreditCard className="h-3.5 w-3.5 text-stone-500 shrink-0" />
+                <span className="hidden lg:inline">{isEs ? 'Ver Billetera' : 'View Wallet'}</span>
               </a>
 
               <ThemeToggle />
@@ -228,7 +245,7 @@ export function Layout({
 
               <Link
                 to="/docs"
-                className="hidden 2xl:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition whitespace-nowrap px-1"
+                className="hidden 2xl:inline-flex items-center text-xs font-medium text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition whitespace-nowrap px-1 shrink-0"
               >
                 {t.nav.docs}
               </Link>
@@ -236,20 +253,24 @@ export function Layout({
               <button
                 onClick={() => {
                   clearMerchantToken();
+                  flashToast(
+                    isEs ? 'Sesión cerrada correctamente.' : 'Signed out successfully.',
+                    'info'
+                  );
                   onLogout();
                 }}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap shrink-0"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 dark:border-stone-700 px-2 sm:px-2.5 lg:px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition whitespace-nowrap shrink-0"
                 title={t.nav.signOut}
               >
                 <LogOut className="h-3.5 w-3.5 shrink-0" />
-                <span className="hidden sm:inline">{t.nav.signOut}</span>
+                <span className="hidden md:inline">{t.nav.signOut}</span>
               </button>
             </div>
           </div>
         </div>
 
-        {/* Tablet & Mobile Nav Bar */}
-        <div className="flex lg:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
+        {/* Laptop, Tablet & Mobile Secondary Nav Bar */}
+        <div className="flex 2xl:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
@@ -277,6 +298,18 @@ export function Layout({
           <Outlet />
         </div>
       </main>
+
+      {/* Profile Modal */}
+      {currentUser && (
+        <ProfileModal
+          isOpen={isProfileOpen}
+          onClose={() => setIsProfileOpen(false)}
+          user={currentUser}
+          onUserUpdated={(updated) => {
+            if (onUserUpdated) onUserUpdated(updated);
+          }}
+        />
+      )}
     </div>
   );
 }

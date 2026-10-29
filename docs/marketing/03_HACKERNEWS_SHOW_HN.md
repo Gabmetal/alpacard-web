@@ -13,8 +13,9 @@
 
 Hi HN! I’m Gabo, and I built **Alpacard**: an open-source, self-hosted digital loyalty punch card platform.
 
-- **Demo**: https://alpacard.app
-- **Wallet PWA**: https://alpacard.app/wallet
+- **Demo**: https://demo.alpacard.app
+- **Wallet PWA**: https://wallet.alpacard.app
+- **Merchant Console**: https://merchant.alpacard.app
 - **Code**: https://github.com/alpacard/alpacard-web
 
 ### Why build this?

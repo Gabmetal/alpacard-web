@@ -4,7 +4,11 @@ global:
     - alpacard.app
     - www.alpacard.app
     - alpacard.gabo.lat
+    - wallet.alpacard.app
+    - merchant.alpacard.app
+    - demo.alpacard.app
   appUrl: https://alpacard.app
+  walletUrl: https://wallet.alpacard.app
 
 # PostgreSQL Database Configuration
 postgres:

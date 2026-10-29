@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import confetti from 'canvas-confetti';
 import { useLanguage } from '../i18n/LanguageContext';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { VideoTutorialModal } from '../components/VideoTutorialModal';
+import { AlpacaBaristaCard3D } from '../components/AlpacaBaristaCard3D';
+import { getWalletUrl, getDemoUrl, getMerchantUrl } from '../utils/urls';
 import {
   ShieldCheck,
   Server,
   ArrowRight,
-  CheckCircle2,
-  Gift,
   QrCode,
   Smartphone,
   Play,
   RotateCcw,
-  Check,
   Layers,
   Heart,
   Menu,
@@ -32,96 +32,120 @@ export function LandingPage() {
 
   // Interactive Punch Card Demo Widget State
   const [stamps, setStamps] = useState(7);
+  const [scanTrigger, setScanTrigger] = useState(0);
+  const [resetTrigger, setResetTrigger] = useState(0);
   const maxStamps = 10;
   const isRewardReady = stamps >= maxStamps;
 
   const handleAddStamp = () => {
     if (stamps < maxStamps) {
-      setStamps((prev) => prev + 1);
+      const next = stamps + 1;
+      setStamps(next);
+      setScanTrigger((prev) => prev + 1);
+      if (next >= maxStamps) {
+        setTimeout(() => {
+          confetti({
+            particleCount: 55,
+            spread: 65,
+            origin: { y: 0.6 },
+          });
+        }, 650);
+      }
     }
   };
 
   const handleResetDemo = () => {
     setStamps(0);
+    setResetTrigger((prev) => prev + 1);
   };
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-[#4A3525] selection:text-white transition-colors">
       {/* Navigation Header */}
       <nav className="sticky top-0 z-50 border-b border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 lg:h-20 max-w-7xl items-center justify-between gap-2 xl:gap-4 px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img
               src="/alpacard-logo.jpg"
               alt="Alpacard"
-              className="h-9 w-9 rounded-lg object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
+              className="h-9 w-9 lg:h-10 lg:w-10 rounded-xl object-cover border border-stone-200 dark:border-stone-700 shadow-2xs"
             />
-            <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100">
+            <span className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100 whitespace-nowrap">
               Alpacard
             </span>
-            <span className="hidden lg:inline-flex rounded-md bg-stone-100 dark:bg-stone-800 px-2 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
+            <span className="hidden 2xl:inline-flex whitespace-nowrap rounded-md bg-stone-100 dark:bg-stone-800 px-2.5 py-0.5 text-[11px] font-medium text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
               {t.landing.badge}
             </span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-stone-600 dark:text-stone-300">
-            <a href="#features" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+          {/* Desktop Nav Links - Centered */}
+          <div className="hidden xl:flex items-center gap-1 xl:gap-2 text-xs xl:text-[13px] font-medium text-stone-600 dark:text-stone-300">
+            <a
+              href="#features"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.features}
             </a>
-            <a href="#visual-tour" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+            <a
+              href="#visual-tour"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.visualTour}
             </a>
-            <a href="#how-it-works" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+            <a
+              href="#how-it-works"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.howItWorks}
             </a>
-            <Link
-              to="/demo"
-              className="text-[#5C4028] dark:text-amber-400 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition flex items-center gap-1.5 font-semibold"
+            <a
+              href={getDemoUrl()}
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-[#3D2B1F] dark:hover:text-amber-300 transition inline-flex items-center gap-1.5 font-semibold"
             >
-              <Play className="h-3.5 w-3.5 fill-current" />
-              {t.nav.liveDemo}
-            </Link>
-            <Link to="/docs" className="hover:text-stone-900 dark:hover:text-stone-100 transition">
+              <Play className="h-3.5 w-3.5 fill-current shrink-0" />
+              <span>{t.nav.liveDemo}</span>
+            </a>
+            <Link
+              to="/docs"
+              className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
+            >
               {t.nav.docs}
             </Link>
           </div>
 
-          {/* Right Actions */}
-          <div className="hidden sm:flex items-center gap-2.5">
+          {/* Desktop Right Actions */}
+          <div className="hidden xl:flex items-center gap-1.5 xl:gap-2 shrink-0">
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
             {/* Direct Wallet Access (Primary client-facing button) */}
             <a
-              href="/wallet"
-              className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3.5 py-2 text-xs sm:text-sm font-bold shadow-xs transition active:scale-[0.98]"
+              href={getWalletUrl()}
+              className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-2.5 xl:px-3.5 py-2 text-xs xl:text-[13px] font-bold shadow-xs transition active:scale-[0.98]"
             >
-              <Wallet className="h-4 w-4" />
+              <Wallet className="h-3.5 w-3.5 xl:h-4 xl:w-4 shrink-0" />
               <span>{t.nav.openWallet}</span>
             </a>
 
-            <Link
-              to="/login"
-              className="text-xs sm:text-sm font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 px-2.5 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition"
+            <a
+              href={getMerchantUrl('/login')}
+              className="whitespace-nowrap shrink-0 text-xs xl:text-[13px] font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-2.5 xl:px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 transition"
               title={t.nav.merchantLogin}
             >
               {t.nav.signIn}
-            </Link>
+            </a>
           </div>
 
-          {/* Mobile Controls */}
-          <div className="flex sm:hidden items-center gap-1.5">
+          {/* Mobile & Tablet Controls: Under xl */}
+          <div className="flex xl:hidden items-center gap-1.5 sm:gap-2">
             {/* Quick 1-tap mobile wallet button */}
             <a
-              href="/wallet"
-              className="inline-flex items-center gap-1 rounded-lg bg-amber-500 text-stone-950 px-2.5 py-1.5 text-xs font-bold shadow-xs active:scale-95"
+              href={getWalletUrl()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-stone-950 px-3 py-1.5 text-xs font-bold shadow-xs active:scale-95 transition"
             >
               <Wallet className="h-3.5 w-3.5" />
               <span>{isEs ? 'Billetera' : 'Wallet'}</span>
             </a>
-            <ThemeToggle />
-            <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -135,12 +159,12 @@ export function LandingPage() {
 
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-3 shadow-lg transition-colors">
+          <div className="xl:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-4 shadow-lg transition-colors">
             {/* Prominent customer wallet link inside mobile drawer */}
             <a
-              href="/wallet"
+              href={getWalletUrl()}
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 py-3 text-center text-sm font-bold text-stone-950 shadow-xs"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 py-3 text-center text-sm font-bold text-stone-950 shadow-xs transition"
             >
               <Wallet className="h-4 w-4" />
               <span>{t.nav.openWallet}</span>
@@ -168,14 +192,14 @@ export function LandingPage() {
               >
                 {t.nav.howItWorks}
               </a>
-              <Link
-                to="/demo"
+              <a
+                href={getDemoUrl()}
                 onClick={() => setMobileMenuOpen(false)}
                 className="rounded-lg px-3 py-2 font-semibold text-[#5C4028] dark:text-amber-400 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 transition"
               >
                 <Play className="h-3.5 w-3.5 fill-current" />
                 {t.nav.liveDemo}
-              </Link>
+              </a>
               <Link
                 to="/docs"
                 onClick={() => setMobileMenuOpen(false)}
@@ -185,39 +209,62 @@ export function LandingPage() {
               </Link>
             </div>
 
-            <div className="pt-2 border-t border-stone-100 dark:border-stone-800 flex flex-col gap-2">
+            {/* Quick Preferences: Theme & Language */}
+            <div className="pt-3 pb-1 border-t border-stone-200 dark:border-stone-800 flex items-center justify-between">
+              <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
+                {isEs ? 'Preferencias' : 'Preferences'}
+              </span>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-stone-200 dark:border-stone-800 flex flex-col gap-2">
               <div className="text-[11px] font-semibold text-stone-400 px-1 uppercase tracking-wider">
                 {t.nav.merchantLogin}
               </div>
-              <Link
-                to="/login"
+              <a
+                href={getMerchantUrl('/login')}
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 text-center text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-50"
+                className="w-full rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 py-2.5 text-center text-xs font-semibold text-stone-800 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition"
               >
                 {t.nav.signIn}
-              </Link>
-              <Link
-                to="/login?mode=register"
+              </a>
+              <a
+                href={getMerchantUrl('/login?mode=register')}
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#3D2B1F] dark:bg-stone-700 py-2.5 text-center text-xs font-semibold text-white hover:bg-[#2C1F16]"
+                className="w-full inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#3D2B1F] dark:bg-amber-500 dark:text-stone-950 dark:hover:bg-amber-400 py-2.5 text-center text-xs font-semibold text-white hover:bg-[#2C1F16] transition shadow-2xs"
               >
                 <span>{t.nav.getStarted}</span>
                 <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              </a>
             </div>
           </div>
         )}
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-12 sm:py-16 lg:py-24">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+      <section className="relative overflow-hidden py-10 sm:py-16 lg:py-20">
+        {/* Subtle Warm Coffee Shop Ambient Glow Backdrop */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 overflow-hidden opacity-15 dark:opacity-20"
+        >
+          <img
+            src="/alpaca-hero-poster.jpg"
+            alt=""
+            className="h-full w-full object-cover blur-3xl scale-110"
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:gap-10 lg:grid-cols-12 lg:items-center">
             {/* Hero Left Copy */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-3.5 py-1 text-xs font-medium text-stone-700 shadow-2xs">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#5C4028]" />
-                <span>{t.landing.heroPill}</span>
+            <div className="lg:col-span-6 min-w-0 space-y-6 text-center lg:text-left">
+              <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-stone-300 bg-white px-3.5 py-1 text-xs font-medium text-stone-700 shadow-2xs">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-[#5C4028]" />
+                <span className="truncate sm:whitespace-normal">{t.landing.heroPill}</span>
               </div>
 
               <h1 className="text-3xl font-extrabold tracking-tight text-stone-900 sm:text-5xl lg:text-[54px] leading-[1.12]">
@@ -231,149 +278,103 @@ export function LandingPage() {
                 {t.landing.heroSubtitle}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center lg:justify-start gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2 max-w-xl mx-auto lg:mx-0">
                 {/* Primary Button: Open Customer Wallet directly */}
                 <a
-                  href="/wallet"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-6 py-3.5 text-sm font-black shadow-md transition active:scale-[0.99]"
+                  href={getWalletUrl()}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-5 py-3.5 text-sm font-black shadow-md transition active:scale-[0.99]"
                 >
-                  <Wallet className="h-4 w-4" />
+                  <Wallet className="h-4 w-4 shrink-0" />
                   <span>{t.landing.openWalletHeroBtn}</span>
                 </a>
 
                 {/* Secondary Button: Merchant Backoffice Account */}
-                <Link
-                  to="/login?mode=register"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#3D2B1F] dark:bg-stone-800 dark:hover:bg-stone-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
+                <a
+                  href={getMerchantUrl('/login?mode=register')}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-[#3D2B1F] dark:bg-stone-800 dark:hover:bg-stone-700 px-5 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-[#2C1F16] transition active:scale-[0.99]"
                 >
-                  <Coffee className="h-4 w-4 text-amber-300" />
+                  <Coffee className="h-4 w-4 text-amber-300 shrink-0" />
                   <span>{t.landing.launchMerchantBtn}</span>
-                </Link>
+                </a>
 
                 <button
                   type="button"
                   onClick={() => setShowVideoModal(true)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-4 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-[#E6D9C6] bg-[#F5EFE6] px-5 py-3.5 text-sm font-semibold text-[#4A3525] hover:bg-[#EBE1D2] transition shadow-2xs active:scale-[0.99]"
                 >
-                  <Play className="h-4 w-4 text-[#4A3525] fill-current" />
+                  <Play className="h-4 w-4 text-[#4A3525] fill-current shrink-0" />
                   <span>{isEs ? 'Video Tutorial' : 'Video Tutorial'}</span>
                 </button>
 
-                <Link
-                  to="/demo"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-stone-300 bg-white px-4 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
+                <a
+                  href={getDemoUrl()}
+                  className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-stone-300 bg-white px-5 py-3.5 text-sm font-semibold text-stone-800 hover:bg-stone-50 transition shadow-2xs"
                 >
-                  <Sparkles className="h-4 w-4 text-[#5C4028]" />
-                  {t.landing.tryDemoBtn}
-                </Link>
+                  <Sparkles className="h-4 w-4 text-[#5C4028] shrink-0" />
+                  <span>{t.landing.tryDemoBtn}</span>
+                </a>
               </div>
 
               {/* Quick Metrics */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-stone-200 text-center sm:text-left">
-                <div className="rounded-xl bg-white p-3.5 border border-stone-200/70 sm:bg-transparent sm:p-0 sm:border-0">
-                  <h4 className="text-lg sm:text-xl font-bold text-stone-900">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 pt-6 border-t border-stone-200 dark:border-stone-800 text-center sm:text-left">
+                <div className="rounded-2xl bg-white dark:bg-stone-900/90 px-5 py-4 border border-stone-200/80 dark:border-stone-800 shadow-2xs">
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                     {t.landing.metricOpenSource}
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">{t.landing.metricOpenSourceSub}</p>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">{t.landing.metricOpenSourceSub}</p>
                 </div>
-                <div className="rounded-xl bg-white p-3.5 border border-stone-200/70 sm:bg-transparent sm:p-0 sm:border-0">
-                  <h4 className="text-lg sm:text-xl font-bold text-stone-900">
+                <div className="rounded-2xl bg-white dark:bg-stone-900/90 px-5 py-4 border border-stone-200/80 dark:border-stone-800 shadow-2xs">
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                     {t.landing.metricRam}
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">{t.landing.metricRamSub}</p>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">{t.landing.metricRamSub}</p>
                 </div>
-                <div className="rounded-xl bg-white p-3.5 border border-stone-200/70 sm:bg-transparent sm:p-0 sm:border-0">
-                  <h4 className="text-lg sm:text-xl font-bold text-stone-900">
+                <div className="rounded-2xl bg-white dark:bg-stone-900/90 px-5 py-4 border border-stone-200/80 dark:border-stone-800 shadow-2xs">
+                  <h4 className="text-xl sm:text-2xl font-extrabold text-stone-900">
                     {t.landing.metricAppStore}
                   </h4>
-                  <p className="text-xs text-stone-500 mt-0.5">{t.landing.metricAppStoreSub}</p>
+                  <p className="text-xs sm:text-sm text-stone-500 mt-1">{t.landing.metricAppStoreSub}</p>
                 </div>
               </div>
             </div>
 
-            {/* Hero Right: Live Interactive Card Widget */}
-            <div className="lg:col-span-5 flex justify-center">
-              <div className="w-full max-w-sm rounded-2xl border border-stone-200 bg-white p-5 sm:p-6 shadow-md relative">
-                <div className="absolute -top-3 right-5 rounded-full bg-[#F5EFE6] border border-[#DFD3C3] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5C4028]">
+            {/* Hero Right: Live Interactive 3D Barista + Hidden 3D Card Widget */}
+            <div className="lg:col-span-6 min-w-0 w-full flex justify-center">
+              <div className="w-full max-w-lg mx-auto rounded-2xl border border-stone-200/90 dark:border-stone-800 bg-white/85 dark:bg-stone-900/85 backdrop-blur-md p-3.5 sm:p-5 shadow-md relative">
+                <div className="absolute -top-3 right-4 sm:right-5 z-10 rounded-full bg-[#F5EFE6] border border-[#DFD3C3] px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5C4028]">
                   {t.landing.interactiveDemoBadge}
                 </div>
 
-                {/* Card Header */}
-                <div className="rounded-xl bg-[#3D2B1F] p-5 text-white text-center shadow-xs">
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-stone-300">
-                    {t.landing.demoStoreName}
-                  </span>
-                  <h3 className="text-xl font-bold mt-0.5">{t.landing.demoCardTitle}</h3>
-                  <p className="text-xs text-stone-200 mt-1">{t.landing.demoCardSubtitle}</p>
-                </div>
-
-                {/* Stamp Circles */}
-                <div className="mt-5">
-                  <div className="flex items-center justify-between text-xs font-semibold text-stone-600 mb-3">
-                    <span>{t.landing.demoProgressLabel}</span>
-                    <span className="text-[#5C4028] font-bold">
-                      {stamps} / {maxStamps}
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-5 gap-2 sm:gap-2.5">
-                    {Array.from({ length: maxStamps }).map((_, i) => {
-                      const isStamped = i < stamps;
-                      const isLast = i === maxStamps - 1;
-                      return (
-                        <div
-                          key={i}
-                          className={`aspect-square rounded-xl border flex items-center justify-center transition-all duration-200 ${
-                            isStamped
-                              ? 'border-[#4A3525] bg-[#4A3525] text-white shadow-2xs'
-                              : isLast
-                              ? 'border-dashed border-amber-700/60 bg-amber-50/70 text-amber-800'
-                              : 'border-stone-200 bg-stone-50 text-stone-400'
-                          }`}
-                        >
-                          {isStamped ? (
-                            <Check className="h-4 w-4 stroke-[2.5]" />
-                          ) : isLast ? (
-                            <Gift className="h-4 w-4" />
-                          ) : (
-                            <span className="text-xs font-semibold">{i + 1}</span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Status Box */}
-                <div className="mt-5 rounded-xl bg-stone-50 border border-stone-200/80 p-3.5 text-center">
-                  {isRewardReady ? (
-                    <div className="space-y-1">
-                      <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 uppercase">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-700" />{' '}
-                        {t.landing.demoRewardReady}
-                      </div>
-                      <p className="text-[11px] text-stone-600">{t.landing.demoRewardDesc}</p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-stone-600">
-                      {maxStamps - stamps} {t.landing.demoRemainingStamps}
-                    </p>
-                  )}
+                {/* Unified Three.js Diorama: Barista Alpaca at the Bar + Disguised 3D Loyalty Card */}
+                <div className="-mt-1 w-full overflow-hidden">
+                  <AlpacaBaristaCard3D
+                    stamps={stamps}
+                    maxStamps={maxStamps}
+                    storeName={t.landing.demoStoreName}
+                    cardTitle={t.landing.demoCardTitle}
+                    cardSubtitle={t.landing.demoCardSubtitle}
+                    progressLabel={t.landing.demoProgressLabel}
+                    rewardReadyText={t.landing.demoRewardReady}
+                    rewardDescText={t.landing.demoRewardDesc}
+                    remainingStampsText={t.landing.demoRemainingStamps}
+                    scanTrigger={scanTrigger}
+                    resetTrigger={resetTrigger}
+                  />
                 </div>
 
                 {/* Interactive Controls */}
-                <div className="mt-4 flex gap-2">
+                <div className="mt-1 flex gap-2">
                   <button
                     onClick={handleAddStamp}
                     disabled={isRewardReady}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-900 py-2.5 text-xs font-semibold text-white hover:bg-stone-800 disabled:opacity-40 transition active:scale-[0.99]"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-stone-900 dark:bg-amber-500 dark:text-stone-950 py-3 text-xs font-bold text-white hover:bg-stone-800 dark:hover:bg-amber-400 disabled:opacity-40 transition active:scale-[0.99] shadow-xs cursor-pointer"
                   >
-                    <CheckCircle2 className="h-4 w-4" />
+                    <Smartphone className="h-4 w-4" />
                     {t.landing.demoSimulateBtn}
                   </button>
                   <button
                     onClick={handleResetDemo}
-                    className="rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-xs font-semibold text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition"
+                    className="rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-3 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white hover:bg-stone-50 dark:hover:bg-stone-700 transition cursor-pointer"
                     title="Reset Demo"
                   >
                     <RotateCcw className="h-4 w-4" />
@@ -435,13 +436,13 @@ export function LandingPage() {
               return (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-stone-200 bg-[#FAF8F5]/60 p-6 transition hover:border-stone-300 hover:bg-white hover:shadow-xs"
+                  className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-900 p-6 transition hover:border-stone-300 dark:hover:border-stone-700 hover:bg-white dark:hover:bg-stone-800/90 hover:shadow-xs"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#F5EFE6] text-[#5C4028] border border-[#E6D9C6] mb-4">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h4 className="text-base font-bold text-stone-900">{feat.title}</h4>
-                  <p className="mt-2 text-xs sm:text-sm text-stone-600 leading-relaxed">
+                  <h4 className="text-base font-bold text-stone-900 dark:text-stone-100">{feat.title}</h4>
+                  <p className="mt-2 text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed">
                     {feat.desc}
                   </p>
                 </div>
@@ -517,13 +518,13 @@ export function LandingPage() {
           </div>
 
           <div className="mt-10 text-center">
-            <Link
-              to="/demo"
+            <a
+              href={getDemoUrl()}
               className="inline-flex items-center gap-2 rounded-xl bg-[#3D2B1F] px-6 py-3.5 text-sm font-semibold text-white shadow-xs hover:bg-[#2C1F16] transition active:scale-[0.99]"
             >
               <Play className="h-4 w-4" />
               {t.landing.visualCtaBtn}
-            </Link>
+            </a>
           </div>
         </div>
       </section>
@@ -564,7 +565,7 @@ export function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-stone-200 bg-[#F3EFEA] py-10 text-stone-600 text-xs">
+      <footer className="border-t border-stone-200 dark:border-stone-800 bg-[#F3EFEA] dark:bg-stone-950 py-10 text-stone-600 dark:text-stone-400 text-xs">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
             <img
@@ -581,9 +582,9 @@ export function LandingPage() {
             <Link to="/docs" className="hover:text-stone-900 transition">
               {t.nav.docs}
             </Link>
-            <Link to="/demo" className="hover:text-stone-900 transition">
+            <a href={getDemoUrl()} className="hover:text-stone-900 transition">
               {t.nav.liveDemo}
-            </Link>
+            </a>
             <a
               href="https://github.com/alpacard/alpacard-web"
               target="_blank"

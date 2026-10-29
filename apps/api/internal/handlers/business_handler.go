@@ -178,7 +178,7 @@ func (env *Env) GetMyBusinesses(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var owned []models.Business
+	owned := make([]models.Business, 0)
 	if err := env.DB.Preload("Campaigns").Where("owner_id = ?", claims.UserID).Find(&owned).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to fetch businesses")
 		return
@@ -186,10 +186,14 @@ func (env *Env) GetMyBusinesses(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	_ = env.DB.Preload("StaffAt.Campaigns").First(&user, "id = ?", claims.UserID)
+	staffAt := user.StaffAt
+	if staffAt == nil {
+		staffAt = make([]models.Business, 0)
+	}
 
 	respondJSON(w, http.StatusOK, map[string]interface{}{
 		"owned":   owned,
-		"staffAt": user.StaffAt,
+		"staffAt": staffAt,
 	})
 }
 
@@ -218,7 +222,7 @@ func (env *Env) ListStaff(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var staff []models.User
+	staff := make([]models.User, 0)
 	_ = env.DB.Model(&business).Association("Staff").Find(&staff)
 
 	respondJSON(w, http.StatusOK, staff)

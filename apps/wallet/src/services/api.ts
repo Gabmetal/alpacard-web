@@ -12,6 +12,12 @@ export interface WalletUser {
   name: string;
   role: string;
   isAnonymous: boolean;
+  emailVerified?: boolean;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: WalletUser;
 }
 
 export function getToken(): string | null {
@@ -263,6 +269,61 @@ export const walletApi = {
     const user = await fetchWithAuth('/auth/me');
     setStoredUser(user);
     return user;
+  },
+
+  updateProfile: async (data: { name: string }): Promise<WalletUser> => {
+    const user = await fetchWithAuth('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+    setStoredUser(user);
+    return user;
+  },
+
+  deleteAccount: async (): Promise<void> => {
+    await fetchWithAuth('/auth/account', {
+      method: 'DELETE',
+    });
+    clearToken();
+  },
+
+  forgotPassword: async (email: string): Promise<{ message: string }> => {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to request password reset');
+    }
+    return data;
+  },
+
+  resetPassword: async (data: { token: string; password: string }): Promise<AuthResponse> => {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(result.error || 'Failed to reset password');
+    }
+    if (result.token) {
+      setToken(result.token);
+    }
+    if (result.user) {
+      setStoredUser(result.user);
+    }
+    return result;
+  },
+
+  resendVerification: async (email?: string): Promise<{ success: boolean; message: string }> => {
+    return fetchWithAuth('/auth/resend-verification', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
   },
 
   logout: () => {
