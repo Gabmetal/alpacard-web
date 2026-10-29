@@ -395,7 +395,16 @@ func (env *Env) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	env.DB.Where("user_id = ?", user.ID).Delete(&models.Card{})
 	// Clean up business staff memberships
 	env.DB.Exec("DELETE FROM business_staff WHERE user_id = ?", user.ID)
-	// Delete user
+
+	// Anonymize email before soft-deletion to release the unique constraint
+	// and allow re-registration with the same email in the future.
+	anonymizedEmail := fmt.Sprintf("deleted_%s_%s", user.ID.String(), user.Email)
+	if err := env.DB.Model(&user).Update("email", anonymizedEmail).Error; err != nil {
+		respondError(w, http.StatusInternalServerError, "Failed to anonymize account")
+		return
+	}
+
+	// Delete user (soft-delete)
 	if err := env.DB.Delete(&user).Error; err != nil {
 		respondError(w, http.StatusInternalServerError, "Failed to delete account")
 		return

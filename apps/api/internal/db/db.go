@@ -77,6 +77,8 @@ func Init(cfg *config.Config) (*gorm.DB, error) {
 	// Backfill customer_id on legacy transactions from cards (PostgreSQL only)
 	if cfg.DBDriver == "postgres" {
 		_ = database.Exec(`UPDATE transactions SET customer_id = cards.user_id FROM cards WHERE transactions.card_id = cards.id AND (transactions.customer_id IS NULL OR transactions.customer_id = '00000000-0000-0000-0000-000000000000')`).Error
+		// Free emails of previously soft-deleted users so they can re-register
+		_ = database.Exec(`UPDATE users SET email = 'deleted_' || id || '_' || email WHERE deleted_at IS NOT NULL AND email NOT LIKE 'deleted_%'`).Error
 	}
 
 	log.Println("Database migration completed successfully.")

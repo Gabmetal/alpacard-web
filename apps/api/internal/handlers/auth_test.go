@@ -206,6 +206,23 @@ func TestDeleteAccount(t *testing.T) {
 	if err := db.First(&deletedCard, "id = ?", card.ID).Error; err == nil {
 		t.Fatalf("Card was not deleted when account was deleted")
 	}
+
+	// Verify that the email is released and can be re-registered
+	regPayload := map[string]string{
+		"email":    "deleteme@example.com",
+		"password": "Password123!",
+		"name":     "Recreated User",
+		"role":     "CONSUMER",
+	}
+	body, _ := json.Marshal(regPayload)
+	regReq := httptest.NewRequest("POST", "/api/v1/auth/register", bytes.NewBuffer(body))
+	regReq.Header.Set("Content-Type", "application/json")
+	regRr := httptest.NewRecorder()
+	env.Register(regRr, regReq)
+
+	if regRr.Code != http.StatusCreated {
+		t.Fatalf("Expected status 201 on re-registration with same email, got %d: %s", regRr.Code, regRr.Body.String())
+	}
 }
 
 func TestForgotPasswordAndReset(t *testing.T) {
