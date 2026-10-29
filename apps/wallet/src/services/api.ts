@@ -15,6 +15,11 @@ export interface WalletUser {
   emailVerified?: boolean;
 }
 
+export interface AuthResponse {
+  token: string;
+  user: WalletUser;
+}
+
 export function getToken(): string | null {
   // Check cookie first (or localStorage fallback)
   const cookieToken = getCookie(TOKEN_KEY);
@@ -280,6 +285,38 @@ export const walletApi = {
       method: 'DELETE',
     });
     clearToken();
+  },
+
+  forgotPassword: async (email: string): Promise<{ message: string }> => {
+    const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.error || 'Failed to request password reset');
+    }
+    return data;
+  },
+
+  resetPassword: async (data: { token: string; password: string }): Promise<AuthResponse> => {
+    const res = await fetch(`${API_BASE}/auth/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(result.error || 'Failed to reset password');
+    }
+    if (result.token) {
+      setToken(result.token);
+    }
+    if (result.user) {
+      setStoredUser(result.user);
+    }
+    return result;
   },
 
   resendVerification: async (email?: string): Promise<{ success: boolean; message: string }> => {
