@@ -214,25 +214,45 @@ export function AlpacaBaristaCard3D({
     const container = mountRef.current;
     if (!container) return;
 
-    const width = container.clientWidth || 380;
-    const height = 540;
+    const getContainerSize = () => {
+      const rect = container.getBoundingClientRect();
+      const w = Math.max(240, Math.floor(rect.width || container.clientWidth || 320));
+      const h = w < 350 ? 470 : 520;
+      return { w, h };
+    };
+
+    const { w: initW, h: initH } = getContainerSize();
 
     // 1. SCENE, CAMERA, RENDERER
     const scene = new THREE.Scene();
 
-    // Camera positioned so Z=0 plane has a clean, flat 2D look when objects are unrotated,
-    // and dramatic 3D perspective when the card tilts or pops forward.
-    const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 100);
-    camera.position.set(0, -0.05, 11.8);
-    camera.lookAt(0, -0.05, 0);
+    const fov = 34;
+    const camera = new THREE.PerspectiveCamera(fov, initW / initH, 0.1, 100);
+
+    const updateCameraDistance = (w: number, h: number) => {
+      const aspect = w / h;
+      const halfFovTan = Math.tan((fov * Math.PI) / 360);
+      // Ensure 4.45 world units of horizontal width always fit inside the frustum even when card tilts forward
+      const requiredZForWidth = 4.45 / (2 * halfFovTan * aspect) + 0.55;
+      camera.aspect = aspect;
+      camera.position.set(0, -0.05, Math.max(11.8, requiredZForWidth));
+      camera.lookAt(0, -0.05, 0);
+      camera.updateProjectionMatrix();
+    };
+
+    updateCameraDistance(initW, initH);
 
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       powerPreference: 'high-performance',
     });
-    renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(initW, initH, false);
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = `${initH}px`;
+    renderer.domElement.style.maxWidth = '100%';
+    renderer.domElement.style.display = 'block';
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -1575,16 +1595,21 @@ export function AlpacaBaristaCard3D({
 
     const handleResize = () => {
       if (!container) return;
-      const newW = container.clientWidth || 380;
-      camera.aspect = newW / height;
-      camera.updateProjectionMatrix();
-      renderer.setSize(newW, height);
+      const { w: newW, h: newH } = getContainerSize();
+      updateCameraDistance(newW, newH);
+      renderer.setSize(newW, newH, false);
+      renderer.domElement.style.width = '100%';
+      renderer.domElement.style.height = `${newH}px`;
     };
     window.addEventListener('resize', handleResize);
+    const resizeObs =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(() => handleResize()) : null;
+    resizeObs?.observe(container);
 
     return () => {
       cancelAnimationFrame(reqId);
       window.removeEventListener('resize', handleResize);
+      resizeObs?.disconnect();
       domElem.removeEventListener('pointermove', handlePointerMove);
       domElem.removeEventListener('pointerleave', handlePointerLeave);
       renderer.dispose();
@@ -1592,10 +1617,10 @@ export function AlpacaBaristaCard3D({
   }, [maxStamps]);
 
   return (
-    <div className="relative w-full select-none">
+    <div className="relative w-full max-w-full overflow-hidden select-none">
       <div
         ref={mountRef}
-        className="w-full h-[540px] flex items-center justify-center"
+        className="w-full max-w-full overflow-hidden flex items-center justify-center"
       />
     </div>
   );
