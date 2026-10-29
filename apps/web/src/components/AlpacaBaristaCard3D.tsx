@@ -712,29 +712,116 @@ export function AlpacaBaristaCard3D({
     rightArmPivot.add(rightPaw);
 
     // 3D Smartphone held by the alpaca's right paw
+    // Back of the phone (+Z side) has the rear camera island facing forward/down toward the card;
+    // Front screen (-Z side) faces back toward the barista alpaca!
     const phoneGroup = new THREE.Group();
-    phoneGroup.position.set(-0.08, 0.15, 0.18);
-    phoneGroup.rotation.set(0.25, -0.35, 0.15);
+    phoneGroup.position.set(-0.08, 0.16, 0.18);
+    phoneGroup.rotation.set(0.18, -0.22, 0.1);
     rightArmPivot.add(phoneGroup);
 
-    const phoneBodyGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(0.4, 0.72, 0.06), {
-      depth: 0.042,
+    const phoneBodyGeo = new THREE.ExtrudeGeometry(createRoundedRectShape(0.42, 0.74, 0.065), {
+      depth: 0.045,
       bevelEnabled: true,
-      bevelThickness: 0.012,
+      bevelThickness: 0.014,
       bevelSize: 0.012,
       bevelSegments: 3,
     });
     phoneBodyGeo.center();
     const phoneBodyMat = new THREE.MeshStandardMaterial({
-      color: 0x1c1917,
-      roughness: 0.25,
-      metalness: 0.8,
+      color: 0x292524,
+      roughness: 0.28,
+      metalness: 0.75,
     });
     const phoneMesh = new THREE.Mesh(phoneBodyGeo, phoneBodyMat);
     phoneMesh.castShadow = true;
     phoneGroup.add(phoneMesh);
 
-    // Smartphone Merchant App Screen
+    // Smartphone Rear Backplate (+Z side facing viewer & card) with Camera Island + Gold Emblem
+    const phoneBackCanvas = document.createElement('canvas');
+    phoneBackCanvas.width = 128;
+    phoneBackCanvas.height = 256;
+    const pbCtx = phoneBackCanvas.getContext('2d')!;
+    const drawPhoneBack = (activeScan: boolean) => {
+      // Matte graphite back glass
+      pbCtx.fillStyle = '#1c1917';
+      roundRect2D(pbCtx, 0, 0, 128, 256, 20);
+      pbCtx.fill();
+
+      // Subtle metallic border
+      pbCtx.strokeStyle = '#57534e';
+      pbCtx.lineWidth = 4;
+      roundRect2D(pbCtx, 2, 2, 124, 252, 18);
+      pbCtx.stroke();
+
+      // Glossy Camera Island (top-left of backplate)
+      pbCtx.fillStyle = '#0c0a09';
+      roundRect2D(pbCtx, 14, 14, 58, 82, 14);
+      pbCtx.fill();
+      pbCtx.strokeStyle = activeScan ? '#10b981' : '#44403c';
+      pbCtx.lineWidth = 3;
+      roundRect2D(pbCtx, 14, 14, 58, 82, 14);
+      pbCtx.stroke();
+
+      // Top Main Camera Lens Ring
+      pbCtx.fillStyle = '#1f2937';
+      pbCtx.beginPath();
+      pbCtx.arc(34, 36, 13, 0, Math.PI * 2);
+      pbCtx.fill();
+      pbCtx.strokeStyle = '#9ca3af';
+      pbCtx.lineWidth = 2.5;
+      pbCtx.stroke();
+
+      // Bottom Ultra-Wide Camera Lens Ring
+      pbCtx.beginPath();
+      pbCtx.arc(34, 72, 13, 0, Math.PI * 2);
+      pbCtx.fill();
+      pbCtx.stroke();
+
+      // Scanner Laser / Flash LED inside camera island
+      pbCtx.fillStyle = activeScan ? '#34d399' : '#fde68a';
+      pbCtx.beginPath();
+      pbCtx.arc(58, 54, 6, 0, Math.PI * 2);
+      pbCtx.fill();
+
+      // Alpacard Gold Star / Badge in center of phone back
+      pbCtx.fillStyle = '#f59e0b';
+      pbCtx.beginPath();
+      pbCtx.arc(64, 148, 16, 0, Math.PI * 2);
+      pbCtx.fill();
+      pbCtx.fillStyle = '#78350f';
+      pbCtx.font = 'bold 16px sans-serif';
+      pbCtx.textAlign = 'center';
+      pbCtx.textBaseline = 'middle';
+      pbCtx.fillText('★', 64, 149);
+    };
+    drawPhoneBack(false);
+    const phoneBackTex = new THREE.CanvasTexture(phoneBackCanvas);
+    phoneBackTex.colorSpace = THREE.SRGBColorSpace;
+    const phoneBackMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.39, 0.7),
+      new THREE.MeshStandardMaterial({
+        map: phoneBackTex,
+        roughness: 0.35,
+        metalness: 0.4,
+      })
+    );
+    phoneBackMesh.position.set(0, 0, 0.036);
+    phoneGroup.add(phoneBackMesh);
+
+    // 3D Raised Camera Island & Glowing Lens on the +Z side (faces the card when scanning!)
+    const cameraLens = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.055, 0.025, 20),
+      new THREE.MeshStandardMaterial({
+        color: 0x10b981,
+        emissive: 0x10b981,
+        emissiveIntensity: 0.75,
+      })
+    );
+    cameraLens.rotation.x = Math.PI / 2;
+    cameraLens.position.set(-0.08, 0.19, 0.045);
+    phoneGroup.add(cameraLens);
+
+    // Smartphone Merchant App Screen on the -Z side (facing the alpaca's eyes!)
     const phoneScreenCanvas = document.createElement('canvas');
     phoneScreenCanvas.width = 128;
     phoneScreenCanvas.height = 256;
@@ -760,52 +847,35 @@ export function AlpacaBaristaCard3D({
         pCtx.beginPath();
         pCtx.arc(64, 200, 24, 0, Math.PI * 2);
         pCtx.fill();
-        pCtx.strokeStyle = '#ffffff';
-        pCtx.lineWidth = 5;
-        pCtx.beginPath();
-        pCtx.moveTo(52, 200);
-        pCtx.lineTo(61, 210);
-        pCtx.lineTo(78, 190);
-        pCtx.stroke();
-      } else {
-        pCtx.fillStyle = '#a8a29e';
-        pCtx.font = 'bold 12px sans-serif';
-        pCtx.fillText('SCANNER READY', 64, 202);
       }
+      drawPhoneBack(activeScan);
+      phoneBackTex.needsUpdate = true;
     };
     drawPhoneScreen(false);
     const phoneScreenTex = new THREE.CanvasTexture(phoneScreenCanvas);
     const phoneScreenMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.35, 0.64),
+      new THREE.PlaneGeometry(0.37, 0.66),
       new THREE.MeshBasicMaterial({ map: phoneScreenTex })
     );
-    phoneScreenMesh.position.set(0, 0, 0.034);
+    phoneScreenMesh.rotation.y = Math.PI;
+    phoneScreenMesh.position.set(0, 0, -0.036);
     phoneGroup.add(phoneScreenMesh);
 
-    // Camera lens bump on back of smartphone
-    const cameraLens = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.05, 0.05, 0.02, 16),
-      new THREE.MeshStandardMaterial({
-        color: 0x10b981,
-        emissive: 0x10b981,
-        emissiveIntensity: 0.5,
-      })
-    );
-    cameraLens.rotation.x = Math.PI / 2;
-    cameraLens.position.set(0.09, 0.22, -0.034);
-    phoneGroup.add(cameraLens);
-
-    // Volumetric Laser Scanner Beam (Cone + Sweeping Laser Line projected onto the card)
+    // Volumetric Laser Scanner Beam (Tip at 0,0,0; Base at z = +1.0 so lookAt() aims it straight down at the card!)
     const laserBeamGroup = new THREE.Group();
     scene.add(laserBeamGroup);
     laserBeamGroup.visible = false;
 
-    const beamConeGeo = new THREE.ConeGeometry(1.75, 2.7, 28, 1, true);
-    beamConeGeo.translate(0, -1.35, 0);
+    const beamConeGeo = new THREE.ConeGeometry(1.65, 1.0, 32, 1, true);
+    // Move apex (tip) of cone to (0, 0, 0) and base to (0, -1, 0)
+    beamConeGeo.translate(0, -0.5, 0);
+    // Rotate -90 deg around X so apex stays at (0,0,0) and open base is at (0, 0, +1) along +Z!
+    beamConeGeo.rotateX(-Math.PI / 2);
+
     const beamConeMat = new THREE.MeshBasicMaterial({
       color: 0x10b981,
       transparent: true,
-      opacity: 0.2,
+      opacity: 0.22,
       side: THREE.DoubleSide,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
@@ -1312,8 +1382,8 @@ export function AlpacaBaristaCard3D({
       let targetArmPosY = 0.22;
       let targetArmPosZ = 0.14;
       let targetArmRotX = 0;
-      let targetPhoneRotX = 0.25;
-      let targetPhoneRotY = -0.35;
+      let targetPhoneRotX = 0.18;
+      let targetPhoneRotY = -0.22;
 
       if (a.isScanning) {
         const elapsed = now - a.scanStartTime;
@@ -1331,12 +1401,12 @@ export function AlpacaBaristaCard3D({
               ? 1.0
               : 1.0 - THREE.MathUtils.smoothstep(progress, 0.76, 1.0);
 
-          // 1) Barista Alpaca raises the Merchant Smartphone over the bar & aims down at card
+          // 1) Barista Alpaca raises the Merchant Smartphone over the bar & tilts its rear camera down at the card
           targetArmPosY = 0.22 + holdEnv * 0.44;
           targetArmPosZ = 0.14 + holdEnv * 0.5;
-          targetArmRotX = holdEnv * 0.45;
-          targetPhoneRotX = 0.25 + holdEnv * 0.72;
-          targetPhoneRotY = -0.35 + holdEnv * 0.2;
+          targetArmRotX = holdEnv * 0.42;
+          targetPhoneRotX = 0.18 + holdEnv * 0.58;
+          targetPhoneRotY = -0.22 + holdEnv * 0.16;
 
           // 2) The Card reveals it is a 3D object! Tilts back in 3D perspective & lifts toward camera
           targetCardRotX = -0.54 * holdEnv;
@@ -1364,12 +1434,14 @@ export function AlpacaBaristaCard3D({
             cameraLens.getWorldPosition(phoneWorldPos);
             laserBeamGroup.position.copy(phoneWorldPos);
 
-            const sweepY = -0.35 - Math.sin(scanSweep * Math.PI) * 1.85;
+            const sweepY = -0.45 - Math.sin(scanSweep * Math.PI) * 1.75;
             laserLineMesh.position.set(0, sweepY, cardPivot.position.z + 0.42);
             laserLineMesh.rotation.copy(cardPivot.rotation);
 
+            // Point laser cone (+Z) straight from the rear camera lens down to the laser line on the card
             laserBeamGroup.lookAt(laserLineMesh.position);
-            laserBeamGroup.rotateX(Math.PI / 2);
+            const distToCard = Math.max(0.5, phoneWorldPos.distanceTo(laserLineMesh.position));
+            laserBeamGroup.scale.set(1, 1, distToCard);
 
             scanPointLight.intensity = 3.5;
             scanPointLight.position.set(0, sweepY, 1.8);
