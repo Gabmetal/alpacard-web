@@ -2,7 +2,7 @@
 
 ## 1. Project Objective
 
-The primary objective is to guarantee functional quality, reliability, and security across the **AlpaCard** web platform ([alpacard.gabo.lat](https://alpacard.gabo.lat)). The main goal is to ensure that the core customer loyalty lifecycle—stamp accumulation, reward redemption, and counter reset—operates without logical errors or role-based security vulnerabilities.
+The primary objective is to guarantee functional quality, reliability, and security across the **AlpaCard** web platform ([alpacard.app](https://alpacard.app)). The main goal is to ensure that the core customer loyalty lifecycle—stamp accumulation, reward redemption, and counter reset—operates without logical errors or role-based security vulnerabilities.
 
 ---
 
@@ -245,7 +245,7 @@ Validates frictionless zero-form customer onboarding, session retention, error h
   1. Successfully completed `TC-008` and on the newly created card screen.
 - **Execution Steps:**
   1. Refresh the browser page (`F5`).
-  2. Close the browser tab entirely, open a new tab, and navigate back to `alpacard.gabo.lat`.
+  2. Close the browser tab entirely, open a new tab, and navigate back to `alpacard.app`.
 - **Expected Result:**
   - The system remembers the user (via cookies or LocalStorage).
   - Exactly the same wallet loads, preserving the same ID and progress, without creating a duplicate account or prompting for re-authentication.

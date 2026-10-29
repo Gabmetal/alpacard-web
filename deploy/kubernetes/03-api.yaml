@@ -11,7 +11,7 @@ data:
   APP_URL: "https://alpacard.app"
   WALLET_URL: "https://wallet.alpacard.app"
   SMTP_FROM: "Alpacard <no-reply@alpacard.app>"
-  CORS_ORIGINS: "https://alpacard.app,https://www.alpacard.app,https://wallet.alpacard.app,https://merchant.alpacard.app,https://demo.alpacard.app,https://alpacard.gabo.lat,http://localhost:5173,http://localhost:5174,https://dev.alpacard.app,https://dev-wallet.alpacard.app,https://dev-merchant.alpacard.app,https://dev-demo.alpacard.app"
+  CORS_ORIGINS: "https://alpacard.app,https://www.alpacard.app,https://wallet.alpacard.app,https://merchant.alpacard.app,https://demo.alpacard.app,http://localhost:5173,http://localhost:5174,https://dev.alpacard.app,https://dev-wallet.alpacard.app,https://dev-merchant.alpacard.app,https://dev-demo.alpacard.app"
 ---
 apiVersion: v1
 kind: Secret
