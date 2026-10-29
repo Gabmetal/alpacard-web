@@ -189,7 +189,7 @@ export function Layout({
             </div>
 
             {/* Center: Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1 shrink-0">
+            <nav className="hidden xl:flex items-center gap-1 shrink-0">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
@@ -270,7 +270,7 @@ export function Layout({
         </div>
 
         {/* Tablet & Mobile Nav Bar */}
-        <div className="flex lg:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
+        <div className="flex xl:hidden border-t border-stone-200 dark:border-stone-800 divide-x divide-stone-200/70 dark:divide-stone-800 bg-white dark:bg-stone-900 overflow-x-auto scrollbar-none transition-colors">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;

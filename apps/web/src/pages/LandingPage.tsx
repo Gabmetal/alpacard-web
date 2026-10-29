@@ -50,7 +50,7 @@ export function LandingPage() {
     <div className="min-h-screen bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 selection:bg-[#4A3525] selection:text-white transition-colors">
       {/* Navigation Header */}
       <nav className="sticky top-0 z-50 border-b border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md transition-colors">
-        <div className="mx-auto flex h-16 lg:h-20 max-w-7xl items-center justify-between gap-2 xl:gap-4 px-4 sm:px-6 lg:px-6">
+        <div className="mx-auto flex h-16 lg:h-20 max-w-7xl items-center justify-between gap-2 xl:gap-4 px-4 sm:px-6 lg:px-8">
           <Link to="/" className="flex items-center gap-2.5 group shrink-0">
             <img
               src="/alpacard-logo.jpg"
@@ -65,8 +65,8 @@ export function LandingPage() {
             </span>
           </Link>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 text-xs xl:text-[13px] font-medium text-stone-600 dark:text-stone-300">
+          {/* Desktop Nav Links - Centered */}
+          <div className="hidden xl:flex items-center gap-1 xl:gap-2 text-xs xl:text-[13px] font-medium text-stone-600 dark:text-stone-300">
             <a
               href="#features"
               className="whitespace-nowrap rounded-lg px-2 xl:px-2.5 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800/80 hover:text-stone-900 dark:hover:text-stone-100 transition"
@@ -101,14 +101,14 @@ export function LandingPage() {
           </div>
 
           {/* Desktop Right Actions */}
-          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2 shrink-0">
+          <div className="hidden xl:flex items-center gap-1.5 xl:gap-2 shrink-0">
             <ThemeToggle />
             <LanguageSwitcher variant="light" className="dark:bg-stone-800 dark:border-stone-700 dark:text-stone-300" />
 
             {/* Direct Wallet Access (Primary client-facing button) */}
             <a
               href={getWalletUrl()}
-              className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-3 xl:px-3.5 py-2 text-xs xl:text-[13px] font-bold shadow-xs transition active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 px-2.5 xl:px-3.5 py-2 text-xs xl:text-[13px] font-bold shadow-xs transition active:scale-[0.98]"
             >
               <Wallet className="h-3.5 w-3.5 xl:h-4 xl:w-4 shrink-0" />
               <span>{t.nav.openWallet}</span>
@@ -123,8 +123,8 @@ export function LandingPage() {
             </a>
           </div>
 
-          {/* Mobile Controls: Sleek and uncluttered */}
-          <div className="flex lg:hidden items-center gap-2">
+          {/* Mobile & Tablet Controls: Under xl */}
+          <div className="flex xl:hidden items-center gap-1.5 sm:gap-2">
             {/* Quick 1-tap mobile wallet button */}
             <a
               href={getWalletUrl()}
@@ -146,7 +146,7 @@ export function LandingPage() {
 
         {/* Mobile Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-4 shadow-lg transition-colors">
+          <div className="xl:hidden border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 pt-3 pb-5 space-y-4 shadow-lg transition-colors">
             {/* Prominent customer wallet link inside mobile drawer */}
             <a
               href={getWalletUrl()}
