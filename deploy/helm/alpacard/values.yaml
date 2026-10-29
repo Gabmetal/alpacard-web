@@ -3,7 +3,6 @@ global:
   domains:
     - alpacard.app
     - www.alpacard.app
-    - alpacard.gabo.lat
     - wallet.alpacard.app
     - merchant.alpacard.app
     - demo.alpacard.app
