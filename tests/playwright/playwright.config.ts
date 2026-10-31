@@ -2,8 +2,8 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Playwright configuration for AlpaCard E2E Test Suites.
- * Configured for Staging/Live target (dev.alpacard.app / alpacard.gabo.lat)
- * or local dev environment via BASE_URL / WALLET_URL env variables.
+ * Configured for Staging/Live target (dev.alpacard.app)
+ * or local dev environment via BASE_URL env variable.
  */
 export default defineConfig({
   testDir: './e2e',
@@ -24,7 +24,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    // Camera mocking for QR Scanner tests
     permissions: ['camera'],
     launchOptions: {
       args: [
@@ -35,12 +34,11 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'Desktop Chrome (Backoffice)',
+      name: 'Desktop Chrome',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: /.*(merchant|campaign|poster).spec.ts/,
     },
     {
-      name: 'Mobile Chrome (Customer Wallet & Scanner)',
+      name: 'Mobile Chrome (Pixel 7)',
       use: {
         ...devices['Pixel 7'],
         permissions: ['camera'],

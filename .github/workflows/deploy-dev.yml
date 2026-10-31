@@ -30,6 +30,7 @@ jobs:
           npx playwright install --with-deps chromium
 
       - name: Post-Deployment Smoke Verification (@smoke)
+        id: smoke-test
         env:
           BASE_URL: https://dev.alpacard.app
           CI: true
@@ -37,11 +38,20 @@ jobs:
           cd tests/playwright
           npm run test:smoke
 
-      - name: Dev Deployment Health Summary
-        if: always()
+      - name: Dev Deployment Health Summary (Success)
+        if: success()
         run: |
           echo "### 🚀 Dev Deployment & Smoke Summary" >> $GITHUB_STEP_SUMMARY
           echo "- **Namespace**: \`alpacard-dev\`" >> $GITHUB_STEP_SUMMARY
           echo "- **URL**: [https://dev.alpacard.app](https://dev.alpacard.app)" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Smoke Status**: ✅ Verified Active" >> $GITHUB_STEP_SUMMARY
+          echo "- **Smoke Status**: ✅ Verified Active & Passing" >> $GITHUB_STEP_SUMMARY
+
+      - name: Dev Deployment Health Summary (Failure)
+        if: failure()
+        run: |
+          echo "### ❌ Dev Deployment & Smoke Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Namespace**: \`alpacard-dev\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **URL**: [https://dev.alpacard.app](https://dev.alpacard.app)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Smoke Status**: ❌ Smoke Verification Failed" >> $GITHUB_STEP_SUMMARY

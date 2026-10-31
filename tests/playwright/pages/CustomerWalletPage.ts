@@ -6,23 +6,27 @@ export class CustomerWalletPage {
   readonly qrContainer: Locator;
   readonly claimRewardBtn: Locator;
   readonly celebrationModal: Locator;
-  readonly errorHeading: Locator;
+  readonly invalidErrorText: Locator;
 
   constructor(page: Page) {
     this.page = page;
-    this.stampCounter = page.locator('[data-testid="stamp-counter"], .stamp-count, div:has-text("stamps"), div:has-text("sellos")');
-    this.qrContainer = page.locator('[data-testid="dynamic-qr"], canvas, svg');
+    this.stampCounter = page.locator('[data-testid="stamp-counter"], .stamp-count, text=stamps, text=sellos');
+    this.qrContainer = page.locator('[data-testid="dynamic-qr"], svg, canvas');
     this.claimRewardBtn = page.locator('button:has-text("Claim Reward"), button:has-text("Canjear Premio")');
     this.celebrationModal = page.locator('[data-testid="celebration-modal"], .celebration-modal');
-    this.errorHeading = page.locator('h1:has-text("Not Found"), h2:has-text("Error"), text=Campaign not found');
+    this.invalidErrorText = page.getByText('Invalid campaign ID');
   }
 
-  async claimCampaign(campaignId: string, walletUrl?: string) {
-    const target = walletUrl || this.page.context().baseURL || 'https://dev.alpacard.app';
-    await this.page.goto(`${target}/claim/${campaignId}`);
+  async openClaimUrl(campaignId: string) {
+    await this.page.goto(`/claim/${campaignId}`);
   }
 
-  async getStampCountText(): Promise<string> {
-    return (await this.stampCounter.textContent()) || '';
+  async verifyOnboardingSuccess() {
+    await expect(this.page.locator('input[type="password"]')).toHaveCount(0);
+    await expect(this.qrContainer.first()).toBeVisible({ timeout: 15000 });
+  }
+
+  async verifyInvalidCampaignError() {
+    await expect(this.invalidErrorText.first()).toBeVisible({ timeout: 10000 });
   }
 }
