@@ -69,3 +69,38 @@ jobs:
           pnpm --filter @alpacard/shared build
           pnpm --filter @alpacard/web build
           pnpm --filter @alpacard/wallet build
+
+  test-e2e-regression:
+    name: Playwright E2E Regression Suite
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Test Dependencies
+        run: |
+          cd tests/playwright
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright Regression Suite (@regression)
+        env:
+          BASE_URL: https://dev.alpacard.app
+          CI: true
+        run: |
+          cd tests/playwright
+          npm run test:regression
+
+      - name: Upload Test Report & Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-regression-report
+          path: tests/playwright/playwright-report/
+          retention-days: 14
